@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Flores Roastery — tasarım token'ları
+   Dark premium zemin + logodan alınan Flores mavisi (#5FA4D6)
+   ------------------------------------------------------------------ */
+@theme {
+  /* Zemin: kömür siyahı → mat antrasit */
+  --color-ink-950: #0a0a0a;
+  --color-ink-900: #121212;
+  --color-ink-850: #161616;
+  --color-ink-800: #1a1a1a;
+  --color-ink-700: #242424;
+  --color-ink-600: #2f2f2f;
+  --color-ink-500: #3f3f3f;
+
+  /* Metin: kırık beyaz / kirli krem */
+  --color-cream-50: #f3f4f6;
+  --color-cream-100: #e5e7eb;
+  --color-cream-200: #d1d5db;
+  --color-cream-300: #b4b9c2;
+  --color-cream-400: #9ca3af;
+  --color-cream-500: #6b7280;
+
+  /* Vurgu: Flores mavisi (logo) */
+  --color-flores-100: #e1eff9;
+  --color-flores-200: #c3e0f4;
+  --color-flores-300: #9ccbeb;
+  --color-flores-400: #7db8e2;
+  --color-flores-500: #5fa4d6;
+  --color-flores-600: #4a8bbe;
+  --color-flores-700: #39709a;
+  --color-flores-800: #244a67;
+  --color-flores-900: #13293a;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-fade-up: fade-up 0.9s var(--ease-out-expo) both;
+  --animate-fade-in: fade-in 1.2s ease both;
+  --animate-slow-zoom: slow-zoom 18s ease-out both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slow-zoom {
+    from {
+      transform: scale(1.08);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+}
+
+@theme inline {
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body {
+    /* 3D/dönen öğeler yatay kaydırma çubuğu oluşturmasın (clip: sticky'yi bozmaz) */
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: var(--color-ink-950);
+    color: var(--color-cream-50);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-flores-500);
+    color: var(--color-ink-950);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-flores-400);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Küçük, aralıklı büyük harf etiket — Onyx menüsündeki gibi */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease,
+      box-shadow 0.4s ease,
+      transform 0.3s ease;
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background-color: var(--color-flores-500);
+    color: var(--color-ink-950);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-flores-400);
+    box-shadow: 0 0 40px -8px color-mix(in oklab, var(--color-flores-500) 70%, transparent);
+  }
+
+  .btn-ghost {
+    border: 1px solid color-mix(in oklab, var(--color-cream-50) 40%, transparent);
+    color: var(--color-cream-50);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: var(--color-flores-400);
+    color: var(--color-flores-300);
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition:
+      background-size 0.4s var(--ease-out-expo),
+      color 0.3s ease;
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+
+  /* Üstü kemerli (arched) fotoğraf maskesi — Peru / Ecuador kartları gibi.
+     100vmax yarıçap, genişliğin yarısına ölçeklenip tam yarım daire verir. */
+  .arch {
+    border-radius: 100vmax 100vmax 0 0;
+    overflow: hidden;
+  }
+
+  .field {
+    width: 100%;
+    background-color: var(--color-ink-900);
+    border: 1px solid var(--color-ink-600);
+    border-radius: 2px;
+    padding: 0.85rem 1rem;
+    font-size: 0.9375rem;
+    color: var(--color-cream-50);
+    transition: border-color 0.2s ease;
+  }
+  .field::placeholder {
+    color: var(--color-cream-500);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-flores-500);
+  }
+}
+
+@layer utilities {
+  /* Hafif film greni — premium doku */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Kaydırma ile beliren içerik — JS'siz, scroll-driven animation */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: fade-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes scroll-cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(220%);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

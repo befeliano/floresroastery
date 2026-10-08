@@ -1,0 +1,95 @@
+import type { NextConfig } from "next";
+
+const isDev = process.env.NODE_ENV === "development";
+
+/**
+ * Content-Security-Policy
+ *
+ * Statik (nonce'suz) CSP kullanılıyor: nonce, tüm sayfaları dinamik render'a
+ * zorlar ve ürün sayfalarının SSG avantajını yok eder. Next.js hydration için
+ * inline script enjekte ettiğinden script-src 'unsafe-inline' gerekir; bunun
+ * dışındaki tüm kaynaklar yalnızca kendi alan adımız + ödeme sağlayıcılarıyla
+ * sınırlandırıldı.
+ */
+const paymentFrames = [
+  // Coffee Bar tadım randevusu formu (/coffee-bar sayfasına gömülü)
+  "https://randevu.floresroastery.com",
+  "https://*.iyzipay.com",
+  "https://www.paytr.com",
+  "https://js.stripe.com",
+  "https://hooks.stripe.com",
+];
+
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' blob: data:",
+  "font-src 'self'",
+  `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
+  `frame-src ${paymentFrames.join(" ")}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+].join("; ");
+
+const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=(self)",
+  },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  // HSTS yalnızca production'da (localhost'a HSTS göndermek tarayıcıyı bozar)
+  ...(isDev
+    ? []
+    : [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains; preload",
+        },
+      ]),
+];
+
+const nextConfig: NextConfig = {
+  cacheComponents: true,
+  partialPrefetching: true,
+  poweredByHeader: false,
+  images: {
+    formats: ["image/avif", "image/webp"],
+    qualities: [60, 75, 85],
+  },
+  async headers() {
+    return [{ source: "/(.*)", headers: securityHeaders }];
+  },
+  /** Mevcut WordPress/WooCommerce sitesindeki URL'ler → yeni yapı (301, SEO değeri korunur) */
+  async redirects() {
+    return [
+      { source: "/product/ethiopia-mitima-shantawene-natural-2", destination: "/kahveler/watermelon-colombia", permanent: true },
+      { source: "/product/:slug", destination: "/kahveler/:slug", permanent: true },
+      { source: "/product-category/:path*", destination: "/kahveler", permanent: true },
+      { source: "/our-shop", destination: "/kahveler", permanent: true },
+      { source: "/shop", destination: "/kahveler", permanent: true },
+      { source: "/about", destination: "/hikayemiz", permanent: true },
+      { source: "/contact", destination: "/iletisim", permanent: true },
+      { source: "/cart", destination: "/odeme", permanent: false },
+      { source: "/checkout", destination: "/odeme", permanent: false },
+      { source: "/my-account", destination: "/giris", permanent: false },
+    ];
+  },
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
+};
+
+export default nextConfig;
