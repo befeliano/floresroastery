@@ -54,3 +54,6 @@ next-env.d.ts
 
 # Hostinger yükleme paketi (git archive)
 *.zip
+# Kurulum dosyaları
+*.msi
+*.exe
