@@ -30,8 +30,8 @@ export const site = {
   },
   links: {
     wholesale: "https://b2b.floresroastery.com/",
-    /** B2B konfigüratörü (WordPress eklentisi: gizli ürün → sepet). WP alt alan adına taşınınca güncelleyin. */
-    wholesaleBuilder: "https://floresroastery.com/olustur/",
+    /** B2B konfigüratörü (WordPress eklentisi: gizli ürün → sepet) — WordPress hangi adresteyse orada */
+    wholesaleBuilder: `${(process.env.WOOCOMMERCE_URL ?? "https://floresroastery.com").replace(/\/$/, "")}/olustur/`,
     booking: "https://randevu.floresroastery.com/",
   },
   /** Coffee Bar — Kahve Tadım Randevusu (randevu.floresroastery.com) */

@@ -54,7 +54,7 @@ WordPress → WooCommerce → Ayarlar → Gelişmiş → **REST API** → Anahta
    - B2B sayfasındaki (b2b.floresroastery.com) "Sipariş Oluştur" bağlantısını `panel.floresroastery.com/olustur/` yapın
 2. Node.js uygulamasının alan adını `floresroastery.com` yapın.
 3. Ortam değişkenleri: `NEXT_PUBLIC_SITE_URL=https://floresroastery.com`, `WOOCOMMERCE_URL=https://panel.floresroastery.com`
-4. Kodda `src/lib/site.ts` → `links.wholesaleBuilder` = `https://panel.floresroastery.com/olustur/` → commit → yeniden dağıt.
+4. Toptan "Sipariş oluştur" bağlantısı `WOOCOMMERCE_URL`'den otomatik türetilir (`…/olustur/`); yeniden derlemek yeterli.
 5. Snippet'te `FLORES_STOREFRONT` = `https://floresroastery.com`.
 6. Eski WordPress ürün adresleri (`/product/...`) yeni sitede otomatik 301 ile yönlenir (`next.config.ts`).
 
