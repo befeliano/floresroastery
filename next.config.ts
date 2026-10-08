@@ -82,14 +82,6 @@ const nextConfig: NextConfig = {
       { source: "/my-account", destination: "/giris", permanent: false },
     ];
   },
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
 };
 
 export default nextConfig;
