@@ -13,7 +13,7 @@ export function BrewTeaser() {
   return (
     <section className="mx-auto grid w-full max-w-[1440px] items-center gap-16 px-5 py-24 md:px-10 md:py-32 lg:grid-cols-2">
       <div className="reveal arch relative mx-auto aspect-[3/4] w-full max-w-md">
-        <Image src={photos.pourOverGrinder.src} alt={photos.pourOverGrinder.alt} fill quality={70} sizes="(min-width: 1024px) 28rem, 90vw" className="object-cover" />
+        <Image src={photos.pourOverGrinder.src} alt={photos.pourOverGrinder.alt} fill quality={75} sizes="(min-width: 1024px) 28rem, 90vw" className="object-cover" />
       </div>
 
       <div className="reveal">

@@ -26,19 +26,20 @@ export function DailyBlends({ products }: { products: CardProduct[] }) {
           </p>
         </div>
 
-        <ul className="mt-14 grid gap-6 md:grid-cols-3">
+        {/* mobilde yana kaydırılan şerit, md+ üç sütun */}
+        <ul className="reveal -mx-5 mt-14 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-4 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:pb-0">
           {products.map((p) => {
             const m = MEANING[p.slug];
             const from = p.variants.length ? Math.min(...p.variants.map((v) => v.price)) : null;
             return (
-              <li key={p.slug} className="reveal">
+              <li key={p.slug} className="w-[80%] shrink-0 snap-start md:w-auto">
                 <Link href={`/kahveler/${p.slug}`} className="group relative block overflow-hidden rounded-sm" style={{ backgroundColor: m?.image?.bg ?? p.image.bg }}>
                   <div className="relative aspect-square">
                     <Image
                       src={m?.image?.src ?? p.image.card}
                       alt={`${p.fullName} kahve paketi`}
                       fill
-                      sizes="(min-width: 768px) 30vw, 90vw"
+                      sizes="(min-width: 768px) 30vw, 80vw"
                       className="object-cover transition-transform duration-[1.2s] group-hover:scale-105"
                     />
                   </div>

@@ -54,7 +54,66 @@ add_filter( 'woocommerce_available_payment_gateways', function ( $gateways ) {
 } );
 
 /**
- * 4) (İsteğe bağlı) Ürün değişince yeni sitenin önbelleğini anında yenile.
+ * 4) Üye girişi köprüsü — yeni sitedeki "Giriş yap" mevcut WordPress hesaplarıyla çalışsın.
+ *    "wc-" önekli uç noktalar WooCommerce anahtarıyla (ck/cs) korunur: yalnızca yeni sitenin
+ *    sunucusu çağırabilir. Şifreler WordPress'te kalır, yeni siteye hiç kaydedilmez.
+ */
+add_action( 'rest_api_init', function () {
+	$only_store = function () {
+		return current_user_can( 'manage_woocommerce' );
+	};
+
+	// e-posta / kullanıcı adı + şifre doğrulaması
+	register_rest_route( 'wc-flores/v1', '/login', array(
+		'methods'             => 'POST',
+		'permission_callback' => $only_store,
+		'callback'            => function ( WP_REST_Request $req ) {
+			$login = sanitize_text_field( (string) $req->get_param( 'login' ) );
+			$pass  = (string) $req->get_param( 'password' );
+			$user  = is_email( $login ) ? get_user_by( 'email', $login ) : get_user_by( 'login', $login );
+			if ( ! $user || '' === $pass || ! wp_check_password( $pass, $user->user_pass, $user->ID ) ) {
+				return new WP_Error( 'flores_invalid_login', 'invalid', array( 'status' => 401 ) );
+			}
+			return array( 'id' => $user->ID, 'email' => $user->user_email );
+		},
+	) );
+
+	// şifre sıfırlama: WooCommerce'in "Şifre sıfırlama" e-postası gönderilir
+	register_rest_route( 'wc-flores/v1', '/lost-password', array(
+		'methods'             => 'POST',
+		'permission_callback' => $only_store,
+		'callback'            => function ( WP_REST_Request $req ) {
+			$login = sanitize_text_field( (string) $req->get_param( 'login' ) );
+			$user  = is_email( $login ) ? get_user_by( 'email', $login ) : get_user_by( 'login', $login );
+			if ( $user ) {
+				$key = get_password_reset_key( $user );
+				if ( ! is_wp_error( $key ) ) {
+					WC()->mailer();
+					do_action( 'woocommerce_reset_password_notification', $user->user_login, $key );
+				}
+			}
+			return array( 'ok' => true ); // hesap var/yok bilgisi verilmez
+		},
+	) );
+} );
+
+/**
+ * 5) Üye kartla ödediyse sipariş, ödeme alınınca hesabına bağlansın
+ *    (ödenmemiş siparişi hesaba bağlamak WordPress ödeme sayfasında giriş ister).
+ */
+add_action( 'woocommerce_order_status_changed', function ( $order_id, $from, $to, $order ) {
+	if ( ! in_array( $to, array( 'processing', 'completed', 'on-hold' ), true ) || $order->get_customer_id() ) {
+		return;
+	}
+	$customer_id = absint( $order->get_meta( '_flores_customer_id' ) );
+	if ( $customer_id && get_userdata( $customer_id ) ) {
+		$order->set_customer_id( $customer_id );
+		$order->save();
+	}
+}, 10, 4 );
+
+/**
+ * 6) (İsteğe bağlı) Ürün değişince yeni sitenin önbelleğini anında yenile.
  *    WooCommerce → Ayarlar → Gelişmiş → Webhooks ile de yapılabilir; ikisinden
  *    birini kullanın. REVALIDATE_SECRET, Hostinger'daki ortam değişkeniyle aynı olmalı.
  */

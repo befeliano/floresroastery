@@ -18,6 +18,8 @@ export interface Limit {
 
 export const LIMITS = {
   login: { limit: 5, windowMs: 15 * 60_000 },
+  register: { limit: 5, windowMs: 30 * 60_000 },
+  reset: { limit: 3, windowMs: 15 * 60_000 },
   checkout: { limit: 10, windowMs: 10 * 60_000 },
   form: { limit: 5, windowMs: 10 * 60_000 },
   lookup: { limit: 10, windowMs: 10 * 60_000 },

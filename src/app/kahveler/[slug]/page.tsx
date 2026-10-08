@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { JsonLd } from "@/components/json-ld";
 import { BrewGuide } from "@/components/product/brew-guide";
+import { MobileBuyBar } from "@/components/product/mobile-buy-bar";
 import { ProductCard } from "@/components/product/product-card";
 import { productSpecs, ProductSpecs } from "@/components/product/product-specs";
 import { PurchasePanel } from "@/components/product/purchase-panel";
-import { getCategory, getProduct, getProducts, getRelatedProducts, primaryCategory } from "@/lib/commerce";
+import { fromPrice, getCategory, getProduct, getProducts, getRelatedProducts, isSoldOut, primaryCategory } from "@/lib/commerce";
 import { productSchema } from "@/lib/seo";
 
 export async function generateStaticParams() {
@@ -72,9 +73,9 @@ export default async function ProductPage({ params }: PageProps<"/kahveler/[slug
         <ProductSpecs product={product} />
       </div>
 
-      {/* tadım notaları + hikâye + satın alma */}
-      <section className="mx-auto mt-24 grid w-full max-w-[1440px] gap-16 px-5 md:mt-32 md:px-10 lg:grid-cols-[1.3fr_1fr]">
-        <div>
+      {/* tadım notaları + satın alma + hikâye — mobilde panel notaların hemen altında */}
+      <section className="mx-auto mt-24 grid w-full max-w-[1440px] grid-cols-1 gap-14 px-5 md:mt-32 md:px-10 lg:grid-cols-[1.3fr_1fr] lg:gap-x-16">
+        <div className="lg:col-start-1">
           <p lang="en" className="eyebrow text-flores-400">
             Tasting Notes
           </p>
@@ -89,8 +90,23 @@ export default async function ProductPage({ params }: PageProps<"/kahveler/[slug
           </ul>
 
           {product.sensory && <SensoryBars sensory={product.sensory} />}
+        </div>
 
-          <div className="mt-14 max-w-xl space-y-5 text-lg leading-relaxed text-cream-300">
+        <div id="satin-al" className="scroll-mt-24 lg:sticky lg:top-28 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
+          <PurchasePanel
+            product={{
+              slug: product.slug,
+              name: product.name,
+              subtitle: product.subtitle,
+              variants: product.variants,
+              grindOptions: product.grindOptions,
+              image: product.image.card,
+            }}
+          />
+        </div>
+
+        <div className="lg:col-start-1">
+          <div className="max-w-xl space-y-5 text-lg leading-relaxed text-cream-300">
             {product.story.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -113,20 +129,9 @@ export default async function ProductPage({ params }: PageProps<"/kahveler/[slug
             </dl>
           </div>
         </div>
-
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <PurchasePanel
-            product={{
-              slug: product.slug,
-              name: product.name,
-              subtitle: product.subtitle,
-              variants: product.variants,
-              grindOptions: product.grindOptions,
-              image: product.image.card,
-            }}
-          />
-        </div>
       </section>
+
+      <MobileBuyBar name={product.name} fromPrice={fromPrice(product)} soldOut={isSoldOut(product)} />
 
       <div className="mt-28 md:mt-40">
         <BrewGuide guides={product.brewGuides} />
@@ -137,9 +142,9 @@ export default async function ProductPage({ params }: PageProps<"/kahveler/[slug
           <h2 id="related-title" className="font-serif text-4xl md:text-5xl">
             Bunları da sevebilirsiniz
           </h2>
-          <ul className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="no-scrollbar -mx-5 mt-10 flex snap-x snap-mandatory scroll-px-5 gap-5 overflow-x-auto px-5 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
             {related.map((p) => (
-              <li key={p.slug}>
+              <li key={p.slug} className="w-[72%] shrink-0 snap-start sm:w-auto">
                 <ProductCard product={p} />
               </li>
             ))}

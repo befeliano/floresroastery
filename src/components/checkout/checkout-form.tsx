@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { LegalBlocks } from "@/components/legal/legal-document";
 import { distanceSalesContract, preInformationForm, type ContractContext, type LegalDoc } from "@/content/legal";
 import { postJson } from "@/lib/api-client";
+import { useLoggedIn } from "@/lib/auth/client";
 import { useCart } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/format";
 import { PAYMENT_LABEL } from "@/lib/orders/constants";
@@ -61,6 +62,8 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [redirect, setRedirect] = useState<{ number: string; url: string } | null>(null);
+  const loggedIn = useLoggedIn();
+  const [member, setMember] = useState<string | null>(null);
   const [doc, setDoc] = useState<LegalDoc | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -82,6 +85,30 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, cartKey, values.city, shippingMethod, coupon]);
+
+  // üye: hesaptaki ad/adres bilgileriyle boş alanları doldur
+  useEffect(() => {
+    if (!loggedIn) return;
+    let cancelled = false;
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then(({ user }) => {
+        if (cancelled || !user) return;
+        setMember(user.email);
+        setValues((v) => {
+          const next = { ...v };
+          for (const k of ["firstName", "lastName", "email", "phone", "district", "address", "postcode"] as const) {
+            if (!next[k] && user[k]) next[k] = String(user[k]);
+          }
+          if (user.city && TR_CITIES.includes(user.city)) next.city = user.city;
+          return next;
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [loggedIn]);
 
   // seçili yöntem artık geçerli değilse (ör. il değişti) sunucunun seçtiğini kullan
   const activeShipping = quote?.shippingMethod?.id ?? "";
@@ -217,13 +244,27 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
         <div className="space-y-12">
           <p className="flex items-start gap-3 rounded-sm border border-ink-700 bg-ink-900 px-4 py-3 text-sm text-cream-300">
             <span aria-hidden className="mt-0.5 text-flores-300">✦</span>
-            <span>
-              Üyelik gerekmez — misafir olarak sipariş veriyorsunuz. Sipariş numaranız ve e-postanızla{" "}
-              <Link href="/siparis-takip" className="text-flores-300 underline underline-offset-4">
-                siparişinizi takip edebilirsiniz
-              </Link>
-              .
-            </span>
+            {member ? (
+              <span>
+                Hesabınızla sipariş veriyorsunuz (<span className="text-cream-100">{member}</span>). Sipariş{" "}
+                <Link href="/hesabim" className="text-flores-300 underline underline-offset-4">
+                  Hesabım
+                </Link>{" "}
+                sayfanızda görünür.
+              </span>
+            ) : (
+              <span>
+                Üyelik gerekmez — misafir olarak sipariş veriyorsunuz. Sipariş numaranız ve e-postanızla{" "}
+                <Link href="/siparis-takip" className="text-flores-300 underline underline-offset-4">
+                  siparişinizi takip edebilirsiniz
+                </Link>
+                . Hesabınız var mı?{" "}
+                <Link href="/giris?next=/odeme" className="text-flores-300 underline underline-offset-4">
+                  Giriş yapın
+                </Link>
+                .
+              </span>
+            )}
           </p>
 
           <fieldset>

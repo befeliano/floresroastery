@@ -16,9 +16,10 @@ export function CategoryArches({ categories }: { categories: Category[] }) {
         <p className="max-w-sm text-cream-300">Kökeni net, kavurması özenli, her kutusu izlenebilir specialty kahveler.</p>
       </div>
 
-      <div className="grid gap-14 md:grid-cols-3 md:gap-8">
+      {/* mobilde yana kaydırılan şerit (bir sonraki kart görünür kalır), md+ üç sütun */}
+      <div className="reveal -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-5 overflow-x-auto px-5 pb-6 no-scrollbar md:mx-0 md:grid md:grid-cols-3 md:gap-8 md:overflow-visible md:px-0 md:pb-0">
         {categories.map((c, i) => (
-          <Link key={c.slug} href={`/kategori/${c.slug}`} className="reveal group block" style={{ animationDelay: `${i * 80}ms` }}>
+          <Link key={c.slug} href={`/kategori/${c.slug}`} className="group block w-[78%] shrink-0 snap-start md:w-auto">
             <div className="relative">
               {/* kaydırılmış çerçeve kemer */}
               <div
@@ -31,7 +32,7 @@ export function CategoryArches({ categories }: { categories: Category[] }) {
                   alt={c.image.alt}
                   fill
                   quality={60}
-                  sizes="(min-width: 768px) 30vw, 90vw"
+                  sizes="(min-width: 768px) 30vw, 78vw"
                   className="-z-10 object-cover transition-transform duration-[1.6s] ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />

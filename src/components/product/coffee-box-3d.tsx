@@ -145,7 +145,8 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
   );
 
   const vars = {
-    "--w": pouch ? "min(62vw, 290px)" : "min(70vw, 330px)",
+    // mobilde kutu + perspektif payı (×1.5) ekrana sığsın
+    "--w": pouch ? "min(56vw, 290px)" : "min(60vw, 330px)",
     "--h": `calc(var(--w) / ${aspect})`,
     "--d": pouch ? "calc(var(--w) * 0.13)" : "calc(var(--w) * 0.5)",
   } as React.CSSProperties;
@@ -172,7 +173,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
   ];
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
+    <div className={`flex w-full min-w-0 flex-col items-center ${className}`}>
       <div
         ref={stageRef}
         role="img"
@@ -185,8 +186,8 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
         onPointerEnter={() => (s.current.hover = true)}
         onPointerLeave={() => (s.current.hover = false)}
         onKeyDown={onKeyDown}
-        className="relative flex cursor-grab touch-pan-y select-none items-center justify-center outline-none active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-flores-400"
-        style={{ ...vars, width: "calc(var(--w) * 1.5)", height: "calc(var(--h) * 1.55)", perspective: "1300px" }}
+        className="relative flex w-full max-w-[calc(var(--w)*1.5)] cursor-grab touch-pan-y select-none items-center justify-center outline-none active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-flores-400 lg:w-[calc(var(--w)*1.5)]"
+        style={{ ...vars, height: "calc(var(--h) * 1.55)", perspective: "1300px" }}
       >
         {/* zemin gölgesi */}
         <div

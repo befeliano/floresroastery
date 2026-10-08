@@ -77,6 +77,8 @@ export interface WooOrderInput {
   shipping: { methodId: string; title: string; total: number };
   couponCode?: string;
   consents?: Record<string, unknown>;
+  /** giriş yapmış müşterinin WooCommerce kimliği */
+  customerId?: number;
 }
 
 /** Sitedeki öğütme seçenekleri → WooCommerce "Grind Size" öznitelik terimleri */
@@ -94,6 +96,20 @@ const GRIND_TO_WOO: Record<string, string> = {
 
 const authHeader = () =>
   `Basic ${Buffer.from(`${process.env.WOOCOMMERCE_CONSUMER_KEY}:${process.env.WOOCOMMERCE_CONSUMER_SECRET}`).toString("base64")}`;
+
+/** Anahtarla kimliği doğrulanmış WordPress REST isteği (path: "wc/v3/customers" gibi) — yalnızca sunucuda */
+export function wooFetch(path: string, init: RequestInit = {}, timeoutMs = TIMEOUT_MS) {
+  return fetch(`${base()}/wp-json/${path.replace(/^\//, "")}`, {
+    ...init,
+    signal: AbortSignal.timeout(timeoutMs),
+    headers: {
+      Authorization: authHeader(),
+      Accept: "application/json",
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...init.headers,
+    },
+  });
+}
 
 export interface WooOrder {
   id: number;
@@ -143,7 +159,11 @@ export async function createWooOrder(input: WooOrderInput): Promise<WooOrder> {
       meta_data: [
         { key: "_flores_headless", value: "1" },
         ...(input.consents ? [{ key: "_flores_consents", value: JSON.stringify(input.consents) }] : []),
+        // kart: sipariş hesaba ödeme alınınca bağlanır (snippet) — müşteri kimliği olan siparişin
+        // ödeme sayfası WordPress'te giriş ister, müşteri ise yalnızca yeni sitede oturum açmıştır
+        ...(input.customerId && input.paymentMethod === "iyzico" ? [{ key: "_flores_customer_id", value: String(input.customerId) }] : []),
       ],
+      ...(input.customerId && input.paymentMethod === "bacs" ? { customer_id: input.customerId } : {}),
       // Havale/EFT: "on-hold" → WooCommerce müşteriye banka bilgilerini içeren e-postayı otomatik gönderir
       status: input.paymentMethod === "bacs" ? "on-hold" : "pending",
       customer_note: input.note ?? "",

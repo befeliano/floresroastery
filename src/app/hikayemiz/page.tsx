@@ -56,7 +56,7 @@ export default function StoryPage() {
       {/* Ruso Exotics */}
       <section className="mx-auto w-full max-w-[1440px] px-5 py-24 md:px-10">
         <div className="relative overflow-hidden rounded-sm">
-          <Image src={photos.storyIndonesia.src} alt={photos.storyIndonesia.alt} width={1600} height={560} quality={70} sizes="100vw" className="h-auto w-full" />
+          <Image src={photos.storyIndonesia.src} alt={photos.storyIndonesia.alt} width={1600} height={560} quality={75} sizes="100vw" className="h-auto w-full" />
         </div>
         <div className="mt-12 grid gap-10 lg:grid-cols-2">
           <h2 className="font-serif text-5xl leading-tight">
@@ -95,7 +95,7 @@ export default function StoryPage() {
       </section>
 
       <section className="relative">
-        <Image src={photos.boxesNature.src} alt={photos.boxesNature.alt} width={2000} height={707} quality={70} sizes="100vw" className="h-auto w-full" />
+        <Image src={photos.boxesNature.src} alt={photos.boxesNature.alt} width={2000} height={707} quality={75} sizes="100vw" className="h-auto w-full" />
         <p lang="en" className="mx-auto max-w-[1440px] px-5 py-16 text-center font-serif text-4xl italic md:px-10 md:text-6xl">
           Where every bean has a story.
         </p>

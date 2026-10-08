@@ -34,6 +34,11 @@ WordPress → WooCommerce → Ayarlar → Gelişmiş → **REST API** → Anahta
 
 ### 3. Snippet
 `docs/wordpress-snippet.php` içeriğini WordPress → **Snippets** → Yeni ekle (Run everywhere).
+Snippet şunları yapar: iyzico dönüşünü yeni siteye yönlendirir, kartlı siparişin ödeme sayfasında yalnızca
+iyzico'yu gösterir, **üye girişini** (mevcut WordPress hesapları, aynı e-posta + şifre) ve şifre sıfırlamayı
+sağlar, kartla ödeyen üyenin siparişini ödeme alınınca hesabına bağlar.
+
+> REST API anahtarının kullanıcısı **Yönetici** (veya Mağaza yöneticisi) olmalı; giriş uç noktası buna bakar.
 
 ### 4. Next.js uygulamasını önce test alan adında kurun
 1. hPanel → Web siteleri → **Web sitesi ekle → Node.js Web Uygulaması** → GitHub ile bağla → `befeliano/floresroastery`

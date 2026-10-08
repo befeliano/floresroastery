@@ -58,7 +58,7 @@ export default async function CategoryPage({ params }: PageProps<"/kategori/[slu
           </div>
         </div>
         <div className="arch relative hidden aspect-[3/4] lg:block">
-          <Image src={category.image.src} alt={category.image.alt} fill preload quality={70} sizes="24rem" className="object-cover" />
+          <Image src={category.image.src} alt={category.image.alt} fill preload quality={75} sizes="24rem" className="object-cover" />
         </div>
       </header>
 

@@ -1,4 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { after, NextResponse, type NextRequest } from "next/server";
+import { getSession } from "@/lib/auth/session";
+import { saveCustomerAddress } from "@/lib/commerce/customers";
 import { canCreateWooOrders, createWooOrder, orderPayUrl } from "@/lib/commerce/woocommerce";
 import { isCardPaymentAvailable } from "@/lib/payments/iyzico";
 import { priceCart } from "@/lib/orders/pricing";
@@ -67,6 +69,8 @@ export async function POST(req: NextRequest) {
   let total = quote.total;
   const consentRecord = { preInfo: true, distanceSales: true, marketing: consents.marketing === true, at: new Date().toISOString(), ip: clientIp(req) };
 
+  const session = await getSession();
+
   if (canCreateWooOrders()) {
     const started = Date.now();
     try {
@@ -79,6 +83,7 @@ export async function POST(req: NextRequest) {
         lines: quote.lines.map((l) => ({ productId: l.productId, variationId: l.variantId, quantity: l.quantity, grind: l.grind })),
         // sözleşme onayı kaydı (Mesafeli Sözleşmeler Yönetmeliği — ispat yükü satıcıda)
         consents: consentRecord,
+        customerId: session?.sub,
       });
       wooId = woo.id;
       number = String(woo.number);
@@ -94,6 +99,15 @@ export async function POST(req: NextRequest) {
       const wooTotal = Number(woo.total);
       if (Math.abs(wooTotal - quote.total) > 0.5) console.warn(`[checkout] tutar farkı: site ${quote.total} / Woo ${wooTotal} (#${woo.number})`);
       total = wooTotal;
+      // üye: bu teslimat bilgisi hesaba kaydedilsin, bir sonraki siparişte form dolu gelsin (yanıtı bekletmez)
+      if (session) {
+        const { firstName, lastName, phone, city, district, address, postcode = "" } = fullCustomer;
+        after(() =>
+          saveCustomerAddress(session.sub, { firstName, lastName, phone, city, district, address, postcode }).catch((e) =>
+            console.error("[checkout] adres kaydı:", e),
+          ),
+        );
+      }
     } catch (err) {
       const timedOut = (err as Error).name === "TimeoutError";
       console.error(`[checkout] WooCommerce siparişi açılamadı (${paymentMethod}, ${Date.now() - started} ms):`, err);

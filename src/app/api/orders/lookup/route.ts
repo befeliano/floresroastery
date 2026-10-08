@@ -1,22 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { canCreateWooOrders, getWooOrder, orderPayUrl, type WooOrder } from "@/lib/commerce/woocommerce";
-import { db, STATUS_LABEL, type OrderStatus } from "@/lib/orders/store";
+import { db, STATUS_LABEL } from "@/lib/orders/store";
+import { wooStatus, wooStatusLabel } from "@/lib/orders/woo-status";
 import { guard, jsonError } from "@/lib/security/guard";
 import { LIMITS } from "@/lib/security/rate-limit";
 import { cleanEmail, cleanLine } from "@/lib/security/sanitize";
 
 const NOT_FOUND = "Bu bilgilerle eşleşen bir sipariş bulamadık. Sipariş numaranızı ve e-posta adresinizi kontrol edin.";
-
-const WOO_STATUS: Record<WooOrder["status"], OrderStatus> = {
-  pending: "awaiting-payment",
-  "on-hold": "awaiting-payment",
-  "checkout-draft": "awaiting-payment",
-  processing: "processing",
-  completed: "shipped",
-  cancelled: "cancelled",
-  refunded: "cancelled",
-  failed: "cancelled",
-};
 
 /** Sipariş takibi — sipariş no + e-posta birlikte doğrulanır (numara tek başına yetmez) */
 export async function POST(req: NextRequest) {
@@ -38,13 +28,13 @@ export async function POST(req: NextRequest) {
     }
     // tek tip yanıt: hangi alanın yanlış olduğunu sızdırma
     if (!woo || woo.billing.email.toLowerCase() !== email) return jsonError(NOT_FOUND, 404);
-    const status = WOO_STATUS[woo.status] ?? "processing";
+    const status = wooStatus(woo.status);
     const grind = (l: WooOrder["line_items"][number]) => String(l.meta_data.find((m) => m.key === "grind-size")?.value ?? "");
     return NextResponse.json({
       number: woo.number,
       createdAt: woo.date_created,
       status,
-      statusLabel: woo.status === "completed" ? "Tamamlandı" : STATUS_LABEL[status],
+      statusLabel: wooStatusLabel(woo.status),
       paymentMethod: woo.payment_method === "bacs" ? "bacs" : "iyzico",
       // ödenmemiş kart siparişinde müşteri ödemeyi tamamlayabilsin
       paymentUrl: woo.status === "pending" ? orderPayUrl(woo) : undefined,

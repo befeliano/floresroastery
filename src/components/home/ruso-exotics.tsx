@@ -14,13 +14,13 @@ export function RusoExotics({ products }: { products: CardProduct[] }) {
           alt={photos.storyIndonesia.alt}
           width={1600}
           height={560}
-          quality={70}
+          quality={75}
           sizes="(min-width: 1440px) 1360px, 100vw"
           className="h-auto w-full"
         />
       </div>
 
-      <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_1.4fr]">
+      <div className="mt-14 grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.4fr]">
         <div className="reveal">
           <p lang="en" className="eyebrow text-flores-400">
             Ruso Exotics · Direct Trade
@@ -37,19 +37,20 @@ export function RusoExotics({ products }: { products: CardProduct[] }) {
           </Link>
         </div>
 
-        <ul className="grid gap-4 sm:grid-cols-3">
+        {/* mobilde yana kaydırılan raf */}
+        <ul className="reveal -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-4 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0">
           {products.map((p) => {
             const soldOut = isSoldOut(p);
             const from = p.variants.length ? Math.min(...p.variants.map((v) => v.price)) : null;
             return (
-              <li key={p.slug} className="reveal">
+              <li key={p.slug} className="w-[62%] shrink-0 snap-start sm:w-auto">
                 <Link href={`/kahveler/${p.slug}`} className="group block">
                   <div className="arch relative aspect-[3/4]" style={{ backgroundColor: p.image.bg }}>
                     <Image
                       src={p.image.card}
                       alt={`Ruso Exotics ${p.fullName} kahve kutusu`}
                       fill
-                      sizes="(min-width: 640px) 18rem, 90vw"
+                      sizes="(min-width: 640px) 18rem, 62vw"
                       className={`object-cover transition-transform duration-[1.2s] group-hover:scale-105 ${soldOut ? "grayscale-[0.6]" : ""}`}
                     />
                   </div>

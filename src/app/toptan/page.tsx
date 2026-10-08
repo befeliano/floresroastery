@@ -67,7 +67,7 @@ export default function WholesalePage() {
 
       {/* Online sipariş — konfigüratör */}
       <section className="border-y border-ink-800 bg-ink-900 py-24">
-        <div className="mx-auto grid max-w-[1440px] gap-14 px-5 md:px-10 lg:grid-cols-[1fr_1.1fr]">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-14 px-5 md:px-10 lg:grid-cols-[1fr_1.1fr]">
           <div>
             <p className="eyebrow text-flores-400">Online sipariş</p>
             <h2 className="mt-4 font-serif text-4xl leading-tight md:text-5xl">İşletmenize özel harmanı kendiniz oluşturun</h2>
@@ -96,7 +96,7 @@ export default function WholesalePage() {
               Aldığınız miktar arttıkça kg fiyatı düşer. Fiyatlar KDV dahildir; güncel fiyat sipariş ekranında gösterilir.
             </p>
             <div className="mt-6 overflow-x-auto rounded-sm border border-ink-700">
-              <table className="w-full min-w-[30rem] text-left text-sm">
+              <table className="w-full text-left text-sm sm:min-w-[30rem]">
                 <thead className="bg-ink-850 text-xs text-cream-400">
                   <tr>
                     <th className="px-4 py-3 font-normal">Çekirdek</th>
