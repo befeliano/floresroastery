@@ -1,22 +1,11 @@
-const pillars = [
-  {
-    no: "01",
-    title: "Doğrudan ticaret",
-    text: "Ruso Exotics serimizde Java'daki üreticilerimizle bizzat el sıkışarak lot seçiyoruz. Aracı yok; üretici desteklenir, kahve taze gelir.",
-  },
-  {
-    no: "02",
-    title: "Haftalık kavrum",
-    text: "Tüm çekirdeklerimiz Kuban kavurucumuzda haftalık kavrulur. Paketteki tarih, kahvenizin kavrulduğu gündür.",
-  },
-  {
-    no: "03",
-    title: "Saniye saniye tarif",
-    text: "Filtre ve espresso için o kahveye özel oran, öğütme ve döküm zamanlaması. Evde de kafedeki fincanı yakalayın.",
-  },
-];
+import { pages } from "@/i18n/messages/pages";
+import { t } from "@/i18n/server";
 
-export function Pillars() {
+const pillarsNo = ["01", "02", "03"];
+
+export async function Pillars() {
+  const h = await t(pages.home);
+  const pillars = h.pillars.map((p, i) => ({ ...p, no: pillarsNo[i] }));
   return (
     <section className="mx-auto grid w-full max-w-[1440px] gap-px bg-ink-800 px-0 md:grid-cols-3">
       {pillars.map((p) => (

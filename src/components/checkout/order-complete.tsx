@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useI18n } from "@/i18n/client";
 import { formatPrice } from "@/lib/format";
-import { PAYMENT_LABEL } from "@/lib/orders/constants";
 
 const noopSubscribe = () => () => {};
 const readLastOrder = () => {
@@ -42,6 +42,8 @@ export function OrderComplete({
   phoneHref: string;
   email: string;
 }) {
+  const { t, fmt, tApi, grind } = useI18n();
+  const o = t.orderComplete;
   // sunucuda undefined (iskelet), tarayıcıda sessionStorage değeri
   const raw = useSyncExternalStore(noopSubscribe, readLastOrder, () => undefined);
   const order = useMemo<LastOrder | null | undefined>(() => {
@@ -58,10 +60,10 @@ export function OrderComplete({
   if (order === null) {
     return (
       <div className="text-center">
-        <h1 className="font-serif text-5xl">Sipariş bulunamadı</h1>
-        <p className="mt-4 text-cream-300">Bu sayfa yalnızca sipariş verdiğiniz tarayıcı oturumunda görüntülenir.</p>
+        <h1 className="font-serif text-5xl">{o.notFound}</h1>
+        <p className="mt-4 text-cream-300">{o.notFoundText}</p>
         <Link href="/siparis-takip" className="btn btn-primary mt-8">
-          Sipariş takibi
+          {t.common.orderTracking}
         </Link>
       </div>
     );
@@ -74,53 +76,55 @@ export function OrderComplete({
           <path d="M5 12.5l4.5 4.5L19 7.5" />
         </svg>
       </div>
-      <p className="eyebrow mt-8 text-flores-400">Teşekkürler</p>
-      <h1 className="mt-4 font-serif text-5xl md:text-6xl">Siparişiniz alındı</h1>
-      <p className="mt-5 text-lg text-cream-300">
-        Sipariş numaranız <span className="font-mono text-cream-50">{order.orderNumber}</span>. Sipariş özetiniz{" "}
-        <span className="text-cream-50">{order.email}</span> adresine gönderilecek.
-      </p>
+      <p className="eyebrow mt-8 text-flores-400">{o.thanks}</p>
+      <h1 className="mt-4 font-serif text-5xl md:text-6xl">{o.title}</h1>
+      <p className="mt-5 text-lg text-cream-300">{fmt(o.text, { number: order.orderNumber, email: order.email })}</p>
 
       {order.paymentMethod === "iyzico" && <CardPaymentStatus orderNumber={order.orderNumber} email={order.email} />}
 
       {order.paymentMethod === "bacs" && (
         <section className="mt-10 rounded-sm border border-flores-500/40 bg-flores-500/5 p-6">
-          <h2 className="font-serif text-2xl">Havale / EFT ile ödeme</h2>
-          <p className="mt-3 text-cream-200">
-            Lütfen <strong className="font-mono">{formatPrice(order.total)}</strong> tutarındaki ödemenizi açıklama kısmına{" "}
-            <strong className="font-mono">{order.orderNumber}</strong> yazarak gönderin. Ödemeniz onaylandığında kahveniz kavrulup kargoya verilir.
-          </p>
+          <h2 className="font-serif text-2xl">{o.bacsTitle}</h2>
+          <p className="mt-3 text-cream-200">{fmt(o.bacsText, { amount: formatPrice(order.total), number: order.orderNumber })}</p>
           {bank.iban ? (
             <dl className="mt-5 grid gap-2 font-mono text-sm">
-              <div>Alıcı: {bank.holder}</div>
-              {bank.name && <div>Banka: {bank.name}</div>}
+              <div>
+                {o.recipient}: {bank.holder}
+              </div>
+              {bank.name && (
+                <div>
+                  {o.bank}: {bank.name}
+                </div>
+              )}
               <div>IBAN: {bank.iban}</div>
             </dl>
           ) : (
             <p className="mt-4 text-sm text-cream-300">
-              Hesap (IBAN) bilgilerimiz e-posta ile iletilecektir. Dilerseniz{" "}
+              {o.ibanLater.split("{phone}")[0]}
               <a href={phoneHref} className="text-flores-300 underline underline-offset-4">
                 {phone}
-              </a>{" "}
-              veya{" "}
+              </a>
+              {o.ibanLater.split("{phone}")[1].split("{email}")[0]}
               <a href={`mailto:${email}`} className="text-flores-300 underline underline-offset-4">
                 {email}
-              </a>{" "}
-              üzerinden bize ulaşabilirsiniz.
+              </a>
+              {o.ibanLater.split("{email}")[1]}
             </p>
           )}
         </section>
       )}
 
       <section className="mt-10">
-        <h2 className="eyebrow text-cream-400">Sipariş özeti · {PAYMENT_LABEL[order.paymentMethod]}</h2>
+        <h2 className="eyebrow text-cream-400">
+          {o.summary} · {t.payment[order.paymentMethod]}
+        </h2>
         <ul className="mt-4 divide-y divide-ink-700 border-y border-ink-700">
           {order.lines.map((l, i) => (
             <li key={i} className="flex justify-between gap-4 py-4">
               <div>
                 <p>{l.name}</p>
                 <p className="text-xs text-cream-400">
-                  {l.quantity} × {l.variantLabel} · {l.grind}
+                  {l.quantity} × {l.variantLabel} · {grind(l.grind)}
                 </p>
               </div>
               <p className="font-mono">{formatPrice(l.lineTotal)}</p>
@@ -129,21 +133,24 @@ export function OrderComplete({
         </ul>
         <dl className="mt-4 space-y-1 text-sm">
           <div className="flex justify-between">
-            <dt className="text-cream-400">Ara toplam</dt>
+            <dt className="text-cream-400">{t.common.subtotal}</dt>
             <dd className="font-mono">{formatPrice(order.subtotal)}</dd>
           </div>
           {order.discount ? (
             <div className="flex justify-between text-flores-200">
-              <dt>Kupon indirimi{order.coupon ? ` (${order.coupon.toUpperCase()})` : ""}</dt>
+              <dt>
+                {t.checkout.couponDiscount}
+                {order.coupon ? ` (${order.coupon.toUpperCase()})` : ""}
+              </dt>
               <dd className="font-mono">−{formatPrice(order.discount)}</dd>
             </div>
           ) : null}
           <div className="flex justify-between">
-            <dt className="text-cream-400">{order.shippingLabel ?? "Kargo"}</dt>
-            <dd className="font-mono">{order.shipping ? formatPrice(order.shipping) : "Ücretsiz"}</dd>
+            <dt className="text-cream-400">{order.shippingLabel ? tApi(order.shippingLabel) : t.common.shipping}</dt>
+            <dd className="font-mono">{order.shipping ? formatPrice(order.shipping) : t.common.free}</dd>
           </div>
           <div className="flex justify-between pt-2 text-base">
-            <dt>Toplam</dt>
+            <dt>{t.common.total}</dt>
             <dd className="font-mono">{formatPrice(order.total)}</dd>
           </div>
         </dl>
@@ -151,10 +158,10 @@ export function OrderComplete({
 
       <div className="mt-12 flex flex-wrap gap-3">
         <Link href="/siparis-takip" className="btn btn-ghost">
-          Sipariş takibi
+          {t.common.orderTracking}
         </Link>
         <Link href="/kahveler" className="btn btn-primary">
-          Alışverişe devam et
+          {t.common.continueShopping}
         </Link>
       </div>
     </div>
@@ -163,6 +170,8 @@ export function OrderComplete({
 
 /** iyzico dönüşü: ödemenin WooCommerce'de gerçekten alınıp alınmadığını canlı kontrol eder */
 function CardPaymentStatus({ orderNumber, email }: { orderNumber: string; email: string }) {
+  const { t } = useI18n();
+  const o = t.orderComplete;
   const [state, setState] = useState<{ status: string; paymentUrl?: string } | null>(null);
 
   useEffect(() => {
@@ -184,10 +193,10 @@ function CardPaymentStatus({ orderNumber, email }: { orderNumber: string; email:
   if (state.status === "awaiting-payment" && state.paymentUrl) {
     return (
       <section className="mt-10 rounded-sm border border-amber-300/40 bg-amber-300/5 p-6">
-        <h2 className="font-serif text-2xl">Ödemeniz henüz tamamlanmadı</h2>
-        <p className="mt-2 text-cream-200">Siparişiniz ayrıldı. Kart ödemesini iyzico güvenli ödeme sayfasında tamamlayabilirsiniz.</p>
+        <h2 className="font-serif text-2xl">{o.unpaidTitle}</h2>
+        <p className="mt-2 text-cream-200">{o.unpaidText}</p>
         <a href={state.paymentUrl} className="btn btn-primary mt-5">
-          Ödemeyi tamamla
+          {t.common.completePayment}
         </a>
       </section>
     );
@@ -195,7 +204,7 @@ function CardPaymentStatus({ orderNumber, email }: { orderNumber: string; email:
   if (state.status === "processing" || state.status === "shipped") {
     return (
       <p className="mt-8 inline-flex items-center gap-2 rounded-full bg-flores-500/15 px-4 py-2 text-sm text-flores-200">
-        <span aria-hidden>✓</span> Ödemeniz alındı — kahveniz hazırlanıyor.
+        <span aria-hidden>✓</span> {o.paid}
       </p>
     );
   }

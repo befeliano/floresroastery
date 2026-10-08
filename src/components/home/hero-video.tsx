@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
  * Hareket azaltma tercihi veya veri tasarrufu modunda yalnızca poster gösterilir;
  * sekme arka plandayken / hero ekrandan çıkınca video duraklatılır.
  */
-export function HeroVideo({ className = "" }: { className?: string }) {
+export function HeroVideo({ className = "", base = "/video/roastery" }: { className?: string; base?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [allowed, setAllowed] = useState(true);
 
@@ -30,7 +30,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
     <video
       ref={ref}
       className={className}
-      poster="/video/roastery-poster.jpg"
+      poster={`${base}-poster.jpg`}
       autoPlay={allowed}
       muted
       loop
@@ -42,8 +42,8 @@ export function HeroVideo({ className = "" }: { className?: string }) {
     >
       {allowed && (
         <>
-          <source src="/video/roastery-1080.mp4" type="video/mp4" media="(min-width: 1440px)" />
-          <source src="/video/roastery-720.mp4" type="video/mp4" />
+          <source src={`${base}-1080.mp4`} type="video/mp4" media="(min-width: 1024px)" />
+          <source src={`${base}-720.mp4`} type="video/mp4" />
         </>
       )}
     </video>

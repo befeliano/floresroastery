@@ -1,12 +1,16 @@
 import Image from "next/image";
-import Link from "next/link";
-import { photos } from "@/lib/photos";
+import Link from "@/i18n/link";
+import { pages } from "@/i18n/messages/pages";
+import { localPhotos, t } from "@/i18n/server";
+
 
 /** "We are Flores" — sola hizalı manifesto; arkada yavaşça dönen Flores çiçeği */
-export function Manifesto() {
+export async function Manifesto() {
+  const h = await t(pages.home);
+  const photos = await localPhotos();
   return (
     <section className="grain relative isolate overflow-hidden">
-      <Image src={photos.roastery.src} alt={photos.roastery.alt} fill quality={60} sizes="100vw" className="-z-20 object-cover object-[50%_35%]" />
+      <Image src={photos.roastery.src} alt={photos.roastery.alt} fill quality={90} sizes="100vw" className="-z-20 object-cover object-[50%_35%]" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/40" />
       <div className="absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-ink-950 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-ink-950 to-transparent" />
@@ -30,12 +34,9 @@ export function Manifesto() {
           </h2>
         </div>
         <div className="reveal border-l border-flores-500/40 pl-8">
-          <p className="text-lg leading-relaxed text-cream-100 md:text-xl">
-            Kahvenin nereden geldiğini, kimin emeğiyle yetiştiğini ve nasıl kavrulduğunu saklamıyoruz. Üreticisini tanıdığımız lotları doğrudan
-            ticaretle seçiyor, Eskişehir&apos;deki Kuban kavurucumuzda haftalık kavuruyoruz. Her kutunun yanında kahvenin künyesi yazar.
-          </p>
+          <p className="text-lg leading-relaxed text-cream-100 md:text-xl">{h.manifesto}</p>
           <Link href="/hikayemiz#seffaflik" className="btn btn-ghost mt-10 bg-black/20 backdrop-blur-sm">
-            Şeffaflık yaklaşımımız
+            {h.manifestoCta}
           </Link>
         </div>
       </div>

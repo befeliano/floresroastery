@@ -1,6 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
 import type { CardProduct } from "@/lib/commerce/types";
+import { EmTitle } from "@/components/em-title";
+import { pages } from "@/i18n/messages/pages";
+import { t } from "@/i18n/server";
 import { formatPrice } from "@/lib/format";
 
 const MEANING: Record<string, { word: string; meaning: string; mood: string; image?: { src: string; bg: string } }> = {
@@ -11,19 +14,18 @@ const MEANING: Record<string, { word: string; meaning: string; mood: string; ima
 };
 
 /** Manis · Pagi · Tanah — Endonezce isimli günlük harmanlar */
-export function DailyBlends({ products }: { products: CardProduct[] }) {
+export async function DailyBlends({ products }: { products: CardProduct[] }) {
+  const h = await t(pages.home);
+  const ui = await t((await import("@/i18n/messages/ui")).ui.common);
   return (
     <section className="border-y border-ink-800 bg-ink-900 py-24 md:py-32">
       <div className="mx-auto max-w-[1440px] px-5 md:px-10">
         <div className="reveal max-w-2xl">
-          <p className="eyebrow text-flores-400">Günlük harmanlar</p>
+          <p className="eyebrow text-flores-400">{h.blendsEyebrow}</p>
           <h2 className="mt-4 font-serif text-5xl leading-tight md:text-6xl">
-            Tatlı, sabah ve <em className="text-flores-300">toprak.</em>
+            <EmTitle parts={h.blendsTitle} />
           </h2>
-          <p className="mt-6 text-lg text-cream-300">
-            Etiyopya&apos;nın meyvesi ile Endonezya&apos;nın gövdesini buluşturan, adlarını Endonezce&apos;den alan üç harman. Her gün, her demleme
-            yönteminde.
-          </p>
+          <p className="mt-6 text-lg text-cream-300">{h.blendsText}</p>
         </div>
 
         {/* mobilde yana kaydırılan şerit, md+ üç sütun */}
@@ -37,7 +39,7 @@ export function DailyBlends({ products }: { products: CardProduct[] }) {
                   <div className="relative aspect-square">
                     <Image
                       src={m?.image?.src ?? p.image.card}
-                      alt={`${p.fullName} kahve paketi`}
+                      alt={ui.coffeePackageAlt.replace("{name}", p.fullName)}
                       fill
                       sizes="(min-width: 768px) 30vw, 80vw"
                       className="object-cover transition-transform duration-[1.2s] group-hover:scale-105"
@@ -47,10 +49,10 @@ export function DailyBlends({ products }: { products: CardProduct[] }) {
                     <div>
                       <p className="font-serif text-3xl">{m?.word ?? p.name}</p>
                       <p className="mt-1 text-sm text-cream-400">
-                        Endonezce &ldquo;{m?.meaning}&rdquo; · <span lang="en">{m?.mood}</span>
+                        {h.blendMeaning.replace("{meaning}", h.blendWords[p.slug as keyof typeof h.blendWords] ?? m?.meaning ?? "")} · <span lang="en">{m?.mood}</span>
                       </p>
                     </div>
-                    {from != null && <p className="shrink-0 font-mono text-sm text-cream-200">{formatPrice(from)}&apos;den</p>}
+                    {from != null && <p className="shrink-0 font-mono text-sm text-cream-200">{ui.fromPrice.replace("{price}", formatPrice(from))}</p>}
                   </div>
                 </Link>
               </li>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/i18n/link";
 import type { LegalBlock } from "@/content/legal";
 
 /** Yasal metin blokları — sayfada ve ödeme adımındaki pencerelerde ortak kullanılır */

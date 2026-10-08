@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { LegalBlocks } from "@/components/legal/legal-document";
 import { distanceSalesContract, preInformationForm, type ContractContext, type LegalDoc } from "@/content/legal";
+import { useI18n } from "@/i18n/client";
 import { postJson } from "@/lib/api-client";
+import { readAttribution } from "@/lib/attribution";
 import { useLoggedIn } from "@/lib/auth/client";
 import { useCart } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/format";
@@ -32,6 +34,8 @@ type Fields = "firstName" | "lastName" | "email" | "phone" | "city" | "district"
 
 export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
   const router = useRouter();
+  const { t, href, tApi, grind } = useI18n();
+  const c = t.checkout;
   const items = useCart((s) => s.items);
   const clear = useCart((s) => s.clear);
   const openCart = useCart((s) => s.open);
@@ -69,11 +73,12 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
 
   // sunucudan doğrulanmış fiyat, stok, kargo ve kupon
   const cartKey = JSON.stringify(items.map((i) => [i.slug, i.variantId, i.grind, i.quantity]));
+  const payloadItems = () => items.map(({ slug, variantId, grind, quantity, config }) => ({ slug, variantId, grind, quantity, config }));
   useEffect(() => {
     if (!hydrated || items.length === 0) return;
     let cancelled = false;
     postJson<Quote>("/api/checkout/quote", {
-      items: items.map(({ slug, variantId, grind, quantity }) => ({ slug, variantId, grind, quantity })),
+      items: payloadItems(),
       city: values.city,
       shippingMethod,
       couponCode: coupon,
@@ -148,7 +153,7 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
     setError(null);
     setFieldErrors({});
     if (!consents.preInfo || !consents.distanceSales) {
-      setError("Siparişi tamamlamak için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi'ni onaylayın.");
+      setError(c.consentsRequired);
       return;
     }
     setSubmitting(true);
@@ -167,19 +172,20 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
           shippingMethod: activeShipping,
           couponCode: coupon,
           consents,
-          items: items.map(({ slug, variantId, grind, quantity }) => ({ slug, variantId, grind, quantity })),
+          items: payloadItems(),
+          attribution: readAttribution(),
         }),
       }).catch(() => {
         throw new Error(
           ctrl.signal.aborted
-            ? "Sunucu yanıt vermedi. Siparişiniz oluşmuş olabilir — tekrar denemeden önce e-postanızı kontrol edin ya da bize WhatsApp'tan yazın."
-            : "Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.",
+            ? c.timeout
+            : t.common.networkError,
         );
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        if (data.fieldErrors) setFieldErrors(data.fieldErrors);
-        throw new Error(data.error ?? "Sipariş oluşturulamadı.");
+        if (data.fieldErrors) setFieldErrors(Object.fromEntries(Object.entries(data.fieldErrors as Record<string, string>).map(([k, v]) => [k, tApi(v)])));
+        throw new Error(data.error ? tApi(data.error) : c.orderFailed);
       }
       try {
         sessionStorage.setItem("flores-last-order", JSON.stringify(data));
@@ -191,7 +197,7 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
         window.location.assign(data.paymentUrl);
       } else {
         clear();
-        router.push("/siparis/tamamlandi");
+        router.push(href("/siparis/tamamlandi"));
       }
     } catch (err) {
       setError((err as Error).message);
@@ -206,10 +212,10 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
   if (hydrated && items.length === 0) {
     return (
       <div className="mx-auto max-w-lg py-24 text-center">
-        <p className="font-serif text-4xl italic">Sepetiniz boş.</p>
-        <p className="mt-4 text-cream-300">Ödeme adımına geçmek için önce bir kahve seçin.</p>
+        <p className="font-serif text-4xl italic">{c.emptyTitle}</p>
+        <p className="mt-4 text-cream-300">{c.emptyText}</p>
         <Link href="/kahveler" className="btn btn-primary mt-8">
-          Kahveleri Keşfet
+          {t.cart.explore}
         </Link>
       </div>
     );
@@ -246,21 +252,21 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
             <span aria-hidden className="mt-0.5 text-flores-300">✦</span>
             {member ? (
               <span>
-                Hesabınızla sipariş veriyorsunuz (<span className="text-cream-100">{member}</span>). Sipariş{" "}
+                {c.member.split("{account}")[0].replace("{email}", member)}
                 <Link href="/hesabim" className="text-flores-300 underline underline-offset-4">
-                  Hesabım
-                </Link>{" "}
-                sayfanızda görünür.
+                  {t.nav.account}
+                </Link>
+                {c.member.split("{account}")[1]}
               </span>
             ) : (
               <span>
-                Üyelik gerekmez — misafir olarak sipariş veriyorsunuz. Sipariş numaranız ve e-postanızla{" "}
+                {c.guest.split("{track}")[0]}
                 <Link href="/siparis-takip" className="text-flores-300 underline underline-offset-4">
-                  siparişinizi takip edebilirsiniz
+                  {c.trackLink}
                 </Link>
-                . Hesabınız var mı?{" "}
+                {c.guest.split("{track}")[1]} {c.haveAccount}{" "}
                 <Link href="/giris?next=/odeme" className="text-flores-300 underline underline-offset-4">
-                  Giriş yapın
+                  {c.signIn}
                 </Link>
                 .
               </span>
@@ -268,15 +274,15 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
           </p>
 
           <fieldset>
-            <legend className="font-serif text-3xl">Teslimat bilgileri</legend>
+            <legend className="font-serif text-3xl">{c.delivery}</legend>
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
-              {field("firstName", "Ad", { autoComplete: "given-name", required: true, maxLength: 60 })}
-              {field("lastName", "Soyad", { autoComplete: "family-name", required: true, maxLength: 60 })}
-              {field("email", "E-posta", { type: "email", autoComplete: "email", required: true, maxLength: 254 })}
-              {field("phone", "Cep telefonu", { type: "tel", autoComplete: "tel", placeholder: "05XX XXX XX XX", required: true, maxLength: 20 })}
+              {field("firstName", c.firstName, { autoComplete: "given-name", required: true, maxLength: 60 })}
+              {field("lastName", c.lastName, { autoComplete: "family-name", required: true, maxLength: 60 })}
+              {field("email", t.common.email, { type: "email", autoComplete: "email", required: true, maxLength: 254 })}
+              {field("phone", c.mobile, { type: "tel", autoComplete: "tel", placeholder: "05XX XXX XX XX", required: true, maxLength: 20 })}
               <div>
                 <label htmlFor="f-city" className="mb-2 block text-sm text-cream-300">
-                  İl
+                  {c.city}
                 </label>
                 <select id="f-city" value={values.city} onChange={set("city")} autoComplete="address-level1" className="field">
                   {TR_CITIES.map((c) => (
@@ -284,10 +290,10 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                   ))}
                 </select>
               </div>
-              {field("district", "İlçe", { autoComplete: "address-level2", required: true, maxLength: 60 })}
+              {field("district", c.district, { autoComplete: "address-level2", required: true, maxLength: 60 })}
               <div className="sm:col-span-2">
                 <label htmlFor="f-address" className="mb-2 block text-sm text-cream-300">
-                  Açık adres
+                  {c.address}
                 </label>
                 <textarea
                   id="f-address"
@@ -296,24 +302,24 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                   rows={3}
                   maxLength={300}
                   autoComplete="street-address"
-                  placeholder="Mahalle, cadde/sokak, bina no, daire"
+                  placeholder={c.addressPlaceholder}
                   aria-invalid={!!fieldErrors.address}
                   className={`field resize-none ${fieldErrors.address ? "border-red-400/70" : ""}`}
                 />
                 {fieldErrors.address && <p className="mt-1.5 text-xs text-red-300">{fieldErrors.address}</p>}
               </div>
-              {field("postcode", "Posta kodu (isteğe bağlı)", { inputMode: "numeric", autoComplete: "postal-code", maxLength: 5 })}
+              {field("postcode", c.postcode, { inputMode: "numeric", autoComplete: "postal-code", maxLength: 5 })}
             </div>
             <div className="mt-5">
               <label htmlFor="f-note" className="mb-2 block text-sm text-cream-300">
-                Sipariş notu (isteğe bağlı)
+                {c.note}
               </label>
               <textarea id="f-note" value={values.note} onChange={set("note")} rows={2} maxLength={500} className="field resize-none" />
             </div>
           </fieldset>
 
           <fieldset>
-            <legend className="font-serif text-3xl">Teslimat yöntemi</legend>
+            <legend className="font-serif text-3xl">{c.deliveryMethod}</legend>
             <div className="mt-6 grid gap-3">
               {quote?.shippingOptions.length ? (
                 quote.shippingOptions.map((o) => (
@@ -332,10 +338,10 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                     />
                     <span className="flex-1">
                       <span className="flex items-baseline justify-between gap-4">
-                        <span className="font-medium">{o.label}</span>
-                        <span className="font-mono text-sm">{o.cost ? formatPrice(o.cost) : "Ücretsiz"}</span>
+                        <span className="font-medium">{tApi(o.label)}</span>
+                        <span className="font-mono text-sm">{o.cost ? formatPrice(o.cost) : t.common.free}</span>
                       </span>
-                      <span className="mt-1 block text-sm text-cream-400">{o.detail}</span>
+                      <span className="mt-1 block text-sm text-cream-400">{tApi(o.detail)}</span>
                     </span>
                   </label>
                 ))
@@ -346,56 +352,52 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
           </fieldset>
 
           <fieldset>
-            <legend className="font-serif text-3xl">Ödeme</legend>
+            <legend className="font-serif text-3xl">{c.payment}</legend>
             <div className="mt-6 grid gap-3">
               <PaymentOption
                 checked={payment === "bacs"}
                 onChange={() => setPayment("bacs")}
-                title="Havale / EFT"
-                text="Sipariş numaranızla birlikte hesap bilgilerimiz gösterilir. Ödemeniz onaylandığında kahveniz kavrulup kargoya verilir."
+                title={t.payment.bacs}
+                text={c.bacsText}
               />
               <PaymentOption
                 checked={payment === "iyzico"}
                 onChange={() => setPayment("iyzico")}
                 disabled={!iyzicoEnabled}
-                title="Kredi / Banka Kartı"
-                text={
-                  iyzicoEnabled
-                    ? "Siparişi onayladığınızda iyzico güvenli ödeme sayfasına yönlendirilirsiniz; tek çekim veya taksitle ödeyin. Kart bilgileriniz bize hiç ulaşmaz."
-                    : "Kartla ödeme yeni sitemizde çok yakında aktif olacak. Şimdilik Havale / EFT ile sipariş verebilirsiniz."
-                }
-                badge={<Image src="/payment-logos.png" alt="iyzico, Mastercard, Visa, American Express, Troy" width={216} height={14} className="h-auto w-48 rounded-sm bg-white p-1" />}
+                title={c.cardTitle}
+                text={iyzicoEnabled ? c.cardText : c.cardSoon}
+                badge={<Image src="/payment-logos.png" alt={c.paymentLogosAlt} width={216} height={14} className="h-auto w-48 rounded-sm bg-white p-1" />}
               />
             </div>
           </fieldset>
 
           <fieldset className="space-y-4 rounded-sm border border-ink-700 bg-ink-900 p-5 md:p-6">
-            <legend className="sr-only">Sözleşmeler ve onaylar</legend>
+            <legend className="sr-only">{c.consentsAria}</legend>
             <Consent checked={consents.preInfo} onChange={(v) => setConsents((c) => ({ ...c, preInfo: v }))}>
               <button type="button" onClick={() => openDoc("pre")} className="text-flores-300 underline underline-offset-4">
-                Ön Bilgilendirme Formu
+                {c.preInfo}
               </button>
-              &apos;nu okudum, onaylıyorum.
+              {c.preInfoAfter}
             </Consent>
             <Consent checked={consents.distanceSales} onChange={(v) => setConsents((c) => ({ ...c, distanceSales: v }))}>
               <button type="button" onClick={() => openDoc("contract")} className="text-flores-300 underline underline-offset-4">
-                Mesafeli Satış Sözleşmesi
+                {c.contract}
               </button>
-              &apos;ni okudum, onaylıyorum.
+              {c.contractAfter}
             </Consent>
             <Consent checked={consents.marketing} onChange={(v) => setConsents((c) => ({ ...c, marketing: v }))}>
-              Yeni hasatlar ve kampanyalardan e-posta / SMS ile haberdar olmak istiyorum. <span className="text-cream-500">(İsteğe bağlı)</span>
+              {c.marketing} <span className="text-cream-500">{t.common.optional}</span>
             </Consent>
             <p className="pl-8 text-xs leading-relaxed text-cream-500">
-              Kişisel verileriniz siparişinizin işlenmesi amacıyla{" "}
+              {c.legalNote.split("{kvkk}")[0]}
               <Link href="/kvkk-aydinlatma-metni" target="_blank" className="underline underline-offset-2 hover:text-cream-300">
-                KVKK Aydınlatma Metni
-              </Link>{" "}
-              kapsamında işlenir. Öğütülmüş kahvelerde{" "}
+                {t.common.kvkk}
+              </Link>
+              {c.legalNote.split("{kvkk}")[1].split("{withdrawal}")[0]}
               <Link href="/teslimat-ve-iade-sartlari" target="_blank" className="underline underline-offset-2 hover:text-cream-300">
-                cayma hakkı
-              </Link>{" "}
-              kullanılamaz.
+                {c.withdrawal}
+              </Link>
+              {c.legalNote.split("{withdrawal}")[1]}
             </p>
           </fieldset>
         </div>
@@ -404,9 +406,9 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-sm border border-ink-700 bg-ink-900 p-6">
             <div className="flex items-baseline justify-between">
-              <h2 className="font-serif text-2xl">Sipariş özeti</h2>
+              <h2 className="font-serif text-2xl">{c.summary}</h2>
               <button type="button" onClick={openCart} className="text-xs text-cream-400 underline underline-offset-4 hover:text-cream-100">
-                Sepeti düzenle
+                {c.editCart}
               </button>
             </div>
             <ul className="mt-5 divide-y divide-ink-700">
@@ -421,7 +423,7 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                   <div className="min-w-0 flex-1">
                     <p className="font-serif text-lg leading-tight">{i.name}</p>
                     <p className="mt-0.5 text-xs text-cream-400">
-                      {i.variantLabel} · {i.grind}
+                      {[i.variantLabel, i.grind && grind(i.grind)].filter(Boolean).join(" · ")}
                     </p>
                   </div>
                   <p className="font-mono text-sm">{formatPrice(i.unitPrice * i.quantity)}</p>
@@ -434,7 +436,7 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                 <div className="flex items-center justify-between gap-3 rounded-sm bg-flores-500/10 px-3 py-2 text-sm">
                   <span>
                     <span className="font-mono uppercase text-flores-200">{quote.coupon.code}</span>
-                    <span className="text-cream-400"> · {quote.coupon.label}</span>
+                    <span className="text-cream-400"> · {tApi(quote.coupon.label)}</span>
                   </span>
                   <button
                     type="button"
@@ -444,13 +446,13 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                     }}
                     className="text-xs text-cream-400 underline underline-offset-2 hover:text-cream-100"
                   >
-                    Kaldır
+                    {t.common.remove}
                   </button>
                 </div>
               ) : (
                 <div className="flex gap-2">
                   <label htmlFor="coupon" className="sr-only">
-                    Kupon kodu
+                    {c.coupon}
                   </label>
                   <input
                     id="coupon"
@@ -463,34 +465,34 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                       }
                     }}
                     maxLength={40}
-                    placeholder="Kupon kodu"
+                    placeholder={c.coupon}
                     className="field py-2.5 text-sm uppercase"
                   />
                   <button type="button" onClick={() => setCoupon(couponInput.trim())} disabled={!couponInput.trim()} className="btn btn-ghost shrink-0 px-4 py-2.5">
-                    Uygula
+                    {c.apply}
                   </button>
                 </div>
               )}
-              {quote?.couponError && coupon && <p className="mt-2 text-xs text-amber-200">{quote.couponError}</p>}
+              {quote?.couponError && coupon && <p className="mt-2 text-xs text-amber-200">{tApi(quote.couponError)}</p>}
             </div>
 
             <dl className="mt-4 space-y-2 border-t border-ink-700 pt-4 text-sm">
               <div className="flex justify-between">
-                <dt className="text-cream-400">Ara toplam</dt>
+                <dt className="text-cream-400">{t.common.subtotal}</dt>
                 <dd className="font-mono">{quote ? formatPrice(quote.subtotal) : "…"}</dd>
               </div>
               {quote?.discount ? (
                 <div className="flex justify-between text-flores-200">
-                  <dt>Kupon indirimi</dt>
+                  <dt>{c.couponDiscount}</dt>
                   <dd className="font-mono">−{formatPrice(quote.discount)}</dd>
                 </div>
               ) : null}
               <div className="flex justify-between gap-4">
-                <dt className="text-cream-400">{quote?.shippingMethod?.label ?? "Kargo"}</dt>
-                <dd className="font-mono">{!quote ? "…" : quote.shipping === 0 ? "Ücretsiz" : formatPrice(quote.shipping)}</dd>
+                <dt className="text-cream-400">{quote?.shippingMethod ? tApi(quote.shippingMethod.label) : t.common.shipping}</dt>
+                <dd className="font-mono">{!quote ? "…" : quote.shipping === 0 ? t.common.free : formatPrice(quote.shipping)}</dd>
               </div>
               <div className="flex justify-between border-t border-ink-700 pt-3 text-base">
-                <dt>Toplam (KDV dahil)</dt>
+                <dt>{t.common.totalVat}</dt>
                 <dd className="font-mono text-lg">{quote ? formatPrice(quote.total) : "…"}</dd>
               </div>
             </dl>
@@ -498,7 +500,7 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
             {quote?.errors.length ? (
               <ul className="mt-4 space-y-1 rounded-sm border border-amber-300/30 bg-amber-300/5 p-3 text-sm text-amber-100">
                 {quote.errors.map((e) => (
-                  <li key={e}>{e}</li>
+                  <li key={e}>{tApi(e)}</li>
                 ))}
               </ul>
             ) : null}
@@ -510,9 +512,9 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
             )}
 
             <button type="submit" disabled={submitting || !quote || quote.errors.length > 0} className="btn btn-primary mt-6 w-full">
-              {submitting ? (payment === "iyzico" ? "Ödeme sayfasına yönlendiriliyor…" : "Sipariş oluşturuluyor…") : payment === "iyzico" ? "Onayla ve öde" : "Siparişi onayla"}
+              {submitting ? (payment === "iyzico" ? c.redirecting : c.creating) : payment === "iyzico" ? c.confirmPay : c.confirm}
             </button>
-            <p className="mt-3 text-center text-xs text-cream-500">Siparişi onaylayarak ödeme yükümlülüğü altına girdiğinizi kabul edersiniz.</p>
+            <p className="mt-3 text-center text-xs text-cream-500">{c.obligation}</p>
           </div>
         </aside>
       </form>
@@ -529,11 +531,12 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
               <h2 id="doc-title" className="font-serif text-2xl">
                 {doc.title}
               </h2>
-              <button type="button" onClick={() => dialogRef.current?.close()} aria-label="Kapat" className="text-cream-300 hover:text-cream-50">
+              <button type="button" onClick={() => dialogRef.current?.close()} aria-label={t.common.close} className="text-cream-300 hover:text-cream-50">
                 ✕
               </button>
             </div>
             <div className="overflow-y-auto px-6 py-5">
+              {c.legalOriginal && <p className="mb-4 rounded-sm border border-ink-600 bg-ink-850 p-3 text-xs text-cream-300">{c.legalOriginal}</p>}
               <LegalBlocks blocks={doc.blocks} compact />
             </div>
             <div className="flex justify-end gap-3 border-t border-ink-700 px-6 py-4">
@@ -545,7 +548,7 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                   dialogRef.current?.close();
                 }}
               >
-                Okudum, onaylıyorum
+                {c.readAccept}
               </button>
             </div>
           </div>
@@ -557,16 +560,15 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
 
 /** Kartlı siparişte iyzico'ya geçerken: sayfa geç açılırsa müşteri elle devam edebilsin */
 function PaymentRedirect({ number, url }: { number: string; url: string }) {
+  const { t, fmt } = useI18n();
   return (
     <div role="status" className="mx-auto max-w-lg py-24 text-center">
       <span aria-hidden className="mx-auto block size-10 animate-spin rounded-full border-2 border-ink-600 border-t-flores-400 motion-reduce:animate-none" />
-      <p className="eyebrow mt-8 text-flores-400">Sipariş #{number} oluşturuldu</p>
-      <p className="mt-3 font-serif text-4xl">iyzico güvenli ödeme sayfasına geçiyorsunuz…</p>
-      <p className="mt-4 text-cream-300">
-        Sayfa birkaç saniye içinde açılmazsa aşağıdaki butonu kullanın. Kart bilgileriniz yalnızca iyzico&apos;ya iletilir.
-      </p>
+      <p className="eyebrow mt-8 text-flores-400">{fmt(t.checkout.redirectOrder, { number })}</p>
+      <p className="mt-3 font-serif text-4xl">{t.checkout.redirectTitle}</p>
+      <p className="mt-4 text-cream-300">{t.checkout.redirectText}</p>
       <a href={url} className="btn btn-primary mt-8">
-        Ödeme sayfasına git →
+        {t.checkout.goToPayment}
       </a>
     </div>
   );

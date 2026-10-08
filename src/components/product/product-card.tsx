@@ -1,11 +1,15 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { useI18n } from "@/i18n/client";
+import Link from "@/i18n/link";
 import { isSoldOut, primaryCategory, type CardProduct } from "@/lib/commerce/types";
 import { formatPrice } from "@/lib/format";
 
-const CATEGORY_LABEL = { "single-origin": "Single Origin", blends: "Blend", espresso: "Espresso" } as const;
+const CATEGORY_LABEL = { "single-origin": "Single Origin", blends: "Blend", espresso: "Espresso", sets: "Set", accessories: "Accessory" } as const;
 
 export function ProductCard({ product, className = "", priority = false }: { product: CardProduct; className?: string; priority?: boolean }) {
+  const { t, fmt } = useI18n();
   const soldOut = isSoldOut(product);
   const cheapest = product.variants.length ? product.variants.reduce((a, b) => (b.price < a.price ? b : a)) : null;
 
@@ -14,10 +18,10 @@ export function ProductCard({ product, className = "", priority = false }: { pro
       <div className="relative isolate aspect-square overflow-hidden rounded-sm" style={{ backgroundColor: product.image.bg }}>
         <Image
           src={product.image.card}
-          alt={`Flores Roastery ${product.fullName} kahve paketi`}
+          alt={fmt(t.product.cardAlt, { name: product.fullName })}
           fill
           sizes="(min-width: 1280px) 22rem, (min-width: 640px) 45vw, 80vw"
-          quality={75}
+          quality={85}
           preload={priority}
           className={`object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06] ${soldOut ? "grayscale-[0.6]" : ""}`}
         />
@@ -26,7 +30,7 @@ export function ProductCard({ product, className = "", priority = false }: { pro
             {CATEGORY_LABEL[primaryCategory(product)]}
           </span>
           {soldOut ? (
-            <span className="eyebrow rounded-full bg-ink-950/85 px-2.5 py-1 text-[0.55rem] text-cream-100">Stokta yok</span>
+            <span className="eyebrow rounded-full bg-ink-950/85 px-2.5 py-1 text-[0.55rem] text-cream-100">{t.common.outOfStock}</span>
           ) : product.collection === "ruso-exotics" ? (
             <span lang="en" className="eyebrow rounded-full bg-ink-950/70 px-2.5 py-1 text-[0.55rem] text-flores-200 backdrop-blur-sm">
               Ruso Exotics

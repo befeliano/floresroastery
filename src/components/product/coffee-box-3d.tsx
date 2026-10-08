@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useI18n } from "@/i18n/client";
 import type { Product } from "@/lib/commerce/types";
 import { upperTR } from "@/lib/format";
 
@@ -23,10 +24,10 @@ export type BoxProduct = Pick<
 const ROAST_DOTS: Record<Product["roastLevel"], number> = { Açık: 2, "Açık-Orta": 3, Orta: 3, "Orta-Koyu": 4 };
 
 const FACES = [
-  { key: "front", label: "Ön", ry: 0 },
-  { key: "right", label: "Künye", ry: -90 },
-  { key: "back", label: "Arka", ry: 180 },
-  { key: "left", label: "Yan", ry: 90 },
+  { key: "front", label: "front", ry: 0 },
+  { key: "right", label: "label", ry: -90 },
+  { key: "back", label: "back", ry: 180 },
+  { key: "left", label: "side", ry: 90 },
 ] as const;
 
 const REST_RX = -10;
@@ -38,6 +39,8 @@ const REST_RX = -10;
  */
 export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; className?: string }) {
   const stageRef = useRef<HTMLDivElement>(null);
+  const { t, fmt, locale } = useI18n();
+  const upper = (v: string) => (locale === "tr" ? upperTR(v) : v.toUpperCase());
   const cubeRef = useRef<HTMLDivElement>(null);
   const s = useRef({ rx: REST_RX, ry: -32, vx: 0, vy: 0, dragging: false, lastX: 0, lastY: 0, hover: false, pauseUntil: 0, visible: true });
   const [activeFace, setActiveFace] = useState<string>("front");
@@ -138,7 +141,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
   };
 
   const dots = (n: number) => (
-    <span className="tracking-[0.15em]" aria-label={`5 üzerinden ${n}`}>
+    <span className="tracking-[0.15em]" aria-label={fmt(t.box.dots, { n })}>
       {"●".repeat(n)}
       <span className="opacity-35">{"●".repeat(5 - n)}</span>
     </span>
@@ -156,20 +159,20 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
     : { backgroundImage: "url(/coffees/texture-watercolor.webp)", backgroundSize: "cover" };
 
   const labelRows: [string, React.ReactNode][] = [
-    [upperTR(`${product.roastLevel} kavurma`), dots(ROAST_DOTS[product.roastLevel])],
+    [upper(fmt(t.box.roast, { roast: t.roast[product.roastLevel] ?? product.roastLevel })), dots(ROAST_DOTS[product.roastLevel])],
     ...(product.sensory
       ? ([
-          ["GÖVDE", dots(product.sensory.body)],
-          ["ASİDİTE", dots(product.sensory.acidity)],
-          ["TATLILIK", dots(product.sensory.sweetness)],
+          [t.box.body, dots(product.sensory.body)],
+          [t.box.acidity, dots(product.sensory.acidity)],
+          [t.box.sweetness, dots(product.sensory.sweetness)],
         ] as [string, React.ReactNode][])
       : []),
-    ...(product.elevation ? ([["RAKIM", product.elevation]] as [string, React.ReactNode][]) : []),
-    ["İŞLEM", product.process.split("(")[0].split("·")[0].trim()],
-    ...(product.origin.producer ? ([["ÜRETİCİ", product.origin.producer]] as [string, React.ReactNode][]) : []),
-    ...(product.origin.farm ? ([["ÇİFTLİK", product.origin.farm]] as [string, React.ReactNode][]) : []),
-    ["MENŞEİ", product.origin.country],
-    ...(product.score ? ([["SCA", `${product.score} puan`]] as [string, React.ReactNode][]) : []),
+    ...(product.elevation ? ([[t.box.altitude, product.elevation]] as [string, React.ReactNode][]) : []),
+    [t.box.process, product.process.split("(")[0].split("·")[0].trim()],
+    ...(product.origin.producer ? ([[t.box.producer, product.origin.producer]] as [string, React.ReactNode][]) : []),
+    ...(product.origin.farm ? ([[t.box.farm, product.origin.farm]] as [string, React.ReactNode][]) : []),
+    [t.box.origin, upper(product.origin.country)],
+    ...(product.score ? ([["SCA", fmt(t.box.points, { n: product.score })]] as [string, React.ReactNode][]) : []),
   ];
 
   return (
@@ -178,7 +181,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
         ref={stageRef}
         role="img"
         tabIndex={0}
-        aria-label={`${product.fullName} kutusunun 3B görünümü. Sürükleyerek veya sol/sağ ok tuşlarıyla çevirin.`}
+        aria-label={fmt(t.box.aria, { name: product.fullName })}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -212,7 +215,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
             <div aria-hidden className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.14),transparent_45%,rgba(0,0,0,0.12))]" />
             {product.soldOut && (
               <span className="absolute left-3 top-3 -rotate-6 rounded-sm border-2 border-white/90 bg-black/55 px-2 py-1 text-[10px] font-bold tracking-[0.2em] text-white backdrop-blur-sm">
-                STOKTA YOK
+                {t.box.soldOut}
               </span>
             )}
           </Face>
@@ -225,7 +228,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
                 <Image src="/logo.webp" alt="" width={84} height={84} className="w-[26%] brightness-0 invert" draggable={false} />
                 {product.qr && (
                   // eslint-disable-next-line @next/next/no-img-element -- sunucuda üretilen QR (data URI)
-                  <img src={product.qr} alt={`${product.fullName} sayfasına giden QR kod`} className="mt-[3%] w-[17%]" draggable={false} />
+                  <img src={product.qr} alt={fmt(t.box.qrAlt, { name: product.fullName })} className="mt-[3%] w-[17%]" draggable={false} />
                 )}
                 <p className="mt-[2%] text-[11px] font-medium tracking-wide text-white">www.floresroastery.com</p>
                 <p className="text-[10px] tracking-wide text-white/90">@floresroastery</p>
@@ -236,11 +239,11 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
             <div className="absolute inset-[7%] flex flex-col bg-white/92 p-[6%] text-[#1f4f86]">
               <p className="font-mono text-[9px] tracking-[0.25em] text-[#1f4f86]/70">FLORES ROASTERY</p>
               <p className="mt-2 font-serif text-[22px] italic leading-none text-[#173f6d]">{product.name}</p>
-              <p className="mt-1 font-mono text-[9px] tracking-[0.18em]">{upperTR(`${product.origin.country} · ${product.origin.region}`)}</p>
+              <p className="mt-1 font-mono text-[9px] tracking-[0.18em]">{upper(`${product.origin.country} · ${product.origin.region}`)}</p>
               <div className="my-3 h-px bg-[#1f4f86]/25" />
-              <p className="font-mono text-[8px] tracking-[0.25em] text-[#1f4f86]/70">TADIM NOTALARI</p>
+              <p className="font-mono text-[8px] tracking-[0.25em] text-[#1f4f86]/70">{t.box.notes}</p>
               <p className="mt-1 text-[12px] font-medium leading-snug">{product.notes.join(" · ")}</p>
-              <p className="mt-3 font-mono text-[8px] tracking-[0.25em] text-[#1f4f86]/70">ÖNERİLEN DEMLEME</p>
+              <p className="mt-3 font-mono text-[8px] tracking-[0.25em] text-[#1f4f86]/70">{t.box.recommended}</p>
               <p className="mt-1 text-[11px] leading-snug">{product.recommendedFor}</p>
               <div className="mt-auto flex items-end justify-between">
                 <p className="max-w-[60%] font-serif text-[11px] italic leading-tight">Where every bean has a story</p>
@@ -314,7 +317,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
       </div>
 
       <div className="mt-2 flex flex-col items-center gap-3">
-        <div className="flex gap-1.5" role="group" aria-label="Kutu yüzleri">
+        <div className="flex gap-1.5" role="group" aria-label={t.box.faces}>
           {FACES.map((f) => (
             <button
               key={f.key}
@@ -328,7 +331,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
                 activeFace === f.key ? "border-flores-400 bg-flores-500/15 text-flores-200" : "border-ink-600 text-cream-400 hover:border-cream-400 hover:text-cream-100"
               }`}
             >
-              {f.label}
+              {t.box[f.label]}
             </button>
           ))}
         </div>
@@ -337,7 +340,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
             <path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" />
             <path d="M18 3v4h-4M6 21v-4h4" />
           </svg>
-          Kutuyu sürükleyerek çevirin
+          {t.box.hint}
         </p>
       </div>
     </div>

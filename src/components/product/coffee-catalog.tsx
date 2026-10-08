@@ -3,20 +3,23 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { ProductCard } from "@/components/product/product-card";
+import { useI18n } from "@/i18n/client";
 import { isSoldOut, type CardProduct as Product } from "@/lib/commerce/types";
 
 const FILTERS = [
-  { key: "all", label: "Tümü" },
+  { key: "all", label: "" },
   { key: "single-origin", label: "Single Origin", en: true },
   { key: "blends", label: "Blends", en: true },
   { key: "espresso", label: "Espresso", en: true },
   { key: "ruso-exotics", label: "Ruso Exotics", en: true },
+  { key: "sets", label: "Sets & Boxes", en: true },
+  { key: "accessories", label: "Accessories", en: true },
 ] as const;
 
 const SORTS = [
-  { key: "featured", label: "Önerilen" },
-  { key: "price-asc", label: "Fiyat (artan)" },
-  { key: "price-desc", label: "Fiyat (azalan)" },
+  { key: "featured", label: "featured" },
+  { key: "price-asc", label: "priceAsc" },
+  { key: "price-desc", label: "priceDesc" },
 ] as const;
 
 type FilterKey = (typeof FILTERS)[number]["key"];
@@ -84,10 +87,11 @@ function CatalogView({
   sort: SortKey;
   onChange?: (next: Partial<{ filter: FilterKey; inStock: boolean; sort: SortKey }>) => void;
 }) {
+  const { t, fmt } = useI18n();
   return (
     <>
       <div className="sticky top-18 z-30 -mx-5 flex flex-col gap-4 border-b border-ink-800 bg-ink-950/90 px-5 py-4 backdrop-blur-xl md:top-20 md:-mx-10 md:px-10 lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Kahve filtresi" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
+        <div role="group" aria-label={t.catalog.filterAria} className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -99,17 +103,17 @@ function CatalogView({
                 filter === f.key ? "border-flores-500 bg-flores-500 text-ink-950" : "border-ink-600 text-cream-200 hover:border-cream-300"
               }`}
             >
-              {f.label}
+              {f.key === "all" ? t.catalog.all : f.label}
             </button>
           ))}
         </div>
         <div className="flex items-center gap-5 text-sm">
           <label className="flex cursor-pointer items-center gap-2 text-cream-300">
             <input type="checkbox" checked={inStock} onChange={(e) => onChange?.({ inStock: e.target.checked })} className="size-4 accent-[#5fa4d6]" />
-            Yalnızca stoktakiler
+            {t.catalog.inStockOnly}
           </label>
           <label className="flex items-center gap-2 text-cream-300">
-            <span className="sr-only sm:not-sr-only">Sırala</span>
+            <span className="sr-only sm:not-sr-only">{t.catalog.sort}</span>
             <select
               value={sort}
               onChange={(e) => onChange?.({ sort: e.target.value as SortKey })}
@@ -117,7 +121,7 @@ function CatalogView({
             >
               {SORTS.map((s) => (
                 <option key={s.key} value={s.key}>
-                  {s.label}
+                  {t.catalog[s.label]}
                 </option>
               ))}
             </select>
@@ -126,7 +130,7 @@ function CatalogView({
       </div>
 
       <p className="mt-6 text-sm text-cream-500" aria-live="polite">
-        {products.length} kahve
+        {fmt(t.catalog.count, { n: products.length })}
       </p>
       <ul className="mt-6 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {products.map((p, i) => (
@@ -135,7 +139,7 @@ function CatalogView({
           </li>
         ))}
       </ul>
-      {products.length === 0 && <p className="py-20 text-center text-cream-400">Bu filtrede şu an kahve yok.</p>}
+      {products.length === 0 && <p className="py-20 text-center text-cream-400">{t.catalog.empty}</p>}
     </>
   );
 }

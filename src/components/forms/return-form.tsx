@@ -1,16 +1,19 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/link";
+import { useI18n } from "@/i18n/client";
 import { RETURN_REASONS } from "@/lib/orders/constants";
 import { useApiForm } from "./use-api-form";
 
 export function ReturnForm() {
   const { state, submit } = useApiForm<{ id: string; message: string }>("/api/returns");
+  const { t } = useI18n();
+  const [kvkkBefore, kvkkAfter] = t.forms.returnConsent.split("{kvkk}");
 
   if (state.kind === "ok") {
     return (
       <div role="status" className="rounded-sm border border-flores-500/40 bg-flores-500/5 p-8">
-        <p className="font-serif text-3xl">Talebiniz alındı</p>
+        <p className="font-serif text-3xl">{t.forms.returnReceived}</p>
         <p className="mt-3 text-cream-200">{state.message}</p>
       </div>
     );
@@ -36,60 +39,63 @@ export function ReturnForm() {
     >
       <div>
         <label htmlFor="r-no" className="mb-2 block text-sm text-cream-300">
-          Sipariş numarası
+          {t.forms.orderNumber}
         </label>
         <input id="r-no" name="orderNumber" required maxLength={30} className="field font-mono uppercase" placeholder="FR-261008-1234" />
       </div>
       <div>
         <label htmlFor="r-name" className="mb-2 block text-sm text-cream-300">
-          Ad soyad
+          {t.common.nameSurname}
         </label>
         <input id="r-name" name="name" required maxLength={80} autoComplete="name" className="field" />
       </div>
       <div>
         <label htmlFor="r-mail" className="mb-2 block text-sm text-cream-300">
-          E-posta
+          {t.common.email}
         </label>
         <input id="r-mail" name="email" type="email" required maxLength={254} autoComplete="email" className="field" />
       </div>
       <div>
         <label htmlFor="r-tel" className="mb-2 block text-sm text-cream-300">
-          Telefon (isteğe bağlı)
+          {t.common.phoneOptional}
         </label>
         <input id="r-tel" name="phone" type="tel" maxLength={20} autoComplete="tel" placeholder="05XX XXX XX XX" className="field" />
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="r-reason" className="mb-2 block text-sm text-cream-300">
-          İade nedeni
+          {t.forms.returnReason}
         </label>
         <select id="r-reason" name="reason" required defaultValue="" className="field">
           <option value="" disabled>
-            Seçin
+            {t.common.select}
           </option>
-          {RETURN_REASONS.map((r) => (
-            <option key={r}>{r}</option>
+          {RETURN_REASONS.map((r, i) => (
+            // değer Türkçe kalır (iade kaydı), görünen metin seçili dilde
+            <option key={r} value={r}>
+              {t.forms.returnReasons[i] ?? r}
+            </option>
           ))}
         </select>
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="r-details" className="mb-2 block text-sm text-cream-300">
-          Açıklama — iade etmek istediğiniz ürün(ler) ve varsa hasar detayı
+          {t.forms.returnDetails}
         </label>
         <textarea id="r-details" name="details" rows={5} maxLength={2000} className="field resize-y" />
       </div>
       <label className="flex items-start gap-3 text-sm text-cream-300 sm:col-span-2">
         <input type="checkbox" name="kvkk" className="mt-0.5 size-5 shrink-0 accent-[#5fa4d6]" />
         <span>
-          Bilgilerimin talebimin işlenmesi amacıyla{" "}
+          {kvkkBefore}
           <Link href="/kvkk-aydinlatma-metni" target="_blank" className="text-flores-300 underline underline-offset-4">
-            KVKK Aydınlatma Metni
-          </Link>{" "}
-          kapsamında işlenmesini okudum.
+            {t.common.kvkk}
+          </Link>
+          {kvkkAfter}
         </span>
       </label>
       <div className="sm:col-span-2">
         <button type="submit" disabled={state.kind === "loading"} className="btn btn-primary">
-          {state.kind === "loading" ? "Gönderiliyor…" : "İade talebini gönder"}
+          {state.kind === "loading" ? t.common.sending : t.forms.returnSubmit}
         </button>
         {state.kind === "error" && (
           <p role="alert" className="mt-3 text-sm text-red-300">

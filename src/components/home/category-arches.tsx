@@ -1,19 +1,23 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
+import { EmTitle } from "@/components/em-title";
+import { pages } from "@/i18n/messages/pages";
+import { t } from "@/i18n/server";
 import type { Category } from "@/lib/commerce/types";
 
 /** Kemerli kategori kartları — çerçeveli kemer, numara ve metin görselin altında */
-export function CategoryArches({ categories }: { categories: Category[] }) {
+export async function CategoryArches({ categories }: { categories: Category[] }) {
+  const h = await t(pages.home);
   return (
     <section className="mx-auto w-full max-w-[1440px] px-5 py-24 md:px-10 md:py-32">
       <div className="reveal mb-16 grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
         <div>
-          <p className="eyebrow text-flores-400">Yalnızca kahve</p>
+          <p className="eyebrow text-flores-400">{h.archesEyebrow}</p>
           <h2 className="mt-4 font-serif text-5xl md:text-6xl">
-            Üç koleksiyon, <em className="text-flores-300">tek odak.</em>
+            <EmTitle parts={h.archesTitle} />
           </h2>
         </div>
-        <p className="max-w-sm text-cream-300">Kökeni net, kavurması özenli, her kutusu izlenebilir specialty kahveler.</p>
+        <p className="max-w-sm text-cream-300">{h.archesText}</p>
       </div>
 
       {/* mobilde yana kaydırılan şerit (bir sonraki kart görünür kalır), md+ üç sütun */}
@@ -31,7 +35,7 @@ export function CategoryArches({ categories }: { categories: Category[] }) {
                   src={c.image.src}
                   alt={c.image.alt}
                   fill
-                  quality={60}
+                  quality={90}
                   sizes="(min-width: 768px) 30vw, 78vw"
                   className="-z-10 object-cover transition-transform duration-[1.6s] ease-out group-hover:scale-105"
                 />

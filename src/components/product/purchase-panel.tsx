@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { useEffect, useRef, useState } from "react";
 import { StockAlertForm } from "@/components/forms/stock-alert-form";
+import { useI18n } from "@/i18n/client";
 import { MAX_QTY, useCart } from "@/lib/cart/store";
 import type { Product } from "@/lib/commerce/types";
 import { formatPrice } from "@/lib/format";
@@ -11,26 +12,43 @@ import { site } from "@/lib/site";
 
 type BuyProduct = Pick<Product, "slug" | "name" | "subtitle" | "variants" | "grindOptions"> & { image: string };
 
-/** Paket + öğütme + adet seçimi ve sepete ekleme. Sayfa kaydırıldığında altta yapışkan bar belirir. */
+/**
+ * Paket + öğütme + adet seçimi ve sepete ekleme. Panel ekrandan çıkınca altta yapışkan bar belirir:
+ * mobilde panelden önce ve sonra, masaüstünde (panel yapışkan) yalnızca geçildikten sonra; footer görünürken gizlenir.
+ */
 export function PurchasePanel({ product }: { product: BuyProduct }) {
   const soldOut = product.variants.every((v) => !v.inStock);
   const firstAvailable = product.variants.find((v) => v.inStock) ?? product.variants[0];
   const [variantId, setVariantId] = useState(firstAvailable?.id ?? "");
-  const [grind, setGrind] = useState(product.grindOptions[0]);
+  const [grind, setGrind] = useState(product.grindOptions[0] ?? "");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const add = useCart((s) => s.add);
+  const { t, fmt, grind: grindLabel } = useI18n();
 
   const variant = product.variants.find((v) => v.id === variantId) ?? firstAvailable;
-  const ground = grind !== product.grindOptions[0];
+  const ground = product.grindOptions.length > 0 && grind !== product.grindOptions[0];
 
   useEffect(() => {
     const el = panelRef.current;
     if (!el || soldOut) return;
-    const io = new IntersectionObserver(([entry]) => setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0));
+    const footer = document.querySelector("footer");
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    let panel: IntersectionObserverEntry | null = null;
+    let footerVisible = false;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.target === el) panel = e;
+        else footerVisible = e.isIntersecting;
+      }
+      if (!panel) return;
+      const away = !panel.isIntersecting && (panel.boundingClientRect.top < 0 || !desktop.matches);
+      setShowSticky(away && !footerVisible);
+    });
     io.observe(el);
+    if (footer) io.observe(footer);
     return () => io.disconnect();
   }, [soldOut]);
 
@@ -59,19 +77,17 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
   if (soldOut || !variant) {
     return (
       <div className="rounded-sm border border-ink-700 bg-ink-900 p-6 md:p-8">
-        <p className="eyebrow text-[0.65rem] text-flores-400">Stok durumu</p>
-        <p className="mt-3 font-serif text-3xl">Şu an stokta yok</p>
+        <p className="eyebrow text-[0.65rem] text-flores-400">{t.product.stockStatus}</p>
+        <p className="mt-3 font-serif text-3xl">{t.product.notInStock}</p>
         {variant && (
           <p className="mt-2 font-mono text-sm text-cream-400">
-            Son satış fiyatı {formatPrice(Math.min(...product.variants.map((v) => v.price)))}&apos;den başlıyordu.
+            {fmt(t.product.lastPrice, { price: formatPrice(Math.min(...product.variants.map((v) => v.price))) })}
           </p>
         )}
-        <p className="mt-5 text-cream-300">
-          Bu kahvenin yeni hasadı ya da yeni lotu geldiğinde ilk siz haberdar olun. E-posta adresiniz yalnızca bu bildirim için kullanılır.
-        </p>
+        <p className="mt-5 text-cream-300">{t.product.notifyText}</p>
         <StockAlertForm slug={product.slug} />
         <Link href="/kahveler" className="btn btn-ghost mt-6 w-full">
-          Stoktaki kahvelere göz at
+          {t.product.browseInStock}
         </Link>
       </div>
     );
@@ -87,14 +103,14 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
           {variant.compareAtPrice && (
             <>
               <p className="font-mono text-base text-cream-500 line-through">{formatPrice(variant.compareAtPrice)}</p>
-              <span className="rounded-sm bg-flores-500/15 px-2 py-0.5 text-xs font-semibold text-flores-300">%{discount} indirim</span>
+              <span className="rounded-sm bg-flores-500/15 px-2 py-0.5 text-xs font-semibold text-flores-300">{fmt(t.product.discount, { n: discount })}</span>
             </>
           )}
-          <p className="ml-auto text-xs text-cream-500">KDV dahil</p>
+          <p className="ml-auto text-xs text-cream-500">{t.common.vatIncluded}</p>
         </div>
 
         <fieldset className="mt-8">
-          <legend className="eyebrow text-[0.65rem] text-cream-400">Paket</legend>
+          <legend className="eyebrow text-[0.65rem] text-cream-400">{t.product.package}</legend>
           <div className="mt-3 grid grid-cols-2 gap-3">
             {product.variants.map((v) => (
               <label
@@ -113,21 +129,22 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
                   className="sr-only"
                 />
                 <span className="text-sm font-medium">{v.label}</span>
-                <span className="mt-0.5 font-mono text-xs text-cream-400">{v.inStock ? formatPrice(v.price) : "Tükendi"}</span>
+                <span className="mt-0.5 font-mono text-xs text-cream-400">{v.inStock ? formatPrice(v.price) : t.common.soldOut}</span>
               </label>
             ))}
           </div>
         </fieldset>
 
+        {product.grindOptions.length > 0 && (
         <div className="mt-6">
           <label htmlFor="grind" className="eyebrow text-[0.65rem] text-cream-400">
-            Öğütme
+            {t.product.grind}
           </label>
           <div className="relative mt-3">
             <select id="grind" value={grind} onChange={(e) => setGrind(e.target.value)} className="field appearance-none pr-10">
               {product.grindOptions.map((g) => (
                 <option key={g} value={g}>
-                  {g}
+                  {grindLabel(g)}
                 </option>
               ))}
             </select>
@@ -138,44 +155,46 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
           <p className={`mt-2 text-xs ${ground ? "text-amber-200/90" : "text-cream-500"}`}>
             {ground ? (
               <>
-                Öğütülmüş kahveler kişisel talebe göre hazırlandığından{" "}
+                {t.product.groundNoteBefore}
                 <Link href="/teslimat-ve-iade-sartlari" className="underline underline-offset-2">
-                  cayma hakkı kapsamı dışındadır
+                  {t.product.groundNoteLink}
                 </Link>
                 .
               </>
             ) : (
-              "En taze fincan için çekirdek alıp demlemeden hemen önce öğütmenizi öneririz."
+              t.product.beanNote
             )}
           </p>
         </div>
+        )}
 
         <div className="mt-8 flex gap-3">
-          <QtyStepper qty={qty} setQty={setQty} />
+          <QtyStepper qty={qty} setQty={setQty} labels={t.product} fmt={fmt} />
           <button type="button" onClick={addToCart} className="btn btn-primary flex-1">
-            {added ? "Sepete eklendi ✓" : "Sepete Ekle"}
+            {added ? t.product.added : t.product.addToCart}
           </button>
         </div>
 
         <ul className="mt-8 space-y-2 border-t border-ink-700 pt-6 text-sm text-cream-300">
           <li className="flex gap-3">
-            <Dot /> Tüm çekirdekler haftalık kavrulur; paketteki tarih kavrum tarihidir.
+            <Dot /> {t.product.perkRoast}
           </li>
           {site.shipping.freeThreshold != null && (
             <li className="flex gap-3">
-              <Dot /> {formatPrice(site.shipping.freeThreshold)} üzeri siparişlerde ücretsiz kargo
+              <Dot /> {fmt(t.product.perkShipping, { price: formatPrice(site.shipping.freeThreshold) })}
             </li>
           )}
           <li className="flex gap-3">
-            <Dot /> iyzico ile güvenli ödeme — kart bilgileriniz sunucularımızda saklanmaz
+            <Dot /> {t.product.perkSecure}
           </li>
         </ul>
-        <Image src="/payment-logos.png" alt="iyzico, Mastercard, Visa, American Express ve Troy ile ödeme" width={432} height={28} className="mt-5 h-auto w-full max-w-xs opacity-80 invert-0" />
+        <Image src="/payment-logos.png" alt={t.product.paymentAlt} width={432} height={28} className="mt-5 h-auto w-full max-w-xs opacity-80 invert-0" />
       </div>
 
       {/* Yapışkan satın alma barı (Doyenne'deki sağ alt bar) */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-40 border-t border-ink-700 bg-ink-950/90 backdrop-blur-xl transition-transform duration-500 md:inset-x-auto md:bottom-6 md:right-6 md:rounded-sm md:border ${
+        inert={!showSticky}
+        className={`fixed inset-x-0 bottom-0 z-30 pb-[env(safe-area-inset-bottom)] border-t border-ink-700 bg-ink-950/90 backdrop-blur-xl transition-transform duration-500 md:inset-x-auto md:bottom-6 md:right-6 md:rounded-sm md:border ${
           showSticky ? "translate-y-0" : "translate-y-[140%]"
         }`}
         aria-hidden={!showSticky}
@@ -190,9 +209,9 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
               {variant.label} · {formatPrice(variant.price)}
             </p>
           </div>
-          <QtyStepper qty={qty} setQty={setQty} compact tabbable={showSticky} />
+          <QtyStepper qty={qty} setQty={setQty} compact tabbable={showSticky} labels={t.product} fmt={fmt} />
           <button type="button" tabIndex={showSticky ? 0 : -1} onClick={addToCart} className="btn btn-primary px-5 py-3">
-            {added ? "Eklendi ✓" : "Ekle"}
+            {added ? t.product.addedShort : t.product.add}
           </button>
         </div>
       </div>
@@ -205,11 +224,15 @@ function QtyStepper({
   setQty,
   compact = false,
   tabbable = true,
+  labels,
+  fmt,
 }: {
   qty: number;
   setQty: (n: number) => void;
   compact?: boolean;
   tabbable?: boolean;
+  labels: { qtyDec: string; qtyInc: string; qty: string };
+  fmt: (s: string, v: Record<string, string | number>) => string;
 }) {
   const size = compact ? "size-9" : "size-12";
   return (
@@ -217,19 +240,19 @@ function QtyStepper({
       <button
         type="button"
         tabIndex={tabbable ? 0 : -1}
-        aria-label="Adedi azalt"
+        aria-label={labels.qtyDec}
         onClick={() => setQty(Math.max(1, qty - 1))}
         className={`${size} flex items-center justify-center text-cream-300 hover:text-cream-50`}
       >
         −
       </button>
-      <span className="w-8 text-center font-mono" aria-live="polite" aria-label={`Adet: ${qty}`}>
+      <span className="w-8 text-center font-mono" aria-live="polite" aria-label={fmt(labels.qty, { n: qty })}>
         {qty}
       </span>
       <button
         type="button"
         tabIndex={tabbable ? 0 : -1}
-        aria-label="Adedi arttır"
+        aria-label={labels.qtyInc}
         onClick={() => setQty(Math.min(MAX_QTY, qty + 1))}
         className={`${size} flex items-center justify-center text-cream-300 hover:text-cream-50`}
       >

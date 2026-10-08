@@ -1,4 +1,8 @@
+import Image from "next/image";
 import { CoffeeBox3D } from "@/components/product/coffee-box-3d";
+import { roastLabel } from "@/i18n/content";
+import { pages } from "@/i18n/messages/pages";
+import { getLocale, href, t } from "@/i18n/server";
 import { isSoldOut, type Product } from "@/lib/commerce/types";
 import { qrDataUri } from "@/lib/qr";
 import { absoluteUrl } from "@/lib/site";
@@ -9,19 +13,21 @@ export interface Spec {
 }
 
 /** Ürünün tüm künye satırları (boş alanlar atlanır) */
-export function productSpecs(product: Product): Spec[] {
+export async function productSpecs(product: Product): Promise<Spec[]> {
+  const L = await t(pages.product.specs);
+  const locale = await getLocale();
   const rows: Spec[] = [
-    { label: "Menşei", value: product.origin.country },
-    { label: "Bölge", value: product.origin.region },
-    { label: "Rakım", value: product.elevation },
-    { label: "İşleme", value: product.process },
-    { label: "Çeşit", value: product.variety.join(", ") },
-    { label: "Hasat", value: product.harvest },
-    { label: "Üretici", value: product.origin.producer ?? "" },
-    { label: "Çiftlik", value: product.origin.farm ?? "" },
-    { label: "Kavurma", value: product.roastLevel },
-    { label: "Önerilen demleme", value: product.recommendedFor },
-    { label: "Kupa puanı", value: product.score ? `${product.score} (SCA)` : "" },
+    { label: L.origin, value: product.origin.country },
+    { label: L.region, value: product.origin.region },
+    { label: L.altitude, value: product.elevation },
+    { label: L.process, value: product.process },
+    { label: L.variety, value: product.variety.join(", ") },
+    { label: L.harvest, value: product.harvest },
+    { label: L.producer, value: product.origin.producer ?? "" },
+    { label: L.farm, value: product.origin.farm ?? "" },
+    { label: L.roast, value: product.auto ? "" : roastLabel(product.roastLevel, locale) },
+    { label: L.brew, value: product.recommendedFor },
+    { label: L.score, value: product.score ? `${product.score} (SCA)` : "" },
     ...(product.facts ?? []),
   ];
   return rows.filter((r) => r.value.trim() !== "");
@@ -32,8 +38,9 @@ export function productSpecs(product: Product): Spec[] {
  * (Doyenne ürün sayfasındaki yapı). Mobilde iki sütunlu listeye dönüşür.
  */
 export async function ProductSpecs({ product }: { product: Product }) {
-  const qr = await qrDataUri(absoluteUrl(`/kahveler/${product.slug}`));
-  const specs = productSpecs(product).slice(0, 8);
+  const qr = await qrDataUri(absoluteUrl(await href(`/kahveler/${product.slug}`)));
+  const specs = (await productSpecs(product)).slice(0, 8);
+  const p = await t(pages.product);
   const half = Math.ceil(specs.length / 2);
   const left = specs.slice(0, half);
   const right = specs.slice(half);
@@ -41,7 +48,7 @@ export async function ProductSpecs({ product }: { product: Product }) {
   return (
     <section aria-labelledby="kunye-baslik" className="relative mx-auto w-full max-w-[1440px] px-5 md:px-10">
       <h2 id="kunye-baslik" className="sr-only">
-        Kahve künyesi
+        {p.specAria}
       </h2>
 
       {/* ürün renginde yumuşak hale */}
@@ -51,6 +58,9 @@ export async function ProductSpecs({ product }: { product: Product }) {
         style={{ background: `radial-gradient(circle, ${product.image.bg}, transparent 65%)` }}
       />
 
+      {product.image.packaging === "photo" ? (
+        <ProductGallery images={product.gallery?.length ? product.gallery : [{ src: product.image.card, alt: product.fullName }]} />
+      ) : (
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-0">
         <SpecColumn specs={left} side="left" className="order-2 lg:order-1" />
 
@@ -76,7 +86,29 @@ export async function ProductSpecs({ product }: { product: Product }) {
 
         <SpecColumn specs={right} side="right" className="order-3" />
       </div>
+      )}
     </section>
+  );
+}
+
+/** WordPress'ten otomatik gelen ürünler: fotoğraf galerisi */
+function ProductGallery({ images }: { images: { src: string; alt: string }[] }) {
+  const [first, ...rest] = images;
+  return (
+    <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-[2fr_1fr]">
+      <div className="relative aspect-square overflow-hidden rounded-sm bg-ink-900">
+        <Image src={first.src} alt={first.alt} fill preload quality={90} sizes="(min-width: 1024px) 40rem, 100vw" className="object-cover" />
+      </div>
+      {rest.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 sm:grid-cols-1">
+          {rest.slice(0, 3).map((img) => (
+            <div key={img.src} className="relative aspect-square overflow-hidden rounded-sm bg-ink-900">
+              <Image src={img.src} alt={img.alt} fill quality={85} sizes="(min-width: 640px) 20rem, 33vw" className="object-cover" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

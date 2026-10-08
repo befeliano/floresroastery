@@ -1,5 +1,5 @@
 import "server-only";
-import type { Product } from "./types";
+import { isIyzicoDirect } from "@/lib/payments/config";
 
 /**
  * WooCommerce (headless) adaptörü
@@ -16,19 +16,16 @@ import type { Product } from "./types";
  */
 
 const base = () => process.env.WOOCOMMERCE_URL?.replace(/\/$/, "");
+export const wooBase = () => base();
 export const isWooConfigured = () => Boolean(base());
 export const canCreateWooOrders = () =>
   Boolean(base() && process.env.WOOCOMMERCE_CONSUMER_KEY && process.env.WOOCOMMERCE_CONSUMER_SECRET);
-
-type StorePrices = { price: string; regular_price: string; currency_minor_unit: number };
-type StoreProduct = { id: number; is_in_stock: boolean; prices: StorePrices; variations: { id: number }[] };
-type StoreVariation = { id: number; is_in_stock: boolean; prices: StorePrices };
 
 /** WordPress yanıt vermezse istek sonsuza kadar asılı kalmasın (müşteri butonda beklemesin) */
 const TIMEOUT_MS = 20_000;
 const ORDER_TIMEOUT_MS = 30_000;
 
-async function getJson<T>(url: string, init?: RequestInit, timeoutMs = TIMEOUT_MS): Promise<T> {
+export async function getJson<T>(url: string, init?: RequestInit, timeoutMs = TIMEOUT_MS): Promise<T> {
   const res = await fetch(url, {
     ...init,
     signal: AbortSignal.timeout(timeoutMs),
@@ -41,39 +38,13 @@ async function getJson<T>(url: string, init?: RequestInit, timeoutMs = TIMEOUT_M
   return (await res.json()) as T;
 }
 
-const money = (p: StorePrices, key: "price" | "regular_price") => Number(p[key]) / 10 ** p.currency_minor_unit;
-
-/** Katalogdaki ürünlerin fiyat ve stoklarını canlı WooCommerce verisiyle günceller */
-export async function syncWithWoo(products: Product[]): Promise<Product[]> {
-  const root = `${base()}/wp-json/wc/store/v1`;
-  const live = await getJson<StoreProduct[]>(`${root}/products?per_page=100`);
-  const byId = new Map(live.map((p) => [String(p.id), p]));
-
-  return Promise.all(
-    products.map(async (product) => {
-      const lp = byId.get(product.id);
-      if (!lp) return product;
-      const vars = await Promise.all(lp.variations.map((v) => getJson<StoreVariation>(`${root}/products/${v.id}`)));
-      const byVar = new Map(vars.map((v) => [String(v.id), v]));
-      return {
-        ...product,
-        variants: product.variants.map((v) => {
-          const lv = byVar.get(v.id);
-          if (!lv) return { ...v, inStock: v.inStock && lp.is_in_stock };
-          const price = money(lv.prices, "price");
-          const regular = money(lv.prices, "regular_price");
-          return { ...v, price, compareAtPrice: regular > price ? regular : undefined, inStock: lp.is_in_stock && lv.is_in_stock };
-        }),
-      };
-    }),
-  );
-}
-
 export interface WooOrderInput {
   customer: { firstName: string; lastName: string; email: string; phone: string; address: string; city: string; district: string; postcode?: string };
   paymentMethod: "iyzico" | "bacs";
   note?: string;
-  lines: { productId: string; variationId: string; quantity: number; grind: string }[];
+  lines: { productId: string; variationId: string; quantity: number; grind: string; lineTotal?: number; meta?: { key: string; value: string }[]; custom?: boolean }[];
+  /** ziyaret kaynağı (WooCommerce "Menşe") */
+  attribution?: Record<string, string>;
   shipping: { methodId: string; title: string; total: number };
   couponCode?: string;
   consents?: Record<string, unknown>;
@@ -123,9 +94,35 @@ export interface WooOrder {
   total: string;
   discount_total: string;
   shipping_total: string;
-  billing: { email: string; state: string };
-  line_items: { name: string; quantity: number; total: string; meta_data: { key: string; display_key?: string; value: unknown; display_value?: unknown }[] }[];
-  shipping_lines: { method_title: string; total: string }[];
+  billing: { email: string; state: string; first_name: string; last_name: string; phone: string; address_1: string; city: string; postcode: string };
+  shipping: { first_name: string; last_name: string; address_1: string; city: string; state: string; postcode: string };
+  line_items: {
+    id: number;
+    product_id: number;
+    name: string;
+    quantity: number;
+    total: string;
+    total_tax: string;
+    meta_data: { key: string; display_key?: string; value: unknown; display_value?: unknown }[];
+  }[];
+  shipping_lines: { method_title: string; total: string; total_tax: string }[];
+  currency: string;
+  customer_id: number;
+  customer_ip_address: string;
+  transaction_id: string;
+  meta_data: { key: string; value: unknown }[];
+}
+
+/** Sipariş güncelleme (ör. ödeme alındı) — yalnızca sunucuda */
+export async function updateWooOrder(id: number, body: Record<string, unknown>): Promise<WooOrder> {
+  const res = await wooFetch(`wc/v3/orders/${id}`, { method: "PUT", body: JSON.stringify(body) }, ORDER_TIMEOUT_MS);
+  if (!res.ok) throw new Error(`WooCommerce sipariş güncelleme ${id} → ${res.status} ${(await res.text()).slice(0, 200)}`);
+  return (await res.json()) as WooOrder;
+}
+
+/** Siparişe yönetici notu (WordPress'te sipariş geçmişinde görünür; müşteriye gitmez) */
+export async function addWooOrderNote(id: number, note: string) {
+  await wooFetch(`wc/v3/orders/${id}/notes`, { method: "POST", body: JSON.stringify({ note, customer_note: false }) }).catch(() => null);
 }
 
 /**
@@ -162,6 +159,8 @@ export async function createWooOrder(input: WooOrderInput): Promise<WooOrder> {
         // kart: sipariş hesaba ödeme alınınca bağlanır (snippet) — müşteri kimliği olan siparişin
         // ödeme sayfası WordPress'te giriş ister, müşteri ise yalnızca yeni sitede oturum açmıştır
         ...(input.customerId && input.paymentMethod === "iyzico" ? [{ key: "_flores_customer_id", value: String(input.customerId) }] : []),
+        // WooCommerce sipariş kaynağı — panelde "Doğrudan", "Organik: Google" vb. görünür
+        ...Object.entries(input.attribution ?? {}).map(([k, v]) => ({ key: `_wc_order_attribution_${k}`, value: v })),
       ],
       ...(input.customerId && input.paymentMethod === "bacs" ? { customer_id: input.customerId } : {}),
       // Havale/EFT: "on-hold" → WooCommerce müşteriye banka bilgilerini içeren e-postayı otomatik gönderir
@@ -169,13 +168,24 @@ export async function createWooOrder(input: WooOrderInput): Promise<WooOrder> {
       customer_note: input.note ?? "",
       billing: { ...address, email: input.customer.email, phone: input.customer.phone },
       shipping: address,
-      line_items: input.lines.map((l) => ({
-        product_id: Number(l.productId),
-        variation_id: Number(l.variationId),
-        quantity: l.quantity,
-        // ürünlerdeki yerel "Grind Size" özniteliğiyle aynı anahtar/terim → panelde aynı görünür
-        meta_data: [{ key: "grind-size", value: GRIND_TO_WOO[l.grind] ?? l.grind }],
-      })),
+      line_items: input.lines.map((l) =>
+        l.custom
+          ? {
+              // toptan: gizli B2B ürünü, tutar sunucuda kademe tablosundan hesaplandı
+              product_id: Number(l.productId),
+              quantity: l.quantity,
+              subtotal: (l.lineTotal ?? 0).toFixed(2),
+              total: (l.lineTotal ?? 0).toFixed(2),
+              meta_data: [...(l.meta ?? []), { key: "grind-size", value: GRIND_TO_WOO[l.grind] ?? l.grind }],
+            }
+          : {
+              product_id: Number(l.productId),
+              variation_id: Number(l.variationId),
+              quantity: l.quantity,
+              // ürünlerdeki yerel "Grind Size" özniteliğiyle aynı anahtar/terim → panelde aynı görünür
+              meta_data: l.grind ? [{ key: "grind-size", value: GRIND_TO_WOO[l.grind] ?? l.grind }] : [],
+            },
+      ),
       shipping_lines: [
         {
           method_id: input.shipping.methodId === "pickup" ? "local_pickup" : input.shipping.methodId === "courier" ? "free_shipping" : "flat_rate",
@@ -188,8 +198,15 @@ export async function createWooOrder(input: WooOrderInput): Promise<WooOrder> {
   }, ORDER_TIMEOUT_MS);
 }
 
-/** Woo'nun ödeme sayfası adresi; yanıtta boş gelirse sipariş anahtarından kurulur */
-export function orderPayUrl(order: Pick<WooOrder, "id" | "order_key" | "payment_url">): string | undefined {
+/**
+ * Ödenmemiş siparişin ödeme bağlantısı:
+ * - iyzico anahtarları tanımlıysa: bu sitenin /api/payments/iyzico/pay adresi (doğrudan iyzico ödeme sayfası)
+ * - değilse: WooCommerce'in ödeme sayfası (WordPress'teki iyzico eklentisi)
+ */
+export function orderPayUrl(order: Pick<WooOrder, "id" | "order_key" | "payment_url">, lang = "tr"): string | undefined {
+  if (isIyzicoDirect() && order.id && order.order_key) {
+    return `/api/payments/iyzico/pay?order=${order.id}&key=${encodeURIComponent(order.order_key)}&lang=${lang}`;
+  }
   if (order.payment_url?.startsWith("http")) return order.payment_url;
   if (!order.id || !order.order_key) return undefined;
   return `${base()}/checkout/order-pay/${order.id}/?pay_for_order=true&key=${encodeURIComponent(order.order_key)}`;

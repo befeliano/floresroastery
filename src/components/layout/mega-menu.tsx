@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 import { formatPrice } from "@/lib/format";
 import { site } from "@/lib/site";
 import type { MenuData } from "./menu-types";
@@ -22,11 +23,12 @@ const SHELF_LIMIT = 8;
  */
 export function MegaMenu({ id, data, open, onNavigate }: MegaMenuProps) {
   const [active, setActive] = useState<string>("all");
+  const { t, fmt } = useI18n();
 
   const collections = [
-    { slug: "all", name: "Tüm kahveler", tagline: "Haftalık taze kavrum", href: "/kahveler" },
+    { slug: "all", name: t.mega.all, tagline: t.mega.allTagline, href: "/kahveler" },
     ...data.categories.map((c) => ({ ...c, href: `/kategori/${c.slug}` })),
-    { slug: "ruso-exotics", name: "Ruso Exotics", tagline: "Java'dan doğrudan ticaret", href: "/kahveler?koleksiyon=ruso-exotics" },
+    { slug: "ruso-exotics", name: "Ruso Exotics", tagline: t.mega.rusoTagline, href: "/kahveler?koleksiyon=ruso-exotics" },
   ];
   const inCollection = (slug: string) =>
     slug === "all"
@@ -49,7 +51,7 @@ export function MegaMenu({ id, data, open, onNavigate }: MegaMenuProps) {
       <div className="mx-auto grid max-w-[1440px] grid-cols-[17rem_1fr] gap-10 px-10 py-8">
         {/* koleksiyonlar */}
         <div className="flex flex-col">
-          <p className="eyebrow text-[0.6rem] text-cream-500">Koleksiyonlar</p>
+          <p className="eyebrow text-[0.6rem] text-cream-500">{t.mega.collections}</p>
           <ul className="mt-4 space-y-1">
             {collections.map((c) => {
               const isActive = c.slug === active;
@@ -90,13 +92,13 @@ export function MegaMenu({ id, data, open, onNavigate }: MegaMenuProps) {
                 <span lang="en" className="eyebrow text-[0.6rem] text-flores-300">
                   Coffee Bar
                 </span>
-                {site.coffeeBar.promo && <span className="rounded-full bg-flores-500 px-2 py-0.5 text-[0.55rem] font-semibold text-ink-950">{site.coffeeBar.promo}</span>}
+                {site.coffeeBar.promo && <span className="rounded-full bg-flores-500 px-2 py-0.5 text-[0.55rem] font-semibold text-ink-950">{t.mega.promo}</span>}
               </span>
-              <span className="mt-1.5 block text-sm text-cream-100">Kahve tadım randevusu al →</span>
+              <span className="mt-1.5 block text-sm text-cream-100">{t.mega.coffeeBarCta}</span>
             </Link>
             <Link href="/toptan" onClick={onNavigate} className="block rounded-sm border border-ink-700 p-4 transition-colors hover:border-cream-400">
-              <span className="eyebrow text-[0.6rem] text-cream-400">İşletmeler için</span>
-              <span className="mt-1.5 block text-sm text-cream-100">Toptan satış · 5 kg&apos;dan itibaren →</span>
+              <span className="eyebrow text-[0.6rem] text-cream-400">{t.mega.forBusiness}</span>
+              <span className="mt-1.5 block text-sm text-cream-100">{t.mega.wholesaleCta}</span>
             </Link>
           </div>
         </div>
@@ -108,7 +110,7 @@ export function MegaMenu({ id, data, open, onNavigate }: MegaMenuProps) {
               <span className="font-serif text-lg italic text-cream-100">{current.name}</span> — {current.tagline}
             </p>
             <Link href={current.href} onClick={onNavigate} className="eyebrow link-underline text-[0.6rem] text-cream-300 hover:text-flores-300">
-              Tümünü gör →
+              {t.mega.seeAll}
             </Link>
           </div>
           <ul className="mt-5 grid grid-cols-4 gap-x-5 gap-y-6">
@@ -130,7 +132,7 @@ export function MegaMenu({ id, data, open, onNavigate }: MegaMenuProps) {
                     </span>
                     <span className="mt-0.5 block truncate text-xs text-cream-500">{p.notes.join(" · ")}</span>
                     <span className="mt-1 block font-mono text-[0.7rem] text-cream-300">
-                      {p.soldOut ? "Stokta yok" : p.from != null ? `${formatPrice(p.from)}'den` : ""}
+                      {p.soldOut ? t.common.outOfStock : p.from != null ? fmt(t.common.fromPrice, { price: formatPrice(p.from) }) : ""}
                     </span>
                   </span>
                 </Link>
@@ -139,7 +141,7 @@ export function MegaMenu({ id, data, open, onNavigate }: MegaMenuProps) {
           </ul>
           {list.length > SHELF_LIMIT && (
             <Link href={current.href} onClick={onNavigate} className="mt-6 inline-block text-sm text-cream-400 hover:text-flores-300">
-              +{list.length - SHELF_LIMIT} kahve daha
+              {fmt(t.mega.more, { n: list.length - SHELF_LIMIT })}
             </Link>
           )}
         </div>

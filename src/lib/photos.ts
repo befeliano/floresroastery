@@ -47,6 +47,18 @@ export const photos = {
     src: "/photos/story-indonesia.webp",
     alt: "Story Behind Indonesian Coffee — A journey from farmers' hands to my roastery; Flores logosu ve wayang figürleri",
   },
+  espressoMachine: {
+    src: "/photos/espresso-machine.webp",
+    alt: "Flores Coffee Bar'daki Bezzera espresso makinesi",
+  },
+  coffeeBarJars: {
+    src: "/photos/coffee-bar-jars.webp",
+    alt: "Coffee Bar tezgâhında Arjuna, Guntur ve Papandayan çekirdek kavanozları ve tadım kartı",
+  },
+  coffeeShelf: {
+    src: "/photos/coffee-shelf.webp",
+    alt: "Coffee Bar rafında dizili Flores Roastery kahve kutuları",
+  },
   boxesNature: {
     src: "/photos/boxes-nature.webp",
     alt: "Doğada fotoğraflanmış Flores Roastery kahve kutuları — Where every bean has a story",

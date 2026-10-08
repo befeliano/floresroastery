@@ -1,4 +1,4 @@
-export type CategorySlug = "single-origin" | "blends" | "espresso";
+export type CategorySlug = "single-origin" | "blends" | "espresso" | "sets" | "accessories";
 
 export interface Photo {
   src: string;
@@ -107,7 +107,8 @@ export interface Product {
     front: string;
     /** Fotoğraf fon rengi — sayfa vurgusu */
     bg: string;
-    packaging: "box" | "pouch";
+    /** box/pouch: 3D kutu · photo: WordPress fotoğrafı (otomatik eklenen ürünler) */
+    packaging: "box" | "pouch" | "photo";
     /** ön yüz en/boy oranı */
     aspect: number;
   };
@@ -115,6 +116,10 @@ export interface Product {
   grindOptions: string[];
   brewGuides: { filter?: BrewGuide; espresso?: BrewGuide };
   featured?: boolean;
+  /** WordPress'ten otomatik eklendi (künye/demleme yok) */
+  auto?: boolean;
+  /** ek görseller (otomatik ürünler) */
+  gallery?: Photo[];
   rating?: { value: number; count: number };
 }
 
@@ -123,6 +128,8 @@ export interface CartLine {
   variantId: string;
   grind: string;
   quantity: number;
+  /** yalnızca toptan sipariş satırı: oluşturucudaki seçimler (fiyat sunucuda hesaplanır) */
+  config?: unknown;
 }
 
 export const isSoldOut = (p: Pick<Product, "variants">) => p.variants.length === 0 || p.variants.every((v) => !v.inStock);

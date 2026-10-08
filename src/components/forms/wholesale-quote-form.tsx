@@ -1,13 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { useRef } from "react";
-import { BUSINESS_TYPES, MONTHLY_VOLUMES, PRIVATE_LABEL } from "@/content/wholesale";
-import { useApiForm } from "./use-api-form";
+import Link from "@/i18n/link";
+import { useRef, useState } from "react";
+import { useI18n } from "@/i18n/client";
+import { openMailto } from "@/lib/mailto";
 
-export function WholesaleQuoteForm({ whatsapp }: { whatsapp: string }) {
+/** Teklif formu — e-posta uygulamasında info@floresroastery.com'a hazır taslak açar (veya WhatsApp) */
+export function WholesaleQuoteForm({ whatsapp, email }: { whatsapp: string; email: string }) {
   const formRef = useRef<HTMLFormElement>(null);
-  const { state, submit } = useApiForm("/api/wholesale-quote");
+  const [state, setState] = useState<{ kind: "idle" | "ok" | "error"; message?: string }>({ kind: "idle" });
+  const { t } = useI18n();
+  const f = t.forms;
+  const [kvkkBefore, kvkkAfter] = f.wsConsent.split("{kvkk}");
 
   const read = () => {
     const f = new FormData(formRef.current!);
@@ -28,13 +32,13 @@ export function WholesaleQuoteForm({ whatsapp }: { whatsapp: string }) {
   const sendWhatsapp = () => {
     const d = read();
     const text = [
-      "Merhaba, Flores toptan teklifi almak istiyorum.",
-      d.name && `Ad Soyad: ${d.name}`,
-      d.business && `İşletme: ${d.business}`,
-      d.type && `İşletme türü: ${d.type}`,
-      d.volume && `Tahmini aylık miktar: ${d.volume}`,
+      f.wsWaIntro,
+      d.name && `${f.wsWaName}: ${d.name}`,
+      d.business && `${f.wsWaBusiness}: ${d.business}`,
+      d.type && `${f.wsWaType}: ${d.type}`,
+      d.volume && `${f.wsWaVolume}: ${d.volume}`,
       d.privateLabel && `Private label: ${d.privateLabel}`,
-      d.notes && `Not: ${d.notes}`,
+      d.notes && `${f.wsWaNote}: ${d.notes}`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -44,8 +48,11 @@ export function WholesaleQuoteForm({ whatsapp }: { whatsapp: string }) {
   if (state.kind === "ok") {
     return (
       <div role="status" className="rounded-sm border border-flores-500/40 bg-flores-500/5 p-8">
-        <p className="font-serif text-3xl">Talebiniz alındı!</p>
-        <p className="mt-3 text-cream-200">{state.message}</p>
+        <p className="font-serif text-3xl">{f.wsReceived}</p>
+        <p className="mt-3 text-cream-200">{f.mailOpened.replace("{email}", email)}</p>
+        <button type="button" onClick={() => setState({ kind: "idle" })} className="btn btn-ghost mt-6">
+          {f.back}
+        </button>
       </div>
     );
   }
@@ -57,93 +64,106 @@ export function WholesaleQuoteForm({ whatsapp }: { whatsapp: string }) {
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
-        void submit(read());
+        const d = read();
+        if (d.name.trim().length < 2 || d.business.trim().length < 2 || !d.email.includes("@")) return setState({ kind: "error", message: f.fillRequired });
+        if (!d.kvkk) return setState({ kind: "error", message: f.kvkkRequired });
+        openMailto(email, `[Flores Toptan] ${d.business} — ${d.name}`, [
+          [f.wsWaName, d.name],
+          [f.wsWaBusiness, d.business],
+          [t.common.email, d.email],
+          [t.common.phone, d.phone],
+          [f.wsWaType, d.type],
+          [f.wsWaVolume, d.volume],
+          ["Private label", d.privateLabel],
+          [f.wsWaNote, d.notes],
+        ]);
+        setState({ kind: "ok" });
       }}
       className="grid gap-5 sm:grid-cols-2"
     >
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="w-website">Web sitesi</label>
+        <label htmlFor="w-website">{t.common.website}</label>
         <input id="w-website" name="website" tabIndex={-1} autoComplete="off" />
       </div>
       <div>
         <label htmlFor="w-name" className={label}>
-          Ad soyad *
+          {f.wsName}
         </label>
         <input id="w-name" name="name" required maxLength={80} autoComplete="name" className="field" />
       </div>
       <div>
         <label htmlFor="w-business" className={label}>
-          İşletme adı *
+          {f.wsBusiness}
         </label>
         <input id="w-business" name="business" required maxLength={120} autoComplete="organization" className="field" />
       </div>
       <div>
         <label htmlFor="w-mail" className={label}>
-          E-posta *
+          {f.wsEmail}
         </label>
         <input id="w-mail" name="email" type="email" required maxLength={254} autoComplete="email" className="field" />
       </div>
       <div>
         <label htmlFor="w-tel" className={label}>
-          Telefon
+          {t.common.phone}
         </label>
         <input id="w-tel" name="phone" type="tel" maxLength={20} autoComplete="tel" placeholder="05XX XXX XX XX" className="field" />
       </div>
       <div>
         <label htmlFor="w-type" className={label}>
-          İşletme türü
+          {f.wsType}
         </label>
         <select id="w-type" name="type" defaultValue="" className="field">
-          <option value="">Seçin</option>
-          {BUSINESS_TYPES.map((t) => (
-            <option key={t}>{t}</option>
+          <option value="">{t.common.select}</option>
+          {f.wsTypes.map((o) => (
+            <option key={o}>{o}</option>
           ))}
         </select>
       </div>
       <div>
         <label htmlFor="w-volume" className={label}>
-          Tahmini aylık miktar
+          {f.wsVolume}
         </label>
         <select id="w-volume" name="volume" defaultValue="" className="field">
-          <option value="">Seçin</option>
-          {MONTHLY_VOLUMES.map((t) => (
-            <option key={t}>{t}</option>
+          <option value="">{t.common.select}</option>
+          {f.wsVolumes.map((o) => (
+            <option key={o}>{o}</option>
           ))}
         </select>
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="w-pl" className={label}>
-          Private label ilgisi
+          {f.wsPrivate}
         </label>
-        <select id="w-pl" name="privateLabel" defaultValue={PRIVATE_LABEL[0]} className="field">
-          {PRIVATE_LABEL.map((t) => (
-            <option key={t}>{t}</option>
+        <select id="w-pl" name="privateLabel" defaultValue={f.wsPrivateOptions[0]} className="field">
+          {f.wsPrivateOptions.map((o) => (
+            <option key={o}>{o}</option>
           ))}
         </select>
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="w-notes" className={label}>
-          Ek notlar
+          {f.wsNotes}
         </label>
         <textarea id="w-notes" name="notes" rows={4} maxLength={2000} className="field resize-y" />
       </div>
       <label className="flex items-start gap-3 text-sm text-cream-300 sm:col-span-2">
         <input type="checkbox" name="kvkk" className="mt-0.5 size-5 shrink-0 accent-[#5fa4d6]" />
         <span>
-          Bilgilerimin yalnızca teklif hazırlamak amacıyla{" "}
+          {kvkkBefore}
           <Link href="/kvkk-aydinlatma-metni" target="_blank" className="text-flores-300 underline underline-offset-4">
-            KVKK Aydınlatma Metni
-          </Link>{" "}
-          kapsamında işlenmesini okudum.
+            {t.common.kvkk}
+          </Link>
+          {kvkkAfter}
         </span>
       </label>
       <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-        <button type="submit" disabled={state.kind === "loading"} className="btn btn-primary">
-          {state.kind === "loading" ? "Gönderiliyor…" : "Teklif iste"}
+        <button type="submit" className="btn btn-primary">
+          {f.wsSubmit}
         </button>
-        <span className="text-sm text-cream-500">veya</span>
+        <span className="text-sm text-cream-500">{t.common.or}</span>
         <button type="button" onClick={sendWhatsapp} className="btn btn-ghost">
-          WhatsApp&apos;tan gönder
+          {f.wsWhatsapp}
         </button>
       </div>
       {state.kind === "error" && (

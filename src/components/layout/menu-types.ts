@@ -1,5 +1,3 @@
-import { site } from "@/lib/site";
-
 export interface MenuProduct {
   slug: string;
   name: string;
@@ -18,10 +16,11 @@ export interface MenuData {
   products: MenuProduct[];
 }
 
-export const mainLinks: { href: string; label: string; badge?: string; en?: boolean }[] = [
-  { href: "/demleme-rehberi", label: "Demleme" },
-  { href: "/coffee-bar", label: "Coffee Bar", en: true, badge: site.coffeeBar.promo ? "Ücretsiz" : undefined },
-  { href: "/toptan", label: "Toptan Satış" },
-  { href: "/hikayemiz", label: "Hikayemiz" },
-  { href: "/iletisim", label: "İletişim" },
+/** Ana menü bağlantıları — etiketler sözlükten (ui.nav[key]) */
+export const mainLinks: { href: string; key: "brew" | "coffeeBar" | "wholesale" | "story" | "contact"; badge?: boolean; en?: boolean }[] = [
+  { href: "/demleme-rehberi", key: "brew" },
+  { href: "/coffee-bar", key: "coffeeBar", en: true, badge: true },
+  { href: "/toptan", key: "wholesale" },
+  { href: "/hikayemiz", key: "story" },
+  { href: "/iletisim", key: "contact" },
 ];

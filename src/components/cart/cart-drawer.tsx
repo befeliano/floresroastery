@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useI18n } from "@/i18n/client";
+import { captureAttribution } from "@/lib/attribution";
 import { lineKey, MAX_QTY, useCart, useCartSubtotal } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/format";
 import { site } from "@/lib/site";
@@ -14,10 +16,13 @@ export function CartDrawer() {
   const subtotal = useCartSubtotal();
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
+  const { t, fmt, grind } = useI18n();
 
   // Mount sonrası localStorage'dan sepeti yükle (SSR uyumlu)
   useEffect(() => {
     void useCart.persist.rehydrate();
+    // ziyaret kaynağı (WooCommerce "Menşe") — sitenin her sayfasında bulunan bileşenden bir kez
+    captureAttribution();
   }, []);
 
   useEffect(() => {
@@ -45,7 +50,7 @@ export function CartDrawer() {
       <button
         type="button"
         tabIndex={-1}
-        aria-label="Sepeti kapat"
+        aria-label={t.cart.closeCart}
         onClick={close}
         className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${isOpen ? "opacity-100" : "opacity-0"}`}
       />
@@ -53,15 +58,15 @@ export function CartDrawer() {
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Sepetiniz"
+        aria-label={t.cart.title}
         tabIndex={-1}
         className={`absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-ink-700 bg-ink-900 outline-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex items-center justify-between border-b border-ink-700 px-6 py-5">
-          <h2 className="font-serif text-2xl">Sepetiniz</h2>
-          <button type="button" onClick={close} aria-label="Kapat" className="flex size-10 items-center justify-center text-cream-300 hover:text-cream-50">
+          <h2 className="font-serif text-2xl">{t.cart.title}</h2>
+          <button type="button" onClick={close} aria-label={t.common.close} className="flex size-10 items-center justify-center text-cream-300 hover:text-cream-50">
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
               <path d="M5 5l14 14M19 5L5 19" />
             </svg>
@@ -72,14 +77,12 @@ export function CartDrawer() {
           <div className="border-b border-ink-700 px-6 py-4">
             <p className="text-sm text-cream-300">
               {remaining > 0 ? (
-                <>
-                  Ücretsiz kargoya <span className="font-semibold text-flores-300">{formatPrice(remaining)}</span> kaldı
-                </>
+                <span>{fmt(t.cart.toFree, { amount: formatPrice(remaining) })}</span>
               ) : (
-                <span className="text-flores-300">Ücretsiz kargo kazandınız.</span>
+                <span className="text-flores-300">{t.cart.gotFree}</span>
               )}
             </p>
-            <p className="mt-1 text-xs text-cream-500">Eskişehir içi kurye ve mağazadan teslim her zaman ücretsiz.</p>
+            <p className="mt-1 text-xs text-cream-500">{t.cart.localFree}</p>
             <div className="mt-3 h-1 overflow-hidden rounded-full bg-ink-700">
               <div className="h-full rounded-full bg-flores-500 transition-[width] duration-700" style={{ width: `${progress}%` }} />
             </div>
@@ -88,9 +91,9 @@ export function CartDrawer() {
 
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-6 px-8 text-center">
-            <p className="font-serif text-2xl italic text-cream-200">Sepetiniz şimdilik boş.</p>
+            <p className="font-serif text-2xl italic text-cream-200">{t.cart.empty}</p>
             <Link href="/kahveler" className="btn btn-primary" onClick={close}>
-              Kahveleri Keşfet
+              {t.cart.explore}
             </Link>
           </div>
         ) : (
@@ -99,17 +102,17 @@ export function CartDrawer() {
               const key = lineKey(item);
               return (
                 <li key={key} className="flex gap-4 py-5">
-                  <Link href={`/kahveler/${item.slug}`} onClick={close} className="relative size-20 shrink-0 overflow-hidden rounded-sm bg-ink-800">
-                    <Image src={item.image} alt={`${item.name} kahve paketi`} fill sizes="80px" className="object-cover" />
+                  <Link href={item.slug === "toptan-siparis" ? "/toptan#siparis" : `/kahveler/${item.slug}`} onClick={close} className="relative size-20 shrink-0 overflow-hidden rounded-sm bg-ink-800">
+                    <Image src={item.image} alt={fmt(t.common.coffeePackageAlt, { name: item.name })} fill sizes="80px" className="object-cover" />
                   </Link>
                   <div className="flex flex-1 flex-col">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <Link href={`/kahveler/${item.slug}`} onClick={close} className="font-serif text-lg leading-tight hover:text-flores-300">
+                        <Link href={item.slug === "toptan-siparis" ? "/toptan#siparis" : `/kahveler/${item.slug}`} onClick={close} className="font-serif text-lg leading-tight hover:text-flores-300">
                           {item.name}
                         </Link>
                         <p className="mt-1 text-xs text-cream-400">
-                          {item.variantLabel} · {item.grind}
+                          {[item.variantLabel, item.grind && grind(item.grind)].filter(Boolean).join(" · ")}
                         </p>
                       </div>
                       <p className="font-mono text-sm">{formatPrice(item.unitPrice * item.quantity)}</p>
@@ -118,7 +121,7 @@ export function CartDrawer() {
                       <div className="flex items-center border border-ink-600">
                         <button
                           type="button"
-                          aria-label="Azalt"
+                          aria-label={t.cart.decrease}
                           onClick={() => setQuantity(key, item.quantity - 1)}
                           className="flex size-8 items-center justify-center text-cream-300 hover:text-cream-50"
                         >
@@ -129,7 +132,7 @@ export function CartDrawer() {
                         </span>
                         <button
                           type="button"
-                          aria-label="Arttır"
+                          aria-label={t.cart.increase}
                           disabled={item.quantity >= MAX_QTY}
                           onClick={() => setQuantity(key, item.quantity + 1)}
                           className="flex size-8 items-center justify-center text-cream-300 hover:text-cream-50 disabled:opacity-30"
@@ -138,7 +141,7 @@ export function CartDrawer() {
                         </button>
                       </div>
                       <button type="button" onClick={() => remove(key)} className="text-xs text-cream-500 underline-offset-4 hover:text-cream-200 hover:underline">
-                        Kaldır
+                        {t.common.remove}
                       </button>
                     </div>
                   </div>
@@ -151,12 +154,12 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="border-t border-ink-700 px-6 py-6">
             <div className="flex items-baseline justify-between">
-              <span className="eyebrow text-cream-300">Ara toplam</span>
+              <span className="eyebrow text-cream-300">{t.common.subtotal}</span>
               <span className="font-mono text-xl">{formatPrice(subtotal)}</span>
             </div>
-            <p className="mt-2 text-xs text-cream-500">Kargo ve indirimler ödeme adımında hesaplanır. Fiyatlara KDV dahildir.</p>
+            <p className="mt-2 text-xs text-cream-500">{t.cart.note}</p>
             <Link href="/odeme" onClick={close} className="btn btn-primary mt-5 w-full">
-              Ödemeye Geç
+              {t.cart.checkout}
             </Link>
           </div>
         )}

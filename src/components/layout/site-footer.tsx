@@ -1,17 +1,23 @@
 import { cacheLife } from "next/cache";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { NewsletterForm } from "@/components/forms/newsletter-form";
 import { legalLinks } from "@/content/legal";
+import { pages } from "@/i18n/messages/pages";
+import { CITIES } from "@/content/seo/cities";
+import { getLocale, t } from "@/i18n/server";
 import { site } from "@/lib/site";
 
 type FooterLink = { href: string; label: string; en?: boolean; external?: boolean };
 
-const columns: { title: string; links: FooterLink[] }[] = [
+async function columns(): Promise<{ title: string; links: FooterLink[] }[]> {
+  const f = await t(pages.footer);
+  const tr = (await getLocale()) === "tr";
+  return [
   {
-    title: "Mağaza",
+    title: f.shop,
     links: [
-      { href: "/kahveler", label: "Tüm Kahveler" },
+      { href: "/kahveler", label: f.allCoffees },
       { href: "/kategori/single-origin", label: "Single Origin", en: true },
       { href: "/kategori/blends", label: "Blends", en: true },
       { href: "/kategori/espresso", label: "Espresso", en: true },
@@ -19,37 +25,42 @@ const columns: { title: string; links: FooterLink[] }[] = [
     ],
   },
   {
-    title: "Destek",
+    title: f.support,
     links: [
-      { href: "/siparis-takip", label: "Sipariş Takibi" },
-      { href: "/iade-talebi", label: "İade Talebi" },
-      { href: "/teslimat-ve-iade-sartlari", label: "Teslimat & İade" },
-      { href: "/iletisim", label: "İletişim" },
+      { href: "/siparis-takip", label: f.tracking },
+      { href: "/iade-talebi", label: f.returnRequest },
+      { href: "/teslimat-ve-iade-sartlari", label: f.deliveryReturns },
+      { href: "/iletisim", label: f.contact },
     ],
   },
   {
     title: "Flores",
     links: [
-      { href: "/hikayemiz", label: "Hikayemiz" },
-      { href: "/demleme-rehberi", label: "Demleme Rehberi" },
-      { href: "/toptan", label: "Toptan Satış" },
-      { href: "/coffee-bar", label: "Coffee Bar Randevu" },
+      { href: "/hikayemiz", label: f.story },
+      { href: "/demleme-rehberi", label: f.brewGuide },
+      ...(tr ? [{ href: "/rehber", label: f.guides }] : []),
+      { href: "/toptan", label: f.wholesale },
+      { href: "/coffee-bar", label: f.coffeeBar },
     ],
   },
-];
+  ];
+}
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const f = await t(pages.footer);
+  const legal = await t(pages.legal.links);
+  const cols = await columns();
+  const tr = (await getLocale()) === "tr";
   return (
     <footer className="relative mt-auto overflow-hidden border-t border-ink-700 bg-ink-950">
       <div className="mx-auto max-w-[1440px] px-5 pb-10 pt-20 md:px-10">
         <div className="grid gap-16 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <h2 className="font-serif text-4xl md:text-5xl">
-              Bahçemize <em className="text-flores-300">katılın</em>
+              {f.join.a}
+              <em className="text-flores-300">{f.join.em}</em>
             </h2>
-            <p className="mt-5 max-w-lg text-cream-300">
-              Yeni hasatlar, sınırlı Ruso Exotics lotları, demleme notları ve kavurma günlüğümüzden haberler. Ayda en fazla iki e-posta.
-            </p>
+            <p className="mt-5 max-w-lg text-cream-300">{f.joinText}</p>
             <NewsletterForm />
             <address className="mt-8 space-y-2 text-sm not-italic text-cream-400">
               <p>{site.store.address}</p>
@@ -66,7 +77,7 @@ export function SiteFooter() {
           </div>
 
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-7">
-            {columns.map((col) => (
+            {cols.map((col) => (
               <div key={col.title}>
                 <h3 className="font-sans text-lg font-normal text-cream-50">{col.title}</h3>
                 <ul className="mt-5 space-y-3">
@@ -89,6 +100,17 @@ export function SiteFooter() {
           </div>
         </div>
 
+        {tr && (
+          <nav aria-label="Şehirlere kahve" className="mt-14 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink-800 pt-8 text-xs text-cream-500">
+            <span>Taze kavrum gönderiyoruz:</span>
+            {CITIES.map((c) => (
+              <Link key={c.slug} href={`/kahve/${c.slug}`} className="hover:text-flores-300">
+                {c.city} kahve
+              </Link>
+            ))}
+          </nav>
+        )}
+
         {/* kayan slogan — kutunun yan yüzündeki "Where every bean has a story" */}
         <div aria-hidden className="relative -mx-5 mt-24 select-none overflow-hidden md:-mx-10">
           <div className="flex w-max animate-[marquee_40s_linear_infinite] motion-reduce:animate-none">
@@ -96,7 +118,7 @@ export function SiteFooter() {
               <span key={k} className="flex shrink-0 items-center gap-10 pr-10 font-serif text-[clamp(4rem,11vw,10rem)] italic leading-[1.1] text-transparent [-webkit-text-stroke:1px_var(--color-ink-500)]">
                 Where every bean has a story
                 <Image src="/logo.webp" alt="" width={96} height={96} className="size-[0.6em] opacity-40" />
-                Her çekirdeğin bir hikâyesi var
+                {f.marquee === "Where every bean has a story" ? "Flores Roastery · Eskişehir" : f.marquee}
                 <Image src="/logo.webp" alt="" width={96} height={96} className="size-[0.6em] opacity-40" />
               </span>
             ))}
@@ -110,16 +132,16 @@ export function SiteFooter() {
               © <CurrentYear /> {site.company.legalName}
             </span>
           </div>
-          <nav aria-label="Yasal" className="flex flex-wrap gap-x-5 gap-y-2">
+          <nav aria-label={f.legalAria} className="flex flex-wrap gap-x-5 gap-y-2">
             {legalLinks.map((l) => (
               <Link key={l.href} href={l.href} className="hover:text-cream-200">
-                {l.label}
+                {legal[l.href.slice(1) as keyof typeof legal] ?? l.label}
               </Link>
             ))}
           </nav>
           <Image
             src="/payment-logos.png"
-            alt="iyzico, Mastercard, Visa, American Express ve Troy ile güvenli ödeme"
+            alt={f.paymentAlt}
             width={432}
             height={28}
             className="h-auto w-56 rounded-sm bg-white px-2 py-1"

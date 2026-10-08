@@ -1,17 +1,24 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/logo";
+import { useI18n } from "@/i18n/client";
+import { splitLocale } from "@/i18n/config";
 import { useLoggedIn } from "@/lib/auth/client";
+import { site } from "@/lib/site";
 import { useCart, useCartCount } from "@/lib/cart/store";
+import { LanguageSwitcher } from "./language-switcher";
 import { MegaMenu } from "./mega-menu";
 import { mainLinks, type MenuData } from "./menu-types";
 import { MobileMenu } from "./mobile-menu";
 
 export function SiteHeader({ menu }: { menu: MenuData }) {
   const pathname = usePathname();
+  const { t, fmt } = useI18n();
+  // dil önekisiz yol: "/en/kahveler" → "/kahveler"
+  const path = splitLocale(pathname).path;
   const [scrolled, setScrolled] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -71,7 +78,7 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
     closeTimer.current = setTimeout(() => setMegaOpen(false), 160);
   };
 
-  const overHero = pathname === "/" && !scrolled && !megaOpen && !mobileOpen;
+  const overHero = path === "/" && !scrolled && !megaOpen && !mobileOpen;
 
   return (
     <>
@@ -87,12 +94,12 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
           href="#icerik"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-flores-500 focus:px-4 focus:py-2 focus:text-ink-950"
         >
-          İçeriğe geç
+          {t.nav.skip}
         </a>
         <div className="mx-auto flex h-18 max-w-[1440px] items-center justify-between gap-6 px-5 md:h-20 md:px-10">
           <Logo />
 
-          <nav aria-label="Ana menü" className="hidden items-center gap-7 xl:flex 2xl:gap-9">
+          <nav aria-label={t.nav.main} className="hidden items-center gap-7 xl:flex 2xl:gap-9">
             <button
               type="button"
               aria-expanded={megaOpen}
@@ -101,7 +108,7 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
               onClick={toggleMega}
               className={`eyebrow flex items-center gap-2 py-3 transition-colors ${megaOpen ? "text-flores-300" : "text-cream-100 hover:text-flores-300"}`}
             >
-              Kahveler
+              {t.nav.coffees}
               <svg viewBox="0 0 10 6" className={`size-2.5 transition-transform ${megaOpen ? "rotate-180" : ""}`} aria-hidden>
                 <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.4" />
               </svg>
@@ -112,12 +119,12 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
                 href={l.href}
                 onMouseEnter={scheduleClose}
                 lang={l.en ? "en" : undefined}
-                className={`eyebrow flex items-center gap-2 py-3 transition-colors hover:text-flores-300 ${pathname.startsWith(l.href) ? "text-flores-300" : "text-cream-100"}`}
+                className={`eyebrow flex items-center gap-2 py-3 transition-colors hover:text-flores-300 ${path.startsWith(l.href) ? "text-flores-300" : "text-cream-100"}`}
               >
-                {l.label}
-                {l.badge && (
+                {t.nav[l.key]}
+                {l.badge && site.coffeeBar.promo && (
                   <span lang="tr" className="rounded-full bg-flores-500 px-1.5 py-0.5 text-[0.5rem] tracking-[0.15em] text-ink-950">
-                    {l.badge}
+                    {t.nav.freeBadge}
                   </span>
                 )}
               </Link>
@@ -125,16 +132,17 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
           </nav>
 
           <div className="flex items-center gap-1 md:gap-3">
+            <LanguageSwitcher className="hidden md:flex" />
             <Link
               href={loggedIn ? "/hesabim" : "/giris"}
               className="eyebrow hidden px-3 py-3 text-cream-100 transition-colors hover:text-flores-300 sm:block"
             >
-              {loggedIn ? "Hesabım" : "Giriş"}
+              {loggedIn ? t.nav.account : t.nav.login}
             </Link>
             <button
               type="button"
               onClick={openCart}
-              aria-label={`Sepeti aç (${count} ürün)`}
+              aria-label={fmt(t.nav.openCart, { n: count })}
               className="relative flex size-11 items-center justify-center text-cream-100 transition-colors hover:text-flores-300"
             >
               <svg viewBox="0 0 24 24" className="size-[22px]" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
@@ -152,7 +160,7 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
               onClick={() => setMobileOpen((v) => !v)}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
-              aria-label={mobileOpen ? "Menüyü kapat" : "Menüyü aç"}
+              aria-label={mobileOpen ? t.nav.closeMenu : t.nav.openMenu}
               className="flex size-11 flex-col items-center justify-center gap-[7px] xl:hidden"
             >
               <span className={`h-px w-7 bg-cream-50 transition-transform duration-300 ${mobileOpen ? "translate-y-[4px] rotate-45" : ""}`} />

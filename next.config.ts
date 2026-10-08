@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
 
+/** WordPress görselleri (otomatik eklenen ürünler) — WOOCOMMERCE_URL'nin alan adı + bilinen adresler */
+const wpHosts = Array.from(
+  new Set(
+    ["floresroastery.com", "www.floresroastery.com", "panel.floresroastery.com", process.env.WOOCOMMERCE_URL ? new URL(process.env.WOOCOMMERCE_URL).hostname : ""].filter(
+      (h) => h && h !== "127.0.0.1",
+    ),
+  ),
+);
+
 /**
  * Content-Security-Policy
  *
@@ -62,7 +71,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
-    qualities: [60, 75, 85],
+    // yüksek kalite: fotoğraflar 85–90 ile sunulur (ana sayfa kalitesi)
+    qualities: [60, 75, 85, 90],
+    deviceSizes: [640, 828, 1080, 1280, 1600, 1920, 2560],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+    remotePatterns: wpHosts.map((hostname) => ({ protocol: "https" as const, hostname, pathname: "/wp-content/uploads/**" })),
   },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];

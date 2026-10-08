@@ -17,7 +17,7 @@ export const categories: Category[] = [
     tagline: "Tek bir bölgenin, tek bir hasadın imzası.",
     description:
       "Tek bir ülke, bölge ve çoğu zaman tek bir üreticiden gelen kahveler. Java'nın volkanik yamaçlarından El Salvador'un aile çiftliklerine; toprağın, rakımın ve işleme yönteminin izini fincanda en saf hâliyle taşır.",
-    image: photos.cherriesHands,
+    image: photos.coffeeBarJars,
   },
   {
     slug: "blends",
@@ -25,7 +25,7 @@ export const categories: Category[] = [
     tagline: "Etiyopya ile Endonezya, aynı fincanda.",
     description:
       "Manis, Pagi ve Tanah: Etiyopya'nın meyvesini Endonezya'nın gövdesiyle buluşturan günlük harmanlarımız. Adlarını Endonezce'den alırlar — tatlı, sabah ve toprak.",
-    image: photos.pourOver,
+    image: photos.coffeeShelf,
   },
   {
     slug: "espresso",
@@ -33,7 +33,22 @@ export const categories: Category[] = [
     tagline: "Basınç altında parlayan gövde ve tatlılık.",
     description:
       "Espressoda ve sütlü içeceklerde parlayan kahveler. Yoğun gövde, uzun bitiş ve kremalı doku; moka pot ve Türk kahvesi için de güvenilir seçimler.",
-    image: photos.espressoShot,
+    image: photos.espressoMachine,
+  },
+  {
+    slug: "sets",
+    name: "Sets & Boxes",
+    tagline: "Hediye etmek ya da tadarak keşfetmek için.",
+    description:
+      "Endonezya serisinin dört çekirdeğini ya da Manis, Pagi ve Tanah harmanlarını bir arada deneyin. Hediye kutuları ve keşif setleri; her biri haftalık taze kavrum.",
+    image: photos.boxesNature,
+  },
+  {
+    slug: "accessories",
+    name: "Accessories",
+    tagline: "Demleme masanız için el yapımı parçalar.",
+    description: "El yapımı deri kettle ve filtre kağıdı kılıfları — demleme ritüelinize Flores dokunuşu.",
+    image: photos.brewKit,
   },
 ];
 
@@ -88,17 +103,8 @@ const variants = (sku: string, rows: V[]): ProductVariant[] =>
   }));
 const soldOut = (rows: ProductVariant[]) => rows.map((v) => ({ ...v, inStock: false }));
 
-export const GRIND_OPTIONS = [
-  "Çekirdek (öğütülmemiş)",
-  "Türk Kahvesi",
-  "Espresso",
-  "Moka Pot",
-  "Filtre (makine)",
-  "V60",
-  "Origami",
-  "French Press",
-  "Cold Brew",
-];
+import { GRIND_OPTIONS } from "./grind";
+export { GRIND_OPTIONS };
 
 const img = (slug: string, bg: string, packaging: "box" | "pouch" = "box", aspect = 1.09) => ({
   card: `/coffees/${slug}.webp`,

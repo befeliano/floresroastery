@@ -1,11 +1,17 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { isSoldOut, type CardProduct } from "@/lib/commerce/types";
 import { formatPrice } from "@/lib/format";
-import { photos } from "@/lib/photos";
+import { EmTitle } from "@/components/em-title";
+import { pages } from "@/i18n/messages/pages";
+import { localPhotos, t } from "@/i18n/server";
+
 
 /** Ruso Exotics — Endonezya doğrudan ticaret serisi */
-export function RusoExotics({ products }: { products: CardProduct[] }) {
+export async function RusoExotics({ products }: { products: CardProduct[] }) {
+  const h = await t(pages.home);
+  const photos = await localPhotos();
+  const ui = await t((await import("@/i18n/messages/ui")).ui.common);
   return (
     <section className="mx-auto w-full max-w-[1440px] px-5 py-24 md:px-10 md:py-32">
       <div className="reveal relative overflow-hidden rounded-sm">
@@ -14,7 +20,7 @@ export function RusoExotics({ products }: { products: CardProduct[] }) {
           alt={photos.storyIndonesia.alt}
           width={1600}
           height={560}
-          quality={75}
+          quality={90}
           sizes="(min-width: 1440px) 1360px, 100vw"
           className="h-auto w-full"
         />
@@ -26,14 +32,11 @@ export function RusoExotics({ products }: { products: CardProduct[] }) {
             Ruso Exotics · Direct Trade
           </p>
           <h2 className="mt-4 font-serif text-5xl leading-tight md:text-6xl">
-            Java&apos;nın volkanik yamaçlarından, <em className="text-flores-300">aracısız.</em>
+            <EmTitle parts={h.rusoTitle} />
           </h2>
-          <p className="mt-6 max-w-lg text-lg text-cream-300">
-            Ruso Exotics, Endonezya&apos;daki üreticilerimizle bizzat el sıkışarak seçtiğimiz sınırlı stoklu lotlarımız. Garut&apos;un sisli
-            tepelerinden Papandayan Yanardağı&apos;nın eteklerine; çiftçinin avucundan kavurucumuza uzanan bir yolculuk.
-          </p>
+          <p className="mt-6 max-w-lg text-lg text-cream-300">{h.rusoText}</p>
           <Link href="/kahveler?koleksiyon=ruso-exotics" className="btn btn-ghost mt-10">
-            Seriyi keşfet
+            {h.rusoCta}
           </Link>
         </div>
 
@@ -48,7 +51,7 @@ export function RusoExotics({ products }: { products: CardProduct[] }) {
                   <div className="arch relative aspect-[3/4]" style={{ backgroundColor: p.image.bg }}>
                     <Image
                       src={p.image.card}
-                      alt={`Ruso Exotics ${p.fullName} kahve kutusu`}
+                      alt={h.rusoAlt.replace("{name}", p.fullName)}
                       fill
                       sizes="(min-width: 640px) 18rem, 62vw"
                       className={`object-cover transition-transform duration-[1.2s] group-hover:scale-105 ${soldOut ? "grayscale-[0.6]" : ""}`}
@@ -61,7 +64,7 @@ export function RusoExotics({ products }: { products: CardProduct[] }) {
                       .map((n) => n.label)
                       .join(" · ")}
                   </p>
-                  <p className="mt-1 font-mono text-xs text-cream-300">{soldOut ? "Stokta yok" : from != null ? `${formatPrice(from)}'den` : ""}</p>
+                  <p className="mt-1 font-mono text-xs text-cream-300">{soldOut ? ui.outOfStock : from != null ? ui.fromPrice.replace("{price}", formatPrice(from)) : ""}</p>
                 </Link>
               </li>
             );

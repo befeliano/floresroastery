@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { canCreateWooOrders, getWooOrder, orderPayUrl, type WooOrder } from "@/lib/commerce/woocommerce";
 import { db, STATUS_LABEL } from "@/lib/orders/store";
 import { wooStatus, wooStatusLabel } from "@/lib/orders/woo-status";
-import { guard, jsonError } from "@/lib/security/guard";
+import { guard, jsonError, refererLocale } from "@/lib/security/guard";
 import { LIMITS } from "@/lib/security/rate-limit";
 import { cleanEmail, cleanLine } from "@/lib/security/sanitize";
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       statusLabel: wooStatusLabel(woo.status),
       paymentMethod: woo.payment_method === "bacs" ? "bacs" : "iyzico",
       // ödenmemiş kart siparişinde müşteri ödemeyi tamamlayabilsin
-      paymentUrl: woo.status === "pending" ? orderPayUrl(woo) : undefined,
+      paymentUrl: woo.status === "pending" ? orderPayUrl(woo, refererLocale(req)) : undefined,
       lines: woo.line_items.map((l) => ({ name: l.name, variantLabel: "", grind: grind(l), quantity: l.quantity, lineTotal: Number(l.total) })),
       subtotal: woo.line_items.reduce((n, l) => n + Number(l.total), 0),
       shipping: Number(woo.shipping_total),

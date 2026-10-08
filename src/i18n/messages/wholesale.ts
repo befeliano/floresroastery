@@ -1,0 +1,208 @@
+/**
+ * Toptan satış içeriği — b2b.floresroastery.com ve B2B konfigüratörünün (WordPress /olustur)
+ * kademeli fiyat tablosundan. Güncel fiyatlar konfigüratörde WordPress'ten gelir.
+ */
+export const wholesale = {
+  meta: {
+    title: { tr: "Toptan Kahve — Otel, Restoran & Kafe Tedariği", en: "Wholesale Coffee — Supply for Hotels, Restaurants & Cafés", id: "Kopi Grosir — Pasokan untuk Hotel, Restoran & Kafe" },
+    description: {
+      tr: "Otel, restoran, kafe ve ofisler için siparişe özel kavrulan specialty çekirdek. Kademeli kg fiyatı, minimum 5 kg, private label ve Türkiye geneli teslimat.",
+      en: "Specialty beans roasted to order for hotels, restaurants, cafés and offices. Tiered per-kg pricing, 5 kg minimum, private label and delivery across Türkiye.",
+      id: "Biji kopi spesialti yang disangrai sesuai pesanan untuk hotel, restoran, kafe, dan kantor. Harga bertingkat per kg, minimum 5 kg, private label, dan pengiriman ke seluruh Turki.",
+    },
+  },
+  waText: { tr: "Merhaba, Flores toptan teklifi almak istiyorum.", en: "Hello, I'd like a wholesale quote from Flores.", id: "Halo, saya ingin penawaran grosir dari Flores." },
+  eyebrow: { tr: "B2B · HoReCa tedarik", en: "B2B · HoReCa supply", id: "B2B · Pasokan HoReCa" },
+  heading: { a: { tr: "Specialty kahveyi işletmenizin ", en: "Make specialty coffee your business's ", id: "Jadikan kopi spesialti sebagai " }, em: { tr: "standardı", en: "standard", id: "standar" }, b: { tr: " yapın.", en: ".", id: " bisnis Anda." } },
+  intro: {
+    tr: "Otel, restoran, kafe ve ofisler için siparişe özel kavrulan specialty çekirdek. İstikrarlı kalite, düzenli teslimat ve isterseniz kendi markanızla private label — ihtiyacınıza göre kurgulanır.",
+    en: "Specialty beans roasted to order for hotels, restaurants, cafés and offices. Consistent quality, regular delivery and, if you like, private label under your own brand — built around your needs.",
+    id: "Biji kopi spesialti yang disangrai sesuai pesanan untuk hotel, restoran, kafe, dan kantor. Kualitas konsisten, pengiriman rutin, dan bila diinginkan private label dengan merek Anda sendiri — disesuaikan dengan kebutuhan Anda.",
+  },
+  createOrder: { tr: "Sipariş oluştur →", en: "Build an order →", id: "Buat pesanan →" },
+  requestQuote: { tr: "Teklif iste", en: "Request a quote", id: "Minta penawaran" },
+  stats: [
+    { value: "80+", label: { tr: "SCA puanı", en: "SCA score", id: "Skor SCA" } },
+    { value: "24 s", label: { tr: "Teklif yanıtı", en: "Quote reply (hours)", id: "Balasan penawaran (jam)" } },
+    { value: "5 kg", label: { tr: "Min. sipariş", en: "Min. order", id: "Min. pesanan" } },
+    { value: "0₺", label: { tr: "Kurulum ücreti", en: "Setup fee", id: "Biaya penyiapan" } },
+  ],
+  onlineEyebrow: { tr: "Online sipariş", en: "Order online", id: "Pesan online" },
+  onlineTitle: { tr: "İşletmenize özel harmanı kendiniz oluşturun", en: "Build your own house blend", id: "Racik blend khusus bisnis Anda sendiri" },
+  onlineText: {
+    tr: "Çekirdek, harman oranı, kavurma, miktar ve ambalajı adım adım seçin; fiyatı anında görün, sepete ekleyip güvenle ödeyin. Minimum toplam 5 kg — farklı çekirdekleri karıştırabilirsiniz.",
+    en: "Choose beans, blend ratio, roast, quantity and packaging step by step; see the price instantly, add to cart and pay securely. 5 kg minimum in total — you can mix different beans.",
+    id: "Pilih biji, rasio blend, sangrai, jumlah, dan kemasan langkah demi langkah; lihat harga langsung, masukkan ke keranjang, dan bayar dengan aman. Minimum total 5 kg — boleh campur biji berbeda.",
+  },
+  onlineCta: { tr: "Sipariş oluşturmaya başla →", en: "Start building your order →", id: "Mulai buat pesanan →" },
+  orderFormTr: {
+    tr: "",
+    en: "The order builder is in Turkish; prices are in Turkish lira and include VAT.",
+    id: "Pembuat pesanan berbahasa Turki; harga dalam lira Turki dan sudah termasuk PPN.",
+  },
+  builderSteps: [
+    { tr: "Kahve tipi", en: "Coffee type", id: "Jenis kopi" },
+    { tr: "Single origin, blend ya da hazır reçete", en: "Single origin, blend or a ready recipe", id: "Single origin, blend, atau resep siap pakai" },
+    { tr: "Çekirdekler ve kg", en: "Beans and kg", id: "Biji dan kg" },
+    { tr: "Kavurma", en: "Roast", id: "Sangrai" },
+    { tr: "Öğütme", en: "Grind", id: "Gilingan" },
+    { tr: "Paket & ambalaj", en: "Bags & packaging", id: "Kemasan" },
+    { tr: "Sepet ve ödeme", en: "Cart and payment", id: "Keranjang dan pembayaran" },
+  ],
+  tiersTitle: { tr: "Kademeli kg fiyatları", en: "Tiered per-kg prices", id: "Harga bertingkat per kg" },
+  tiersText: {
+    tr: "Aldığınız miktar arttıkça kg fiyatı düşer. Fiyatlar KDV dahildir; güncel fiyat sipariş ekranında gösterilir.",
+    en: "The more you buy, the lower the per-kg price. Prices include VAT; the current price is shown in the order builder.",
+    id: "Semakin banyak yang dibeli, semakin murah harga per kg. Harga sudah termasuk PPN; harga terbaru ditampilkan di layar pemesanan.",
+  },
+  bean: { tr: "Çekirdek", en: "Bean", id: "Biji" },
+  tier: { tr: "Kademe (kg fiyatı)", en: "Tier (price per kg)", id: "Tingkat (harga per kg)" },
+  tiers: [
+    { name: { tr: "Endonezya Arjuna", en: "Indonesia Arjuna", id: "Indonesia Arjuna" }, process: "Wet Hulled", tiers: [[1, 1100], [20, 1075], [30, 1050]] },
+    { name: { tr: "Brezilya Mogiana", en: "Brazil Mogiana", id: "Brasil Mogiana" }, process: "Natural", tiers: [[1, 1100], [5, 1000], [10, 950]] },
+    { name: { tr: "El Salvador Ochuspe", en: "El Salvador Ochuspe", id: "El Salvador Ochuspe" }, process: "Anaerobic Natural", tiers: [[1, 1350], [10, 1250]] },
+    { name: { tr: "Meksika Decaf", en: "Mexico Decaf", id: "Meksiko Dekaf" }, process: "Swiss Water", tiers: [[1, 1350], [3, 1285]] },
+    { name: { tr: "Endonezya Guntur", en: "Indonesia Guntur", id: "Indonesia Guntur" }, process: "Honey", tiers: [[1, 1450], [3, 1350]] },
+    { name: { tr: "Endonezya Frinsa", en: "Indonesia Frinsa", id: "Indonesia Frinsa" }, process: "Honey Saccharomyces", tiers: [[1, 1950], [3, 1800]] },
+    { name: { tr: "Ethiopia Bombe", en: "Ethiopia Bombe", id: "Etiopia Bombe" }, process: "Honey", tiers: [[1, 1950]] },
+    { name: { tr: "Endonezya Papandayan", en: "Indonesia Papandayan", id: "Indonesia Papandayan" }, process: "Natural", tiers: [[1, 2250], [3, 2050]] },
+    { name: { tr: "Watermelon (Kolombiya)", en: "Watermelon (Colombia)", id: "Watermelon (Kolombia)" }, process: "Washed", tiers: [[1, 3250]] },
+    { name: { tr: "Türk Kahvesi", en: "Turkish coffee", id: "Kopi Turki" }, process: "Natural", tiers: [[1, 750], [3, 700]] },
+  ] as { name: { tr: string; en: string; id: string }; process: string; tiers: [minKg: number, price: number][] }[],
+  packagingTitle: { tr: "Paket & ambalaj", en: "Bags & packaging", id: "Kemasan" },
+  packaging: [
+    { size: "1000 gr", text: { tr: "Toptan alımlar için", en: "For wholesale orders", id: "Untuk pembelian grosir" }, bags: { tr: "Siyah / beyaz doypack, kraft, renkli, krem, siyah transparan", en: "Black / white doypack, kraft, coloured, cream, black transparent", id: "Doypack hitam / putih, kraft, berwarna, krem, hitam transparan" } },
+    { size: "500 gr", text: { tr: "Kafe ve küçük işletmeler", en: "Cafés and small businesses", id: "Kafe dan usaha kecil" }, bags: { tr: "Siyah / beyaz doypack, kraft, renkli", en: "Black / white doypack, kraft, coloured", id: "Doypack hitam / putih, kraft, berwarna" } },
+    { size: "200 gr", text: { tr: "Standart perakende paketi", en: "Standard retail bag", id: "Kemasan ritel standar" }, bags: { tr: "Siyah cüzdan, kraft, renkli, siyah transparan", en: "Black flat-bottom, kraft, coloured, black transparent", id: "Pouch hitam, kraft, berwarna, hitam transparan" } },
+    { size: "100 gr", text: { tr: "Deneme veya hediye boyu", en: "Sample or gift size", id: "Ukuran coba atau hadiah" }, bags: { tr: "Siyah cüzdan, kraft, renkli", en: "Black flat-bottom, kraft, coloured", id: "Pouch hitam, kraft, berwarna" } },
+  ],
+  whyEyebrow: { tr: "Neden Flores?", en: "Why Flores?", id: "Mengapa Flores?" },
+  whyTitle: { tr: "HoReCa odaklı, istikrarlı tedarik", en: "Consistent, HoReCa-focused supply", id: "Pasokan konsisten, fokus HoReCa" },
+  features: [
+    { title: { tr: "Doğrudan kaynaklı", en: "Directly sourced", id: "Sumber langsung" }, text: { tr: "Endonezya menşeli seçilmiş specialty kahveler ve direct trade çekirdekler.", en: "Selected specialty coffees from Indonesia and direct-trade beans.", id: "Kopi spesialti pilihan dari Indonesia dan biji direct trade." } },
+    { title: { tr: "İstikrarlı roast profili", en: "Consistent roast profiles", id: "Profil sangrai konsisten" }, text: { tr: "Espresso ve filtre için ayrı profiller. Her siparişte aynı kalite ve tat standardı.", en: "Separate profiles for espresso and filter. The same quality and taste standard on every order.", id: "Profil terpisah untuk espresso dan filter. Standar kualitas dan rasa yang sama di setiap pesanan." } },
+    { title: { tr: "Private label altyapısı", en: "Private label ready", id: "Siap private label" }, text: { tr: "Kendi markanızla kahve satmanız için kavurma, paketleme ve kalite kontrol hazır.", en: "Roasting, packing and quality control ready for you to sell coffee under your own brand.", id: "Sangrai, pengemasan, dan kontrol kualitas siap agar Anda bisa menjual kopi dengan merek sendiri." } },
+    { title: { tr: "Specialty grade", en: "Specialty grade", id: "Specialty grade" }, text: { tr: "Çekirdekler SCA standartlarında 80+ puan. Menünüzün kalite tabanı sabit kalır.", en: "Beans scoring 80+ on SCA standards. Your menu's quality baseline stays put.", id: "Biji dengan skor 80+ standar SCA. Kualitas dasar menu Anda tetap terjaga." } },
+    { title: { tr: "Teknik destek", en: "Technical support", id: "Dukungan teknis" }, text: { tr: "Kavurma profili, demleme reçeteleri ve baristanız için menü geliştirme rehberliği.", en: "Guidance on roast profiles, brew recipes and menu development for your baristas.", id: "Panduan profil sangrai, resep seduh, dan pengembangan menu untuk barista Anda." } },
+    { title: { tr: "Türkiye geneli teslimat", en: "Delivery across Türkiye", id: "Pengiriman ke seluruh Turki" }, text: { tr: "Düzenli teslimat planı, sabit fiyat anlaşması ve öncelikli müşteri hattı.", en: "A regular delivery plan, fixed-price agreement and a priority customer line.", id: "Jadwal pengiriman rutin, kesepakatan harga tetap, dan jalur pelanggan prioritas." } },
+  ],
+  howTitle: { tr: "Tanışmadan ilk teslimata", en: "From first chat to first delivery", id: "Dari perkenalan hingga pengiriman pertama" },
+  steps: [
+    { title: { tr: "İhtiyaç analizi", en: "Needs analysis", id: "Analisis kebutuhan" }, text: { tr: "Formu doldurun ya da WhatsApp'tan yazın. İşletme tipinizi ve tahmini miktarı öğrenelim.", en: "Fill in the form or message us on WhatsApp. Tell us your business type and estimated volume.", id: "Isi formulir atau chat via WhatsApp. Beri tahu jenis bisnis dan perkiraan volume Anda." } },
+    { title: { tr: "Numune & cupping", en: "Samples & cupping", id: "Sampel & cupping" }, text: { tr: "Damağınıza uygun çekirdekleri öneririz, numune göndeririz ve 24 saatte fiyat çıkarırız.", en: "We suggest beans to suit your taste, send samples and price it within 24 hours.", id: "Kami sarankan biji sesuai selera, mengirim sampel, dan memberi harga dalam 24 jam." } },
+    { title: { tr: "Fiyat & onay", en: "Pricing & approval", id: "Harga & persetujuan" }, text: { tr: "Miktar, teslimat sıklığı ve isterseniz private label detaylarını netleştirip planı sabitleriz.", en: "We agree on volume, delivery frequency and, if needed, private-label details, then lock in the plan.", id: "Kami sepakati volume, frekuensi pengiriman, dan detail private label bila perlu, lalu tetapkan rencananya." } },
+    { title: { tr: "Düzenli üretim", en: "Regular production", id: "Produksi rutin" }, text: { tr: "Siparişe özel kavurup teslim ederiz. Sabit fiyat, öncelikli hat ve sürekli destek devam eder.", en: "We roast to order and deliver. Fixed price, a priority line and ongoing support continue.", id: "Kami sangrai sesuai pesanan dan kirim. Harga tetap, jalur prioritas, dan dukungan berkelanjutan." } },
+  ],
+  plansTitle: { tr: "İşletmenize uygun başlangıç", en: "The right start for your business", id: "Awal yang tepat untuk bisnis Anda" },
+  plansText: { tr: "Fiyatlar ürüne ve miktara göre değişir. Paketi seçin, size özel teklif hazırlayalım.", en: "Prices depend on the product and volume. Pick a plan and we'll prepare a tailored quote.", id: "Harga tergantung produk dan volume. Pilih paket, kami siapkan penawaran khusus." },
+  popular: { tr: "En popüler", en: "Most popular", id: "Paling populer" },
+  plans: [
+    {
+      name: { tr: "Başlangıç", en: "Starter", id: "Starter" },
+      min: { tr: "5 kg / aylık min.", en: "5 kg / month min.", id: "Min. 5 kg / bulan" },
+      text: { tr: "Küçük kafe ve ofisler için ideal giriş paketi.", en: "An ideal starter plan for small cafés and offices.", id: "Paket awal ideal untuk kafe kecil dan kantor." },
+      items: [
+        { tr: "Tüm specialty çekirdekler", en: "All specialty beans", id: "Semua biji spesialti" },
+        { tr: "3 farklı ürün seçimi", en: "Choice of 3 products", id: "Pilihan 3 produk" },
+        { tr: "Siparişe özel kavurma", en: "Roasted to order", id: "Disangrai sesuai pesanan" },
+        { tr: "Standart ambalaj", en: "Standard packaging", id: "Kemasan standar" },
+        { tr: "E-posta destek", en: "Email support", id: "Dukungan email" },
+      ],
+    },
+    {
+      name: { tr: "Profesyonel", en: "Professional", id: "Profesional" },
+      min: { tr: "15 kg / aylık min.", en: "15 kg / month min.", id: "Min. 15 kg / bulan" },
+      text: { tr: "Aktif kafe ve restoranlar için eksiksiz çözüm.", en: "The complete solution for busy cafés and restaurants.", id: "Solusi lengkap untuk kafe dan restoran yang ramai." },
+      popular: true,
+      items: [
+        { tr: "Tüm specialty çekirdekler", en: "All specialty beans", id: "Semua biji spesialti" },
+        { tr: "Sınırsız ürün seçimi", en: "Unlimited product choice", id: "Pilihan produk tanpa batas" },
+        { tr: "Espresso & filtre ayrı roast", en: "Separate espresso & filter roasts", id: "Sangrai espresso & filter terpisah" },
+        { tr: "Özel etiket seçeneği", en: "Custom label option", id: "Opsi label khusus" },
+        { tr: "Demleme danışmanlığı", en: "Brewing consultancy", id: "Konsultasi seduh" },
+        { tr: "Öncelikli müşteri hattı", en: "Priority customer line", id: "Jalur pelanggan prioritas" },
+      ],
+    },
+    {
+      name: { tr: "Kurumsal", en: "Enterprise", id: "Korporat" },
+      min: { tr: "50 kg+ / aylık min.", en: "50 kg+ / month min.", id: "Min. 50 kg+ / bulan" },
+      text: { tr: "Otel, zincir ve private label projeleri için.", en: "For hotels, chains and private-label projects.", id: "Untuk hotel, jaringan usaha, dan proyek private label." },
+      items: [
+        { tr: "Sınırsız ürün seçimi", en: "Unlimited product choice", id: "Pilihan produk tanpa batas" },
+        { tr: "Tam private label", en: "Full private label", id: "Private label penuh" },
+        { tr: "Özel ambalaj tasarımı", en: "Custom packaging design", id: "Desain kemasan khusus" },
+        { tr: "Düzenli teslimat planı", en: "Regular delivery plan", id: "Jadwal pengiriman rutin" },
+        { tr: "Sabit fiyat anlaşması", en: "Fixed-price agreement", id: "Kesepakatan harga tetap" },
+        { tr: "Ekip eğitimi", en: "Team training", id: "Pelatihan tim" },
+      ],
+    },
+  ],
+  plTitle: { a: { tr: "Kendi markanız, ", en: "Your brand, ", id: "Merek Anda, " }, em: { tr: "bizim kavurmamız.", en: "our roasting.", id: "sangrai kami." } },
+  plText: {
+    tr: "Kendi kahve markanızı oluşturmak için kavurma ekipmanı veya üretim yatırımı yapmanıza gerek yok. Kavurma, paketleme ve kalite kontrol süreçlerini sizin adınıza yönetiyoruz; marka tamamen sizde kalır.",
+    en: "You don't need roasting equipment or a production investment to create your own coffee brand. We manage roasting, packing and quality control on your behalf; the brand stays entirely yours.",
+    id: "Anda tidak perlu mesin sangrai atau investasi produksi untuk membuat merek kopi sendiri. Kami mengelola sangrai, pengemasan, dan kontrol kualitas atas nama Anda; mereknya sepenuhnya milik Anda.",
+  },
+  plItems: [
+    { tr: "Damak profilinize göre özel blend geliştirme", en: "A custom blend developed for your taste profile", id: "Blend khusus sesuai profil rasa Anda" },
+    { tr: "Etiket ve ambalaj tasarımı desteği", en: "Label and packaging design support", id: "Dukungan desain label dan kemasan" },
+    { tr: "Esnek miktar — pilot üretimden seri üretime", en: "Flexible volumes — from pilot runs to series production", id: "Volume fleksibel — dari produksi uji hingga produksi massal" },
+    { tr: "Ortalama 1–2 haftada üretime hazır", en: "Production-ready in 1–2 weeks on average", id: "Siap produksi rata-rata dalam 1–2 minggu" },
+  ],
+  faqTitle: { tr: "Sıkça sorulanlar", en: "FAQ", id: "Pertanyaan umum" },
+  faq: [
+    {
+      q: { tr: "Minimum sipariş miktarı nedir?", en: "What is the minimum order?", id: "Berapa pesanan minimum?" },
+      a: {
+        tr: "Toptan tedarikte minimum 5 kg ile başlıyoruz; farklı çekirdekler karıştırılabilir. İşletme tipinize ve ürün çeşidinize göre en uygun başlangıç paketini birlikte belirleriz.",
+        en: "Wholesale starts at a 5 kg minimum, and different beans can be mixed. Together we'll find the best starter plan for your business type and product range.",
+        id: "Grosir dimulai dari minimum 5 kg, dan biji yang berbeda boleh dicampur. Bersama-sama kita tentukan paket awal terbaik sesuai jenis bisnis dan ragam produk Anda.",
+      },
+    },
+    {
+      q: { tr: "Espresso ve filtre için ayrı kavrum yapıyor musunuz?", en: "Do you roast separately for espresso and filter?", id: "Apakah sangrai untuk espresso dan filter dibedakan?" },
+      a: {
+        tr: "Evet. Espresso ve filtre için ayrı roast profilleri sunuyoruz, böylece her demleme yöntemi en iyi sonucu verir.",
+        en: "Yes. We offer separate roast profiles for espresso and filter, so every brew method gets the best result.",
+        id: "Ya. Kami menyediakan profil sangrai terpisah untuk espresso dan filter, agar setiap metode seduh memberi hasil terbaik.",
+      },
+    },
+    {
+      q: { tr: "Fiyatları nereden görebilirim?", en: "Where can I see prices?", id: "Di mana saya bisa melihat harga?" },
+      a: {
+        tr: "Sipariş Oluştur adımlarında çekirdek, miktar ve ambalajı seçtikçe fiyatı anlık görürsünüz — aldığınız miktar arttıkça kilogram fiyatı kademeli olarak düşer. Private label, özel blend veya düzenli tedarik için işletmenize özel teklif hazırlıyoruz.",
+        en: "In the order builder you see the price instantly as you choose beans, quantity and packaging — the per-kg price drops in tiers as you buy more. For private label, custom blends or regular supply we prepare a tailored quote.",
+        id: "Di pembuat pesanan, harga langsung terlihat saat Anda memilih biji, jumlah, dan kemasan — harga per kg turun bertingkat seiring jumlah. Untuk private label, blend khusus, atau pasokan rutin, kami siapkan penawaran khusus.",
+      },
+    },
+    {
+      q: { tr: "Nasıl ödeme yapabilirim?", en: "How can I pay?", id: "Bagaimana cara membayar?" },
+      a: {
+        tr: "Sipariş Oluştur ile harmanınızı adım adım kurup sepete ekleyerek online ödeyebilirsiniz — fiyatlara KDV dahildir. Havale/EFT'de komisyon %0'dır; kredi kartı ile de ödeme kabul edilir. Dilerseniz teklif formuyla ödeme koşullarını birebir de netleştirebiliriz.",
+        en: "Build your blend step by step in the order builder, add it to the cart and pay online — prices include VAT. Bank transfers carry 0% commission, and credit cards are accepted too. We can also agree payment terms one-to-one via the quote form.",
+        id: "Racik blend langkah demi langkah di pembuat pesanan, masukkan ke keranjang, lalu bayar online — harga sudah termasuk PPN. Transfer bank tanpa komisi, kartu kredit juga diterima. Syarat pembayaran juga bisa disepakati langsung lewat formulir penawaran.",
+      },
+    },
+    {
+      q: { tr: "Türkiye geneline gönderim yapıyor musunuz?", en: "Do you deliver across Türkiye?", id: "Apakah mengirim ke seluruh Turki?" },
+      a: {
+        tr: "Evet, Türkiye'nin tüm şehirlerine gönderim sağlıyoruz. Düzenli tedarikte sabit bir teslimat takvimi kurarak stoğunuzun boşa düşmesini engelliyoruz.",
+        en: "Yes, we ship to every city in Türkiye. For regular supply we set a fixed delivery schedule so you never run out.",
+        id: "Ya, kami mengirim ke semua kota di Turki. Untuk pasokan rutin kami buat jadwal pengiriman tetap agar stok Anda tidak pernah habis.",
+      },
+    },
+    {
+      q: { tr: "Private label süreci ne kadar sürer?", en: "How long does private label take?", id: "Berapa lama proses private label?" },
+      a: {
+        tr: "Ortalama 1–2 hafta içinde üretime hazır hale gelir. Kurulum ücreti almıyoruz; tasarım ve ambalaj maliyetleri projenin kapsamına göre şeffaf şekilde paylaşılır.",
+        en: "It's production-ready in 1–2 weeks on average. There's no setup fee; design and packaging costs are shared transparently depending on the project scope.",
+        id: "Rata-rata siap produksi dalam 1–2 minggu. Tanpa biaya penyiapan; biaya desain dan kemasan disampaikan secara transparan sesuai cakupan proyek.",
+      },
+    },
+  ],
+  quoteEyebrow: { tr: "Teklif isteyin", en: "Request a quote", id: "Minta penawaran" },
+  quoteTitle: { tr: "Hemen başlayalım", en: "Let's get started", id: "Ayo mulai" },
+  quoteText: { tr: "Formu doldurun, 24 saat içinde işletmenize özel teklifi hazırlayıp dönelim.", en: "Fill in the form and we'll get back to you with a tailored quote within 24 hours.", id: "Isi formulir dan kami akan membalas dengan penawaran khusus dalam 24 jam." },
+  fastest: { tr: "En hızlı yanıt — direkt yazın, konuşalım.", en: "Fastest reply — just message us.", id: "Balasan tercepat — langsung chat saja." },
+  tasting: { tr: "Deneyim barında tadım →", en: "Tasting at our experience bar →", id: "Cicip di experience bar kami →" },
+};

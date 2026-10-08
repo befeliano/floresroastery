@@ -1,5 +1,7 @@
-import Link from "next/link";
+import Link from "@/i18n/link";
 import { JsonLd } from "@/components/json-ld";
+import { pages } from "@/i18n/messages/pages";
+import { href, t } from "@/i18n/server";
 import { breadcrumbSchema } from "@/lib/seo";
 
 export interface Crumb {
@@ -8,11 +10,13 @@ export interface Crumb {
 }
 
 /** Görünür içerik izi + BreadcrumbList şeması */
-export function Breadcrumbs({ items, className = "" }: { items: Crumb[]; className?: string }) {
+export async function Breadcrumbs({ items, className = "" }: { items: Crumb[]; className?: string }) {
+  const c = await t(pages.crumbs);
+  const localized = await Promise.all(items.map(async (i) => ({ ...i, path: await href(i.path) })));
   return (
     <>
-      <JsonLd data={breadcrumbSchema(items)} />
-      <nav aria-label="İçerik izi" className={className}>
+      <JsonLd data={breadcrumbSchema(localized)} />
+      <nav aria-label={c.aria} className={className}>
         <ol className="flex flex-wrap items-center gap-2 text-xs text-cream-500">
           {items.map((c, i) => {
             const last = i === items.length - 1;

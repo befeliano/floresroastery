@@ -52,3 +52,13 @@ export async function guard(
     return { response: jsonError("Geçersiz veri.", 400) };
   }
 }
+
+/** İsteğin geldiği sayfanın dili (Referer: /en/odeme → "en") — API yönlendirmelerinde kullanılır */
+export function refererLocale(req: NextRequest): "tr" | "en" | "id" {
+  try {
+    const seg = new URL(req.headers.get("referer") ?? "/", "http://x").pathname.split("/")[1];
+    return seg === "en" || seg === "id" ? seg : "tr";
+  } catch {
+    return "tr";
+  }
+}

@@ -2,7 +2,8 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { categories, products as catalog } from "./catalog";
 import { isSoldOut, type CategorySlug, type Product } from "./types";
-import { isWooConfigured, syncWithWoo } from "./woocommerce";
+import { syncWithWoo } from "./woo-sync";
+import { isWooConfigured } from "./woocommerce";
 
 export type * from "./types";
 export { isSoldOut, primaryCategory, toCard } from "./types";

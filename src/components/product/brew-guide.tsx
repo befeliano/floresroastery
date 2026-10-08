@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useI18n } from "@/i18n/client";
 import type { BrewGuide as Guide } from "@/lib/commerce/types";
 import { formatClock } from "@/lib/format";
-
-const TAB_LABEL = { filter: "Filtre", espresso: "Espresso" } as const;
 
 const now = () => performance.now();
 
@@ -45,17 +44,19 @@ export interface BrewTab {
 
 /** Ürün sayfası: filtre / espresso sekmeleri */
 export function BrewGuide({ guides }: { guides: { filter?: Guide; espresso?: Guide } }) {
-  const tabs = (["filter", "espresso"] as const).flatMap((k) => (guides[k] ? [{ key: k, label: TAB_LABEL[k], guide: guides[k]! }] : []));
+  const { t } = useI18n();
+  const tabs = (["filter", "espresso"] as const).flatMap((k) => (guides[k] ? [{ key: k, label: t.brew[k], guide: guides[k]! }] : []));
   return <BrewTabs tabs={tabs} />;
 }
 
 export function BrewTabs({ tabs, heading = true }: { tabs: BrewTab[]; heading?: boolean }) {
+  const { t } = useI18n();
   const [active, setActive] = useState(tabs[0]?.key);
   const current = tabs.find((t) => t.key === active) ?? tabs[0];
   if (!current) return null;
 
   return (
-    <section aria-labelledby={heading ? "brew-title" : undefined} aria-label={heading ? undefined : "Demleme tarifleri"} className="mx-auto w-full max-w-[1440px] px-5 md:px-10">
+    <section aria-labelledby={heading ? "brew-title" : undefined} aria-label={heading ? undefined : t.brew.recipesAria} className="mx-auto w-full max-w-[1440px] px-5 md:px-10">
       <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
         {heading && (
           <div>
@@ -63,11 +64,11 @@ export function BrewTabs({ tabs, heading = true }: { tabs: BrewTab[]; heading?: 
               Brew Guide
             </p>
             <h2 id="brew-title" className="mt-4 font-serif text-5xl md:text-6xl">
-              Demleme Rehberi
+              {t.brew.title}
             </h2>
           </div>
         )}
-        <div role="tablist" aria-label="Demleme yöntemi" className="no-scrollbar -mx-1 flex max-w-full gap-2 overflow-x-auto px-1">
+        <div role="tablist" aria-label={t.brew.methodAria} className="no-scrollbar -mx-1 flex max-w-full gap-2 overflow-x-auto px-1">
           {tabs.map((t) => (
             <button
               key={t.key}
@@ -93,6 +94,7 @@ export function BrewTabs({ tabs, heading = true }: { tabs: BrewTab[]; heading?: 
 }
 
 function BrewPanel({ guide, id, labelledBy }: { guide: Guide; id: string; labelledBy: string }) {
+  const { t, fmt } = useI18n();
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
   const raf = useRef<number | null>(null);
@@ -150,11 +152,11 @@ function BrewPanel({ guide, id, labelledBy }: { guide: Guide; id: string; labell
         <div className="relative flex flex-col justify-between gap-10 bg-ink-900 p-6 md:p-10">
           <div className="flex items-start justify-between gap-6">
             <div>
-              <p className="eyebrow text-[0.65rem] text-cream-400">Ekipman</p>
+              <p className="eyebrow text-[0.65rem] text-cream-400">{t.brew.equipment}</p>
               <p className="mt-1 font-serif text-2xl">{guide.device}</p>
             </div>
             <div className="text-right">
-              <p className="eyebrow text-[0.65rem] text-cream-400">Terazi</p>
+              <p className="eyebrow text-[0.65rem] text-cream-400">{t.brew.scale}</p>
               <p className="mt-1 font-mono text-2xl tabular-nums text-flores-300">{Math.round(weight)} g</p>
             </div>
           </div>
@@ -180,19 +182,19 @@ function BrewPanel({ guide, id, labelledBy }: { guide: Guide; id: string; labell
                   <svg viewBox="0 0 12 12" className="size-3" aria-hidden>
                     <path d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor" />
                   </svg>
-                  Duraklat
+                  {t.brew.pause}
                 </>
               ) : (
                 <>
                   <svg viewBox="0 0 12 12" className="size-3" aria-hidden>
                     <path d="M2 1l9 5-9 5z" fill="currentColor" />
                   </svg>
-                  {elapsed > 0 && elapsed < guide.totalTime ? "Devam" : "Başlat"}
+                  {elapsed > 0 && elapsed < guide.totalTime ? t.brew.resume : t.brew.start}
                 </>
               )}
             </button>
             <button type="button" onClick={reset} className="btn btn-ghost">
-              Sıfırla
+              {t.brew.reset}
             </button>
           </div>
         </div>
@@ -201,16 +203,16 @@ function BrewPanel({ guide, id, labelledBy }: { guide: Guide; id: string; labell
         <div className="bg-flores-900/40 p-6 md:p-10">
           <div className="grid gap-10 sm:grid-cols-2">
             <div>
-              <h3 className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-cream-100">Genel bakış</h3>
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-cream-100">{t.brew.overview}</h3>
               <dl className="mt-5 space-y-4 text-sm">
-                <Row label="Kahve" value={`${guide.dose} g`} />
-                <Row label={isEspresso ? "Çıktı" : "Su"} value={`${guide.output} g`} />
-                <Row label="Sıcaklık" value={`${guide.temperature} °C`} />
-                <Row label="Öğütme" value={guide.grind} />
+                <Row label={t.brew.coffee} value={`${guide.dose} g`} />
+                <Row label={isEspresso ? t.brew.output : t.brew.water} value={`${guide.output} g`} />
+                <Row label={t.brew.temperature} value={`${guide.temperature} °C`} />
+                <Row label={t.brew.grind} value={guide.grind} />
               </dl>
             </div>
             <div>
-              <h3 className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-cream-100">Tarif</h3>
+              <h3 className="font-sans text-sm font-semibold uppercase tracking-[0.2em] text-cream-100">{t.brew.recipe}</h3>
               <ol className="mt-5 space-y-2.5 font-mono text-sm">
                 {guide.steps.map((s, i) => (
                   <li key={i} className={`flex gap-3 transition-colors ${i === currentIndex && elapsed > 0 ? "text-flores-300" : "text-cream-300"}`}>
@@ -252,7 +254,7 @@ function BrewPanel({ guide, id, labelledBy }: { guide: Guide; id: string; labell
                 onClick={() => seek(s.at)}
                 className="group absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
                 style={{ left: `${left}%` }}
-                aria-label={`${formatClock(s.at)} ${s.title} adımına git`}
+                aria-label={fmt(t.brew.goTo, { time: formatClock(s.at), title: s.title })}
               >
                 <span
                   className={`block size-3 rotate-45 border transition-colors ${
@@ -291,11 +293,11 @@ function BrewPanel({ guide, id, labelledBy }: { guide: Guide; id: string; labell
       {/* özet bar */}
       <dl className="grid grid-cols-2 border-t border-ink-700 text-center sm:grid-cols-5">
         {[
-          ["Metot", guide.device.split("·")[0].trim()],
-          ["Kahve", `${guide.dose} g`],
-          ["Oran", guide.ratio],
-          [isEspresso ? "Çıktı" : "Su", `${guide.output} g @ ${guide.temperature} °C`],
-          ["Süre", formatClock(guide.totalTime)],
+          [t.brew.method, guide.device.split("·")[0].trim()],
+          [t.brew.coffee, `${guide.dose} g`],
+          [t.brew.ratio, guide.ratio],
+          [isEspresso ? t.brew.output : t.brew.water, `${guide.output} g @ ${guide.temperature} °C`],
+          [t.brew.time, formatClock(guide.totalTime)],
         ].map(([k, v]) => (
           <div key={k} className="border-b border-r border-ink-700 px-3 py-4 last:border-r-0 sm:border-b-0">
             <dt className="eyebrow text-[0.6rem] text-cream-500">{k}</dt>

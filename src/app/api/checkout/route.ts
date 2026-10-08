@@ -1,6 +1,8 @@
 import { after, NextResponse, type NextRequest } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { saveCustomerAddress } from "@/lib/commerce/customers";
+import { WHOLESALE_SLUG } from "@/lib/commerce/wholesale";
+import { refererLocale } from "@/lib/security/guard";
 import { canCreateWooOrders, createWooOrder, orderPayUrl } from "@/lib/commerce/woocommerce";
 import { isCardPaymentAvailable } from "@/lib/payments/iyzico";
 import { priceCart } from "@/lib/orders/pricing";
@@ -80,7 +82,16 @@ export async function POST(req: NextRequest) {
         note,
         shipping: { methodId: shippingMethod.id, title: shippingMethod.label, total: quote.shipping },
         couponCode: quote.coupon?.code,
-        lines: quote.lines.map((l) => ({ productId: l.productId, variationId: l.variantId, quantity: l.quantity, grind: l.grind })),
+        lines: quote.lines.map((l) => ({
+          productId: l.productId,
+          variationId: l.variantId,
+          quantity: l.quantity,
+          grind: l.grind,
+          lineTotal: l.lineTotal,
+          meta: l.meta,
+          custom: l.slug === WHOLESALE_SLUG,
+        })),
+        attribution: cleanAttribution(b.attribution),
         // sözleşme onayı kaydı (Mesafeli Sözleşmeler Yönetmeliği — ispat yükü satıcıda)
         consents: consentRecord,
         customerId: session?.sub,
@@ -89,7 +100,7 @@ export async function POST(req: NextRequest) {
       number = String(woo.number);
       console.info(`[checkout] Woo #${woo.number} (${paymentMethod}, ${woo.status}) ${Date.now() - started} ms`);
       if (paymentMethod === "iyzico") {
-        paymentUrl = orderPayUrl(woo);
+        paymentUrl = orderPayUrl(woo, refererLocale(req));
         if (!paymentUrl) {
           console.error(`[checkout] #${woo.number}: Woo ödeme adresi dönmedi`, { id: woo.id, hasKey: Boolean(woo.order_key) });
           return jsonError(`Siparişiniz (#${woo.number}) alındı ancak ödeme sayfası açılamadı. Lütfen bizimle iletişime geçin.`, 502);
@@ -152,4 +163,17 @@ export async function POST(req: NextRequest) {
     email: order.customer.email,
     lines: order.lines.map(({ name, variantLabel, grind, quantity, lineTotal }) => ({ name, variantLabel, grind, quantity, lineTotal })),
   });
+}
+
+/** İstemciden gelen kaynak bilgisini WooCommerce'in beklediği alanlara indirger (yalnızca bilinen anahtarlar) */
+function cleanAttribution(raw: unknown): Record<string, string> {
+  const a = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const type = ["typein", "organic", "referral", "utm"].includes(String(a.source_type)) ? String(a.source_type) : "typein";
+  const out: Record<string, string> = { source_type: type };
+  const map: Record<string, string> = { utm_source: "utm_source", utm_medium: "utm_medium", utm_campaign: "utm_campaign", referrer: "referrer", entry: "session_entry", device: "device_type" };
+  for (const [from, to] of Object.entries(map)) {
+    const v = cleanLine(a[from], 200);
+    if (v) out[to] = v;
+  }
+  return out;
 }

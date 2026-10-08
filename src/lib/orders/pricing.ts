@@ -1,6 +1,8 @@
 import "server-only";
 import { getProducts } from "@/lib/commerce";
+import { GRIND_OPTIONS } from "@/lib/commerce/catalog";
 import { validateCoupon } from "@/lib/commerce/coupons";
+import { priceWholesale, WHOLESALE_PRODUCT_ID, WHOLESALE_SLUG, wholesaleSummary, type WholesaleConfig } from "@/lib/commerce/wholesale";
 import { isSlug } from "@/lib/security/sanitize";
 import { shippingOptions, type ShippingMethodId, type ShippingOption } from "@/lib/site";
 import type { OrderLine } from "./store";
@@ -10,6 +12,7 @@ export interface CartInput {
   variantId: unknown;
   grind: unknown;
   quantity: unknown;
+  config?: unknown;
 }
 
 export interface Quote {
@@ -26,8 +29,9 @@ export interface Quote {
 }
 
 /**
- * Sepeti SUNUCUDA yeniden fiyatlar. İstemciden gelen fiyatlara asla
- * güvenilmez; ürün, paket, öğütme, stok, kargo ve kupon burada hesaplanır.
+ * Sepeti SUNUCUDA yeniden fiyatlar. İstemciden gelen fiyatlara ASLA güvenilmez
+ * (tarayıcıda F12 ile değiştirilen tutar hiçbir işe yaramaz): ürün, paket, öğütme,
+ * stok, toptan kademe fiyatı, kargo ve kupon burada hesaplanır.
  */
 export async function priceCart(items: unknown, opts: { city?: unknown; shippingMethod?: unknown; couponCode?: unknown } = {}): Promise<Quote> {
   const empty = (errors: string[]): Quote => ({
@@ -50,9 +54,37 @@ export async function priceCart(items: unknown, opts: { city?: unknown; shipping
   const lines: OrderLine[] = [];
 
   for (const raw of items as CartInput[]) {
+    const quantity = Number(raw?.quantity);
+
+    // toptan sipariş satırı — fiyat yapılandırmadan, kademe tablosuyla
+    if (raw?.slug === WHOLESALE_SLUG) {
+      const q = priceWholesale(raw.config, GRIND_OPTIONS);
+      if (!q.ok) {
+        errors.push(q.error ?? "Toptan sipariş bilgisi geçersiz.");
+        continue;
+      }
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+        errors.push("Toptan sipariş için adet 1–20 arasında olmalı.");
+        continue;
+      }
+      const config = raw.config as WholesaleConfig;
+      lines.push({
+        slug: WHOLESALE_SLUG,
+        productId: WHOLESALE_PRODUCT_ID,
+        name: "Toptan Sipariş (B2B)",
+        variantId: "0",
+        variantLabel: `${q.totalKg} kg · ${config.roast}`,
+        grind: config.grind,
+        quantity,
+        unitPrice: q.total,
+        lineTotal: q.total * quantity,
+        meta: wholesaleSummary(config, q),
+      });
+      continue;
+    }
+
     const product = isSlug(raw?.slug) ? products.find((p) => p.slug === raw.slug) : undefined;
     const variant = product?.variants.find((v) => v.id === raw?.variantId);
-    const quantity = Number(raw?.quantity);
     if (!product || !variant) {
       errors.push("Sepetinizdeki bir ürün artık satışta değil.");
       continue;
@@ -61,7 +93,7 @@ export async function priceCart(items: unknown, opts: { city?: unknown; shipping
       errors.push(`${product.name} ${variant.label} şu an stokta yok.`);
       continue;
     }
-    if (typeof raw.grind !== "string" || !product.grindOptions.includes(raw.grind)) {
+    if (typeof raw.grind !== "string" || (product.grindOptions.length ? !product.grindOptions.includes(raw.grind) : raw.grind !== "")) {
       errors.push(`${product.name} için geçersiz öğütme seçimi.`);
       continue;
     }
@@ -79,18 +111,19 @@ export async function priceCart(items: unknown, opts: { city?: unknown; shipping
       quantity,
       unitPrice: variant.price,
       lineTotal: variant.price * quantity,
+      onSale: !!variant.compareAtPrice,
     });
   }
 
   const subtotal = lines.reduce((n, l) => n + l.lineTotal, 0);
 
-  // kupon
+  // kupon — satır bazında (ürüne özel kuponlar dahil)
   let coupon: Quote["coupon"] = null;
   let couponError: string | null = null;
   let discount = 0;
   let freeShipping = false;
   if (typeof opts.couponCode === "string" && opts.couponCode.trim() && subtotal > 0) {
-    const c = await validateCoupon(opts.couponCode, subtotal);
+    const c = await validateCoupon(opts.couponCode, lines);
     if (c.ok) {
       coupon = { code: c.code, label: c.label };
       discount = c.discount;

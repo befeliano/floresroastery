@@ -19,6 +19,10 @@ export interface OrderLine {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  /** liste fiyatından indirimli mi (kuponun "indirimli ürünleri hariç tut" kuralı için) */
+  onSale?: boolean;
+  /** WooCommerce sipariş satırına yazılacak ek bilgiler (toptan sipariş içeriği) */
+  meta?: { key: string; value: string }[];
 }
 
 export interface Order {
