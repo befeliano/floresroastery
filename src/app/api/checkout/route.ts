@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { canCreateWooOrders, createWooOrder } from "@/lib/commerce/woocommerce";
+import { canCreateWooOrders, createWooOrder, orderPayUrl } from "@/lib/commerce/woocommerce";
 import { isCardPaymentAvailable } from "@/lib/payments/iyzico";
 import { priceCart } from "@/lib/orders/pricing";
 import { db, newOrderNumber, type Order } from "@/lib/orders/store";
@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
   const consentRecord = { preInfo: true, distanceSales: true, marketing: consents.marketing === true, at: new Date().toISOString(), ip: clientIp(req) };
 
   if (canCreateWooOrders()) {
+    const started = Date.now();
     try {
       const woo = await createWooOrder({
         customer: fullCustomer,
@@ -81,14 +82,27 @@ export async function POST(req: NextRequest) {
       });
       wooId = woo.id;
       number = String(woo.number);
-      if (paymentMethod === "iyzico") paymentUrl = woo.payment_url;
+      console.info(`[checkout] Woo #${woo.number} (${paymentMethod}, ${woo.status}) ${Date.now() - started} ms`);
+      if (paymentMethod === "iyzico") {
+        paymentUrl = orderPayUrl(woo);
+        if (!paymentUrl) {
+          console.error(`[checkout] #${woo.number}: Woo ödeme adresi dönmedi`, { id: woo.id, hasKey: Boolean(woo.order_key) });
+          return jsonError(`Siparişiniz (#${woo.number}) alındı ancak ödeme sayfası açılamadı. Lütfen bizimle iletişime geçin.`, 502);
+        }
+      }
       // tutarı WooCommerce hesaplar (vergi/kupon); fark varsa Woo'nun tutarı geçerlidir
       const wooTotal = Number(woo.total);
       if (Math.abs(wooTotal - quote.total) > 0.5) console.warn(`[checkout] tutar farkı: site ${quote.total} / Woo ${wooTotal} (#${woo.number})`);
       total = wooTotal;
     } catch (err) {
-      console.error("[checkout] WooCommerce siparişi açılamadı:", err);
-      return jsonError("Siparişiniz şu an oluşturulamadı. Lütfen birkaç dakika sonra tekrar deneyin.", 502);
+      const timedOut = (err as Error).name === "TimeoutError";
+      console.error(`[checkout] WooCommerce siparişi açılamadı (${paymentMethod}, ${Date.now() - started} ms):`, err);
+      return jsonError(
+        timedOut
+          ? "Mağaza sistemimiz geç yanıt verdi. Siparişiniz oluşmuş olabilir — tekrar denemeden önce e-postanızı kontrol edin ya da bize WhatsApp'tan yazın."
+          : "Siparişiniz şu an oluşturulamadı. Lütfen birkaç dakika sonra tekrar deneyin.",
+        timedOut ? 504 : 502,
+      );
     }
   }
 

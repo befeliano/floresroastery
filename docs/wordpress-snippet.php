@@ -36,7 +36,25 @@ add_filter( 'woocommerce_get_cancel_order_url_raw', function ( $url ) {
 } );
 
 /**
- * 3) (İsteğe bağlı) Ürün değişince yeni sitenin önbelleğini anında yenile.
+ * 3) Yeni siteden gelen kartlı siparişin ödeme sayfasında yalnızca iyzico seçenekleri
+ *    görünsün (müşteri sitede "Kart" seçti; Kapıda ödeme / Havale burada çıkmasın).
+ */
+add_filter( 'woocommerce_available_payment_gateways', function ( $gateways ) {
+	if ( is_admin() || ! function_exists( 'is_wc_endpoint_url' ) || ! is_wc_endpoint_url( 'order-pay' ) ) {
+		return $gateways;
+	}
+	$order = wc_get_order( absint( get_query_var( 'order-pay' ) ) );
+	if ( $order && $order->get_meta( '_flores_headless' ) ) {
+		$card = array_intersect_key( $gateways, array_flip( array( 'iyzico', 'pwi' ) ) );
+		if ( $card ) {
+			return $card;
+		}
+	}
+	return $gateways;
+} );
+
+/**
+ * 4) (İsteğe bağlı) Ürün değişince yeni sitenin önbelleğini anında yenile.
  *    WooCommerce → Ayarlar → Gelişmiş → Webhooks ile de yapılabilir; ikisinden
  *    birini kullanın. REVALIDATE_SECRET, Hostinger'daki ortam değişkeniyle aynı olmalı.
  */

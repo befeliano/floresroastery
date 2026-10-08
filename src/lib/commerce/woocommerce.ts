@@ -24,9 +24,20 @@ type StorePrices = { price: string; regular_price: string; currency_minor_unit: 
 type StoreProduct = { id: number; is_in_stock: boolean; prices: StorePrices; variations: { id: number }[] };
 type StoreVariation = { id: number; is_in_stock: boolean; prices: StorePrices };
 
-async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { ...init, headers: { Accept: "application/json", ...init?.headers } });
-  if (!res.ok) throw new Error(`WooCommerce ${url} → ${res.status}`);
+/** WordPress yanıt vermezse istek sonsuza kadar asılı kalmasın (müşteri butonda beklemesin) */
+const TIMEOUT_MS = 20_000;
+const ORDER_TIMEOUT_MS = 30_000;
+
+async function getJson<T>(url: string, init?: RequestInit, timeoutMs = TIMEOUT_MS): Promise<T> {
+  const res = await fetch(url, {
+    ...init,
+    signal: AbortSignal.timeout(timeoutMs),
+    headers: { Accept: "application/json", ...init?.headers },
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`WooCommerce ${url.split("?")[0]} → ${res.status} ${detail.slice(0, 300)}`);
+  }
   return (await res.json()) as T;
 }
 
@@ -122,8 +133,10 @@ export async function createWooOrder(input: WooOrderInput): Promise<WooOrder> {
     method: "POST",
     headers: { Authorization: authHeader(), "Content-Type": "application/json" },
     body: JSON.stringify({
-      // kartta ödeme yöntemi boş bırakılır: Woo ödeme sayfası etkin iyzico seçeneklerini kendisi listeler
-      ...(input.paymentMethod === "bacs" ? { payment_method: "bacs", payment_method_title: "Havale / EFT" } : {}),
+      // kart: Woo ödeme sayfasında iyzico seçili gelir (WordPress'teki ödeme yöntemi kimliği "iyzico")
+      ...(input.paymentMethod === "bacs"
+        ? { payment_method: "bacs", payment_method_title: "Havale / EFT" }
+        : { payment_method: "iyzico", payment_method_title: "Kredi / Banka Kartı (iyzico)" }),
       set_paid: false,
       created_via: "flores-headless",
       // WordPress tarafındaki yönlendirme snippet'i bu işarete bakar (docs/wordpress-snippet.php)
@@ -152,12 +165,20 @@ export async function createWooOrder(input: WooOrderInput): Promise<WooOrder> {
       ],
       ...(input.couponCode ? { coupon_lines: [{ code: input.couponCode }] } : {}),
     }),
-  });
+  }, ORDER_TIMEOUT_MS);
+}
+
+/** Woo'nun ödeme sayfası adresi; yanıtta boş gelirse sipariş anahtarından kurulur */
+export function orderPayUrl(order: Pick<WooOrder, "id" | "order_key" | "payment_url">): string | undefined {
+  if (order.payment_url?.startsWith("http")) return order.payment_url;
+  if (!order.id || !order.order_key) return undefined;
+  return `${base()}/checkout/order-pay/${order.id}/?pay_for_order=true&key=${encodeURIComponent(order.order_key)}`;
 }
 
 /** Sipariş takibi için WooCommerce siparişini okur (e-posta doğrulaması çağıran tarafta yapılır) */
 export async function getWooOrder(id: number): Promise<WooOrder | null> {
   const res = await fetch(`${base()}/wp-json/wc/v3/orders/${id}`, {
+    signal: AbortSignal.timeout(TIMEOUT_MS),
     headers: { Authorization: authHeader(), Accept: "application/json" },
   });
   if (res.status === 404 || res.status === 400) return null;

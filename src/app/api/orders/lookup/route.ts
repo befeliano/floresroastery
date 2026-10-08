@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { canCreateWooOrders, getWooOrder, type WooOrder } from "@/lib/commerce/woocommerce";
+import { canCreateWooOrders, getWooOrder, orderPayUrl, type WooOrder } from "@/lib/commerce/woocommerce";
 import { db, STATUS_LABEL, type OrderStatus } from "@/lib/orders/store";
 import { guard, jsonError } from "@/lib/security/guard";
 import { LIMITS } from "@/lib/security/rate-limit";
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
       statusLabel: woo.status === "completed" ? "Tamamlandı" : STATUS_LABEL[status],
       paymentMethod: woo.payment_method === "bacs" ? "bacs" : "iyzico",
       // ödenmemiş kart siparişinde müşteri ödemeyi tamamlayabilsin
-      paymentUrl: woo.status === "pending" ? woo.payment_url : undefined,
+      paymentUrl: woo.status === "pending" ? orderPayUrl(woo) : undefined,
       lines: woo.line_items.map((l) => ({ name: l.name, variantLabel: "", grind: grind(l), quantity: l.quantity, lineTotal: Number(l.total) })),
       subtotal: woo.line_items.reduce((n, l) => n + Number(l.total), 0),
       shipping: Number(woo.shipping_total),

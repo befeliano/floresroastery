@@ -51,3 +51,6 @@ next-env.d.ts
 
 # yerel Claude/editör ayarları
 /.claude/
+
+# Hostinger yükleme paketi (git archive)
+*.zip

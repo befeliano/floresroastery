@@ -60,6 +60,7 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [redirect, setRedirect] = useState<{ number: string; url: string } | null>(null);
   const [doc, setDoc] = useState<LegalDoc | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -124,9 +125,13 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
       return;
     }
     setSubmitting(true);
+    // sunucu (WooCommerce) yanıt vermezse buton sonsuza kadar beklemesin
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 45_000);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
+        signal: ctrl.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer: values,
@@ -137,8 +142,14 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
           consents,
           items: items.map(({ slug, variantId, grind, quantity }) => ({ slug, variantId, grind, quantity })),
         }),
+      }).catch(() => {
+        throw new Error(
+          ctrl.signal.aborted
+            ? "Sunucu yanıt vermedi. Siparişiniz oluşmuş olabilir — tekrar denemeden önce e-postanızı kontrol edin ya da bize WhatsApp'tan yazın."
+            : "Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.",
+        );
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (data.fieldErrors) setFieldErrors(data.fieldErrors);
         throw new Error(data.error ?? "Sipariş oluşturulamadı.");
@@ -146,15 +157,24 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
       try {
         sessionStorage.setItem("flores-last-order", JSON.stringify(data));
       } catch {}
-      clear();
       // kart: WooCommerce sipariş ödeme sayfası → iyzico; dönüşte /siparis/tamamlandi
-      if (data.paymentUrl) window.location.assign(data.paymentUrl);
-      else router.push("/siparis/tamamlandi");
+      if (data.paymentUrl) {
+        setRedirect({ number: data.orderNumber, url: data.paymentUrl });
+        clear();
+        window.location.assign(data.paymentUrl);
+      } else {
+        clear();
+        router.push("/siparis/tamamlandi");
+      }
     } catch (err) {
       setError((err as Error).message);
       setSubmitting(false);
+    } finally {
+      clearTimeout(timer);
     }
   }
+
+  if (redirect) return <PaymentRedirect {...redirect} />;
 
   if (hydrated && items.length === 0) {
     return (
@@ -491,6 +511,23 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
         )}
       </dialog>
     </>
+  );
+}
+
+/** Kartlı siparişte iyzico'ya geçerken: sayfa geç açılırsa müşteri elle devam edebilsin */
+function PaymentRedirect({ number, url }: { number: string; url: string }) {
+  return (
+    <div role="status" className="mx-auto max-w-lg py-24 text-center">
+      <span aria-hidden className="mx-auto block size-10 animate-spin rounded-full border-2 border-ink-600 border-t-flores-400 motion-reduce:animate-none" />
+      <p className="eyebrow mt-8 text-flores-400">Sipariş #{number} oluşturuldu</p>
+      <p className="mt-3 font-serif text-4xl">iyzico güvenli ödeme sayfasına geçiyorsunuz…</p>
+      <p className="mt-4 text-cream-300">
+        Sayfa birkaç saniye içinde açılmazsa aşağıdaki butonu kullanın. Kart bilgileriniz yalnızca iyzico&apos;ya iletilir.
+      </p>
+      <a href={url} className="btn btn-primary mt-8">
+        Ödeme sayfasına git →
+      </a>
+    </div>
   );
 }
 
