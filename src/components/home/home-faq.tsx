@@ -6,11 +6,19 @@ const faq = {
   title: { tr: "Sıkça sorulanlar", en: "Frequently asked questions", id: "Pertanyaan umum" },
   items: [
     {
-      q: { tr: "Kahveleriniz ne zaman kavruluyor?", en: "When are your coffees roasted?", id: "Kapan kopi Anda disangrai?" },
+      q: { tr: "Siparişim ne zaman kavrulur?", en: "When is my order roasted?", id: "Kapan pesanan saya disangrai?" },
       a: {
-        tr: "Tüm çekirdeklerimizi Eskişehir'deki atölyemizde Kuban kavurucumuzda her hafta taze kavuruyoruz. Paketin üzerindeki tarih kavrum tarihidir; en iyi lezzet için kavrumdan sonraki 4 hafta içinde tüketmenizi öneririz.",
-        en: "We roast every bean fresh each week on our Kuban roaster at our workshop in Eskişehir. The date on the bag is the roast date; for the best flavour, enjoy within 4 weeks of roasting.",
-        id: "Semua biji kami disangrai segar setiap minggu dengan mesin Kuban di workshop kami di Eskişehir. Tanggal di kemasan adalah tanggal sangrai; nikmati dalam 4 minggu untuk rasa terbaik.",
+        tr: "Kahvelerimizi Eskişehir'deki atölyemizde, Kuban kavurucumuzda her hafta küçük partiler hâlinde kavuruyoruz. Siparişiniz en yakın kavrum partisinden paketlenir ve kavrumdan sonra genellikle 1–2 iş günü içinde kargoya verilir; rafta bekleyen eski stok göndermeyiz. Paketin üzerindeki tarih kavrum tarihidir.",
+        en: "We roast in small batches every week on our Kuban roaster at our workshop in Eskişehir. Your order is packed from the nearest roast batch and usually ships within 1–2 working days of roasting — we never send old shelf stock. The date on the bag is the roast date.",
+        id: "Kami menyangrai dalam batch kecil setiap minggu dengan mesin Kuban di workshop kami di Eskişehir. Pesanan Anda dikemas dari batch sangrai terdekat dan biasanya dikirim 1–2 hari kerja setelah disangrai — kami tidak mengirim stok lama. Tanggal di kemasan adalah tanggal sangrai.",
+      },
+    },
+    {
+      q: { tr: "Kahvemi nasıl taze saklarım?", en: "How do I keep my coffee fresh?", id: "Bagaimana cara menjaga kopi tetap segar?" },
+      a: {
+        tr: "Kahvenin düşmanları hava, ışık, nem ve ısıdır. Paketi her kullanımdan sonra havasını alarak sıkıca kapatın ya da hava almayan, ışık geçirmeyen bir kapta saklayın; serin ve karanlık bir dolap idealdir. Buzdolabına koymayın — nem ve koku çeker. Çekirdeği demlemeden hemen önce öğütün. En iyi lezzet kavrumdan sonraki 1–5 hafta arasındadır; filtre kahveler kavrumdan birkaç gün sonra (gaz salınımı bitince) en dengeli hâline gelir. Öğütülmüş kahveyi 1–2 hafta içinde tüketin.",
+        en: "Coffee's enemies are air, light, moisture and heat. Squeeze the air out and seal the bag tightly after each use, or keep the beans in an airtight, opaque container in a cool, dark cupboard. Don't refrigerate — the fridge adds moisture and odours. Grind right before brewing. Flavour peaks 1–5 weeks after roasting; filter coffees taste most balanced a few days after the roast date, once they've degassed. Use ground coffee within 1–2 weeks.",
+        id: "Musuh kopi adalah udara, cahaya, kelembapan, dan panas. Keluarkan udara dan tutup rapat kemasan setiap selesai dipakai, atau simpan biji di wadah kedap udara dan tidak tembus cahaya di lemari yang sejuk dan gelap. Jangan simpan di kulkas — kopi menyerap kelembapan dan bau. Giling tepat sebelum menyeduh. Rasa terbaik ada pada 1–5 minggu setelah sangrai; kopi filter paling seimbang beberapa hari setelah tanggal sangrai. Habiskan kopi bubuk dalam 1–2 minggu.",
       },
     },
     {
@@ -26,11 +34,11 @@ const faq = {
       },
     },
     {
-      q: { tr: "Çekirdek mi almalıyım, öğütülmüş mü?", en: "Should I buy whole bean or ground?", id: "Sebaiknya beli biji utuh atau bubuk?" },
+      q: { tr: "Yalnızca çekirdek olarak mı satıyorsunuz?", en: "Do you only sell whole beans?", id: "Apakah hanya dijual dalam bentuk biji?" },
       a: {
-        tr: "En taze fincan için çekirdek alıp demlemeden hemen önce öğütmenizi öneririz. Değirmeniniz yoksa sipariş sırasında V60, filtre makinesi, French Press, moka pot, espresso veya Türk kahvesi için öğütmeyi seçebilirsiniz; kahvenizi demleme yönteminize göre öğütüp gönderiyoruz.",
-        en: "For the freshest cup, buy whole beans and grind right before brewing. No grinder? Choose a grind for V60, filter machine, French Press, moka pot, espresso or Turkish coffee at checkout and we'll grind it for your method.",
-        id: "Untuk secangkir paling segar, beli biji utuh dan giling tepat sebelum menyeduh. Tidak punya grinder? Pilih gilingan untuk V60, mesin filter, French Press, moka pot, espresso, atau kopi Turki saat memesan.",
+        tr: "Hayır. Varsayılan olarak çekirdek gönderiyoruz, çünkü en taze fincan demlemeden hemen önce öğütülen çekirdekten çıkar. Değirmeniniz yoksa ürün sayfasında V60, filtre kahve makinesi, Chemex, French Press, AeroPress, moka pot, espresso veya Türk kahvesi için öğütmeyi seçin; kahvenizi kavrumdan sonra demleme yönteminize göre öğütüp gönderiyoruz. Ayrıca hazır Türk kahvemiz de var.",
+        en: "No. We ship whole beans by default, because the freshest cup comes from grinding right before brewing. No grinder? On the product page choose a grind for V60, filter machine, Chemex, French Press, AeroPress, moka pot, espresso or Turkish coffee, and we'll grind it for your method after roasting. We also sell ready-ground Turkish coffee.",
+        id: "Tidak. Secara default kami mengirim biji utuh, karena secangkir paling segar berasal dari biji yang digiling tepat sebelum diseduh. Tidak punya grinder? Di halaman produk, pilih gilingan untuk V60, mesin filter, Chemex, French Press, AeroPress, moka pot, espresso, atau kopi Turki, dan kami menggilingnya sesuai metode Anda setelah disangrai. Kami juga menjual kopi Turki siap seduh.",
       },
     },
     {
@@ -44,9 +52,9 @@ const faq = {
     {
       q: { tr: "Hangi ülkelerin kahvelerini satıyorsunuz?", en: "Which origins do you sell?", id: "Kopi dari negara mana saja yang Anda jual?" },
       a: {
-        tr: "Endonezya (Java — Garut, Papandayan, Frinsa Estate; Ruso Exotics doğrudan ticaret serisi), Etiyopya, Kolombiya, El Salvador ve Meksika tek köken kahveleri ile Etiyopya ve Endonezya çekirdeklerinden oluşan Manis, Pagi ve Tanah harmanlarımız var.",
-        en: "Single origins from Indonesia (Java — Garut, Papandayan, Frinsa Estate; our direct-trade Ruso Exotics series), Ethiopia, Colombia, El Salvador and Mexico, plus our Manis, Pagi and Tanah blends of Ethiopian and Indonesian beans.",
-        id: "Single origin dari Indonesia (Jawa — Garut, Papandayan, Frinsa Estate; seri direct trade Ruso Exotics), Etiopia, Kolombia, El Salvador, dan Meksiko, serta blend Manis, Pagi, dan Tanah dari biji Etiopia dan Indonesia.",
+        tr: "Endonezya (Java — Garut, Papandayan, Frinsa Estate; Ruso Exotics doğrudan ticaret serisi), Etiyopya (Sidamo bölgesinden Manis ve Sidama'dan Shantawene), Kolombiya, El Salvador ve Meksika tek köken kahveleri ile Etiyopya ve Endonezya çekirdeklerinden oluşan Pagi ve Tanah harmanlarımız var.",
+        en: "Single origins from Indonesia (Java — Garut, Papandayan, Frinsa Estate; our direct-trade Ruso Exotics series), Ethiopia (Manis from Sidamo and Shantawene from Sidama), Colombia, El Salvador and Mexico, plus our Pagi and Tanah blends of Ethiopian and Indonesian beans.",
+        id: "Single origin dari Indonesia (Jawa — Garut, Papandayan, Frinsa Estate; seri direct trade Ruso Exotics), Etiopia (Manis dari Sidamo dan Shantawene dari Sidama), Kolombia, El Salvador, dan Meksiko, serta blend Pagi dan Tanah dari biji Etiopia dan Indonesia.",
       },
     },
     {
@@ -55,6 +63,14 @@ const faq = {
         tr: "Kartla ödemeler iyzico'nun güvenli ödeme sayfasında alınır; kart bilgileriniz bize hiç ulaşmaz ve saklanmaz. Dilerseniz Havale / EFT ile de ödeyebilirsiniz.",
         en: "Card payments are taken on iyzico's secure payment page; your card details never reach us and are never stored. You can also pay by bank transfer.",
         id: "Pembayaran kartu diproses di halaman aman iyzico; data kartu Anda tidak pernah sampai ke kami dan tidak disimpan. Anda juga bisa membayar dengan transfer bank.",
+      },
+    },
+    {
+      q: { tr: "Yeni kahveleri ve kampanyaları nereden takip edebilirim?", en: "Where can I follow new coffees and offers?", id: "Di mana saya bisa mengikuti kopi baru dan promo?" },
+      a: {
+        tr: "Instagram'da @floresroastery hesabımızı takip edin: yeni gelen çekirdekler, kavrum günleri, Coffee Bar tadımları ve kampanyaları ilk orada paylaşıyoruz. Sorularınızı DM'den de sorabilirsiniz.",
+        en: "Follow @floresroastery on Instagram: new arrivals, roast days, Coffee Bar tastings and offers appear there first. You can also send us your questions by DM.",
+        id: "Ikuti @floresroastery di Instagram: biji baru, hari sangrai, sesi cupping di Coffee Bar, dan promo kami bagikan di sana lebih dulu. Anda juga bisa bertanya lewat DM.",
       },
     },
   ],

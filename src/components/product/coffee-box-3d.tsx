@@ -168,7 +168,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
         ] as [string, React.ReactNode][])
       : []),
     ...(product.elevation ? ([[t.box.altitude, product.elevation]] as [string, React.ReactNode][]) : []),
-    [t.box.process, product.process.split("(")[0].split("·")[0].trim()],
+    ...(product.process ? ([[t.box.process, product.process.split("(")[0].split("·")[0].trim()]] as [string, React.ReactNode][]) : []),
     ...(product.origin.producer ? ([[t.box.producer, product.origin.producer]] as [string, React.ReactNode][]) : []),
     ...(product.origin.farm ? ([[t.box.farm, product.origin.farm]] as [string, React.ReactNode][]) : []),
     [t.box.origin, upper(product.origin.country)],

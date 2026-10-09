@@ -2,6 +2,7 @@ import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "@/i18n/link";
 import { NewsletterForm } from "@/components/forms/newsletter-form";
+import { InstagramIcon } from "@/components/home/instagram-band";
 import { legalLinks } from "@/content/legal";
 import { pages } from "@/i18n/messages/pages";
 import { CITIES } from "@/content/seo/cities";
@@ -71,6 +72,12 @@ export async function SiteFooter() {
                 ·{" "}
                 <a href={`mailto:${site.email}`} className="hover:text-flores-300">
                   {site.email}
+                </a>
+              </p>
+              <p>
+                <a href={site.instagram.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-base text-cream-200 hover:text-flores-300">
+                  <InstagramIcon />
+                  Instagram {site.instagram.handle}
                 </a>
               </p>
             </address>

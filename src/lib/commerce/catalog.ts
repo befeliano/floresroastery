@@ -24,7 +24,7 @@ export const categories: Category[] = [
     name: "Blends",
     tagline: "Etiyopya ile Endonezya, aynı fincanda.",
     description:
-      "Manis, Pagi ve Tanah: Etiyopya'nın meyvesini Endonezya'nın gövdesiyle buluşturan günlük harmanlarımız. Adlarını Endonezce'den alırlar — tatlı, sabah ve toprak.",
+      "Pagi ve Tanah: Etiyopya'nın meyvesini Endonezya'nın gövdesiyle buluşturan günlük harmanlarımız. Adlarını Endonezce'den alırlar — sabah ve toprak.",
     image: photos.coffeeShelf,
   },
   {
@@ -40,7 +40,7 @@ export const categories: Category[] = [
     name: "Sets & Boxes",
     tagline: "Hediye etmek ya da tadarak keşfetmek için.",
     description:
-      "Endonezya serisinin dört çekirdeğini ya da Manis, Pagi ve Tanah harmanlarını bir arada deneyin. Hediye kutuları ve keşif setleri; her biri haftalık taze kavrum.",
+      "Endonezya serisinin dört çekirdeğini ya da Manis, Pagi ve Tanah'ı bir arada deneyin. Hediye kutuları ve keşif setleri; her biri haftalık taze kavrum.",
     image: photos.boxesNature,
   },
   {
@@ -108,7 +108,7 @@ export { GRIND_OPTIONS };
 
 const img = (slug: string, bg: string, packaging: "box" | "pouch" = "box", aspect = 1.09) => ({
   card: `/coffees/${slug}.webp`,
-  front: `/coffees/${slug}-front.webp`,
+  front: `/coffees/${slug}-face.webp`,
   bg,
   packaging,
   aspect,
@@ -144,7 +144,7 @@ export const products: Product[] = [
       "Bir bahar sabahı gibi ferahlatıcı: ilk yudumda karşılayan çiçeksi notalar kısa sürede yerini şeftali ve sulu sarı elmanın tatlılığına bırakıyor; esmer şeker derinliği meyveyi dengeliyor. Honey işlemde müsilajın bir kısmı çekirdek üzerinde bırakılarak kurutulur — bal tatlılığı buradan gelir.",
       "Ruso Exotics'in doğrudan ticaret felsefesiyle, üreticimiz Redi Purnawan ile bizzat el sıkışarak seçtiğimiz sınırlı stoklu bir lot.",
     ],
-    image: img("guntur-endonezya", "#dca93d"),
+    image: img("guntur-endonezya", "#dca93d", "box", 1.171),
     variants: variants("SKU-END-GNT", [
       [1427, 100, 300, 375],
       [1428, 200, 600, 700],
@@ -179,7 +179,7 @@ export const products: Product[] = [
       "El Salvador'un Santa Ana bölgesindeki Apaneca-Ilamatepec volkanik dağlarının zengin topraklarında yetişen bu kahve, dört nesillik kahve üreticisi Mauricio Escalón'un aile mirasının bir parçası.",
       "1.250 metre rakımda elle toplanan kirazlar, 60 saat boyunca oksijensiz ortamda fermente edilir. Bu süreç, aşırı fermantasyona kaçmadan yoğun aromatik bir profil kazandırır: fincanda beyaz üzüm ve altın kuru üzümün meyvemsi tatlılığı, dengeli bir karamel gövdeyle birleşir.",
     ],
-    image: img("el-savador-ochuspe", "#c9cf8d"),
+    image: img("el-savador-ochuspe", "#c9cf8d", "box", 1.146),
     variants: variants("SKU-ELS-OCH", [
       [1247, 100, 240, 300],
       [1248, 200, 440, 550],
@@ -217,7 +217,7 @@ export const products: Product[] = [
       "Damakta kan portakalının canlı, tatlı ve sulu narenciye karakteri; ara tatta kompleks kırmızı meyve katmanları; bitişte temiz ve kalıcı, tatlı bir iz.",
       "Geleneksel Endonezya kahvelerinin (wet hulled) aksine, Wildan Mustofa'nın 1.400 metre rakımlı Java Frinsa Estate tesisinde modern, titiz ve kontrollü bir işlemden geçerek fincan temizliğini en üst düzeye çıkarır.",
     ],
-    image: img("frinsa3", "#d66e2f"),
+    image: img("frinsa3", "#d66e2f", "box", 1.141),
     variants: variants("SKU-END-FR3", [
       [1749, 100, 325, 400],
       [1750, 200, 650, 800],
@@ -259,7 +259,7 @@ export const products: Product[] = [
       "Endonezya'nın Java bölgesinden, Weninggalih'in yüksek platolarında yetişen bu özel lot, sıradan kahvelerin ötesinde bir tat yolculuğu sunar. Honey işlemle başlayan yolculuk, Saccharomyces maya fermantasyonuyla tamamlanır.",
       "Damakta yoğun yaban mersini ve frenk üzümü tatlılığı, ara tatta şaraplık kırmızı meyve ve vişne, bitişte kalıcı bir erik izi. Espressoda kompakt ve yoğun, filtrede uzun bir tat sunumu; Aeropress ya da V60 ile dengeli bir meyve–tuğla tat dengesi.",
     ],
-    image: img("endonezya-frinsa-estate-honey-saccharomyces-filtre", "#031433"),
+    image: img("endonezya-frinsa-estate-honey-saccharomyces-filtre", "#031433", "box", 1.148),
     variants: variants("SKU-END-FRS", [
       [1202, 100, 305, 380],
       [1203, 200, 600, 750],
@@ -306,7 +306,7 @@ export const products: Product[] = [
       "Fincanda karamel ve esmer şeker tatlılığı, misket limonu ferahlığı ve kakao–baharat derinliği. Tam gövdeli, kremamsı bir doku ve düşük, dengeli bir asidite; espressoda olduğu kadar filtrede de güçlü.",
       "Bu özel seri, Ruso Exotics'in sınırlı stoklu (Limited Batch) butik seçkilerinden biridir.",
     ],
-    image: img("arjuna-endonezya", "#eeaa5f"),
+    image: img("arjuna-endonezya", "#eeaa5f", "box", 1.169),
     variants: variants("SKU-END-ARJ", [
       [1419, 100, 272, 340, false],
       [1420, 200, 480, 600],
@@ -323,28 +323,28 @@ export const products: Product[] = [
     id: "1205",
     slug: "manis-blend-espresso-filtre",
     name: "Manis",
-    fullName: "Manis Blend",
-    subtitle: "Endonezya × Etiyopya harmanı",
-    categories: ["blends", "espresso"],
+    fullName: "Manis Etiyopya Sidamo",
+    subtitle: "Etiyopya · Sidamo",
+    categories: ["single-origin", "espresso"],
     headline: "Manis ile tatlı bir molaya hazır mısınız?",
-    origin: { country: "Endonezya × Etiyopya", region: "Günlük harman" },
+    origin: { country: "Etiyopya", region: "Sidamo" },
     elevation: "",
-    process: "Harman",
+    process: "",
     variety: [],
     harvest: "",
     roastLevel: "Orta",
-    recommendedFor: "Filtre, V60 & AeroPress",
+    recommendedFor: "Filtre makinesi, V60, AeroPress & Türk kahvesi",
     tastingNotes: [N.cikolata, N.ormanMeyveleri, N.tarcin],
     sensory: { body: 3, acidity: 4, sweetness: 5 },
     bodyAcidity: "Yumuşak ve pürüzsüz gövde, nazik ve meyvemsi asidite, belirgin doğal tatlılık",
     description:
-      "Manis Blend kahve çekirdeği — çikolata, orman meyveleri ve tarçın notalarıyla yumuşak, meyvemsi ve doğal tatlı günlük kahve; filtre ve espressoya uygun.",
+      "Manis Etiyopya Sidamo tek köken çekirdek kahve — çikolata, orman meyveleri ve tarçın notalarıyla yumuşak, meyvemsi ve doğal tatlı orta kavrum; V60, filtre kahve makinesi, AeroPress ve Türk kahvesine uygun.",
     story: [
-      "Adını Endonezce'de \"tatlı\" anlamına gelen kelimeden alan Manis, isminin hakkını sonuna kadar veriyor. Kahvenizde acılık yerine yumuşak, meyvemsi ve doğal şekerli tatlar arıyorsanız, Manis tam size göre.",
+      "Adını Endonezce'de \"tatlı\" anlamına gelen kelimeden alan Manis, isminin hakkını sonuna kadar veren özel bir Etiyopya kahvesi. Kahvenizde acılık yerine yumuşak, meyvemsi ve doğal şekerli tatlar arıyorsanız, Manis ve sevimli maskotu tam size göre.",
       "Özenli bir orta kavurmayla çekirdeğin içindeki doğal meyve şekerlerini dengeyle açığa çıkarıyoruz: zengin çikolata notalarına orman meyvelerinin canlılığı ve bitişte iç ısıtan bir tarçın dokunuşu eşlik ediyor.",
       "Pazar sabahı uzun uzun demlenen bir V60, ofiste hızlıca hazırlanan bir filtre kahve ya da ince öğütülmüş modern bir Türk kahvesi — her fincanda yormayan, keyifli bir deneyim.",
     ],
-    image: img("manis-blend-espresso-filtre", "#37afdb", "box", 1.1),
+    image: { ...img("manis-blend-espresso-filtre", "#2a86c0", "box", 1), card: "/coffees/manis-sidamo.webp" },
     variants: variants("SKU-ETH-SDM", [
       [1208, 100, 200, 250],
       [1209, 250, 360, 450],
@@ -353,7 +353,7 @@ export const products: Product[] = [
     ]),
     grindOptions: GRIND_OPTIONS,
     brewGuides: {
-      filter: v60({ tip: "Meyvemsi ve tatlı notalar için V60, AeroPress ya da filtre kahve makinesi." }),
+      filter: v60({ tip: "Meyvemsi ve tatlı notalar için V60, AeroPress ya da filtre kahve makinesi; ince öğütülmüş modern bir Türk kahvesi olarak da harika." }),
       espresso: espresso({ tip: "Sade espressoda çikolatalı, sütle tarçınlı bir kapanış." }),
     },
     featured: true,
@@ -458,7 +458,7 @@ export const products: Product[] = [
       "Çekirdeklerin tat ve yağ asitlerini korumak için City (orta) seviyede kavuruyoruz — asidite ve aromanın en dengeli noktası. Damakta sütlü çikolatanın tatlı, pürüzsüz ve ipeksi dokunuşu.",
       "Tüm çekirdeklerimiz haftalık olarak kavrulur; paketteki üretim tarihi, kahvenizin kavrulduğu gündür. En iyi lezzet için 1 ay içinde tüketmenizi öneririz.",
     ],
-    image: img("kafeinsizmeksika", "#311e17", "box", 1.084),
+    image: img("kafeinsizmeksika", "#311e17", "box", 1.159),
     variants: variants("SKU-END-ARJ-1", [
       [1755, 100, 275, 340],
       [1756, 200, 485, 600],
@@ -496,7 +496,7 @@ export const products: Product[] = [
       "Yüzdürme tanklarında ayıklanan kirazlar La Pradera işleme merkezinde 48 saatlik kuru anaerobik fermantasyona alınır; tanklara eklenen gerçek karpuz, çekirdeklere o eşsiz sulu tatlılığı kazandırır. Ardından yıkanır ve elbas yataklarında %9,5–11 nem oranına ulaşana kadar yaklaşık 10 gün kurutulur.",
       "Fincanda baskın karpuz ve bal kavunu, ferahlatıcı bir nane dokunuşu ve misket limonu asiditesi; bitişte Castillo'ya özgü yumuşak bir çikolata.",
     ],
-    image: img("watermelon-colombia", "#780618"),
+    image: img("watermelon-colombia", "#780618", "box", 1.156),
     variants: soldOut(
       variants("SKU-CLM-WTM", [
         [1302, 100, 600, 750],
@@ -535,7 +535,7 @@ export const products: Product[] = [
       "İlk yudumda damakta patlayan canlı ahududu ve tatlı erik, kahve soğudukça yerini zarif çiçeksi bir bitişe bırakıyor. Kirazlar kabuklarıyla birlikte güneşte kurutulur; meyvenin tüm şekeri çekirdeğin kalbine hapsolur.",
       "Ruso Exotics tarafından Endonezya'daki tarlalardan bizzat seçilen, sınırlı hasat edilen bir mikro lot.",
     ],
-    image: img("papandayan-endonezya", "#7f262b"),
+    image: img("papandayan-endonezya", "#7f262b", "box", 1.18),
     variants: soldOut(
       variants("SKU-END-PPD", [
         [1432, 100, 400, 450],
@@ -567,7 +567,7 @@ export const products: Product[] = [
       "Sidama'nın yüksek köylerinden Shantawene; doğal yöntemle kurutulan kirazların meyvemsi derinliğini Etiyopya'nın çiçeksi zarafetiyle buluşturuyor.",
       "Fincanda bergamotun aromatik parlaklığı, portakal kabuğunun canlı narenciyesi ve kapanışta kakao nibs. Yeni hasat geldiğinde haber vermemiz için aşağıdan kaydolabilirsiniz.",
     ],
-    image: img("ethiopia-shantawene", "#ec9445"),
+    image: img("ethiopia-shantawene", "#ec9445", "box", 1.18),
     variants: [],
     grindOptions: GRIND_OPTIONS,
     brewGuides: { filter: v60({ temperature: 94 }) },

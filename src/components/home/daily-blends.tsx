@@ -13,7 +13,7 @@ const MEANING: Record<string, { word: string; meaning: string; mood: string; ima
   tanah: { word: "Tanah", meaning: "toprak", mood: "Maximum intensity" },
 };
 
-/** Manis · Pagi · Tanah — Endonezce isimli günlük harmanlar */
+/** Manis · Pagi · Tanah — Endonezce isimli günlük kahveler (Manis tek köken, diğerleri harman) */
 export async function DailyBlends({ products }: { products: CardProduct[] }) {
   const h = await t(pages.home);
   const ui = await t((await import("@/i18n/messages/ui")).ui.common);

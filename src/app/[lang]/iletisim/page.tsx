@@ -58,6 +58,12 @@ export default async function ContactPage() {
             </p>
           </div>
           <div>
+            <h2 className="eyebrow text-flores-400">Instagram</h2>
+            <a href={site.instagram.url} target="_blank" rel="noopener noreferrer" className="mt-3 block text-lg hover:text-flores-300">
+              {site.instagram.handle}
+            </a>
+          </div>
+          <div>
             <h2 className="eyebrow text-flores-400">{c.wholesale}</h2>
             <Link href="/toptan" className="mt-3 block hover:text-flores-300">
               {c.wholesaleLink}

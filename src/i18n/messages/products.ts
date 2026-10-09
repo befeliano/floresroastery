@@ -57,6 +57,7 @@ export const PHRASES: Record<string, Tr> = {
   "Weninggalih, Batı Java": { en: "Weninggalih, West Java", id: "Weninggalih, Jawa Barat" },
   "Papandayan, Garut, Batı Java": { en: "Papandayan, Garut, West Java", id: "Papandayan, Garut, Jawa Barat" },
   "Günlük harman": { en: "Daily blend", id: "Blend harian" },
+  "Filtre makinesi, V60, AeroPress & Türk kahvesi": { en: "Filter machine, V60, AeroPress & Turkish coffee", id: "Mesin filter, V60, AeroPress & kopi Turki" },
 
   // işleme
   "Doğal Anaerobik · 60 saat": { en: "Natural anaerobic · 60 hours", id: "Natural anaerob · 60 jam" },
@@ -230,17 +231,17 @@ export const PRODUCTS: Record<"en" | "id", Record<string, ProductText>> = {
       },
     },
     "manis-blend-espresso-filtre": {
-      subtitle: "Indonesia × Ethiopia blend",
+      subtitle: "Ethiopia · Sidamo",
       headline: "Ready for a sweet break with Manis?",
       bodyAcidity: "Soft, smooth body; gentle fruity acidity; pronounced natural sweetness",
-      description: "Manis Blend whole-bean coffee — chocolate, forest fruits and cinnamon; a soft, fruity, naturally sweet everyday coffee for filter and espresso.",
+      description: "Manis Ethiopia Sidamo single-origin whole-bean coffee — chocolate, forest fruits and cinnamon; a soft, fruity, naturally sweet medium roast for V60, filter machines, AeroPress and Turkish coffee.",
       story: [
-        "Named after the Indonesian word for \"sweet\", Manis lives up to its name. If you want soft, fruity, naturally sugary flavours instead of bitterness, Manis is for you.",
+        "Named after the Indonesian word for \"sweet\", Manis is a special Ethiopian coffee that lives up to its name. If you want soft, fruity, naturally sugary flavours instead of bitterness, Manis and its friendly mascot are for you.",
         "A careful medium roast brings out the bean's natural fruit sugars in balance: rich chocolate notes are joined by lively forest fruits and a warming touch of cinnamon on the finish.",
         "A slow Sunday-morning V60, a quick filter coffee at the office or a finely ground modern Turkish coffee — an easy, enjoyable cup every time.",
       ],
       tips: {
-        filter: "For the fruity, sweet notes: V60, AeroPress or a filter coffee machine.",
+        filter: "For the fruity, sweet notes: V60, AeroPress or a filter coffee machine — also lovely as a finely ground modern Turkish coffee.",
         espresso: "Chocolatey as a straight espresso, a cinnamon finish with milk.",
       },
     },
@@ -393,17 +394,17 @@ export const PRODUCTS: Record<"en" | "id", Record<string, ProductText>> = {
       },
     },
     "manis-blend-espresso-filtre": {
-      subtitle: "Blend Indonesia × Etiopia",
+      subtitle: "Etiopia · Sidamo",
       headline: "Siap untuk rehat manis bersama Manis?",
       bodyAcidity: "Body lembut dan halus, keasaman buah yang lembut, rasa manis alami yang jelas",
-      description: "Biji kopi Manis Blend — cokelat, buah hutan, dan kayu manis; kopi harian yang lembut, fruity, dan manis alami untuk filter dan espresso.",
+      description: "Biji kopi single origin Manis Etiopia Sidamo — cokelat, buah hutan, dan kayu manis; sangrai sedang yang lembut, fruity, dan manis alami untuk V60, mesin kopi filter, AeroPress, dan kopi Turki.",
       story: [
-        "Ya, namanya memang diambil dari kata \"manis\" — dan Manis benar-benar sesuai namanya. Jika Anda mencari rasa lembut, fruity, dan manis alami alih-alih pahit, Manis untuk Anda.",
+        "Ya, namanya memang diambil dari kata \"manis\" — kopi Etiopia istimewa ini benar-benar sesuai namanya. Jika Anda mencari rasa lembut, fruity, dan manis alami alih-alih pahit, Manis dan maskotnya yang menggemaskan untuk Anda.",
         "Sangrai sedang yang teliti mengeluarkan gula buah alami dalam biji secara seimbang: nuansa cokelat yang kaya ditemani segarnya buah hutan dan sentuhan hangat kayu manis di akhir.",
         "V60 yang diseduh santai di Minggu pagi, kopi filter cepat di kantor, atau kopi Turki modern bergiling halus — pengalaman yang ringan dan menyenangkan di setiap cangkir.",
       ],
       tips: {
-        filter: "Untuk nuansa fruity dan manis: V60, AeroPress, atau mesin kopi filter.",
+        filter: "Untuk nuansa fruity dan manis: V60, AeroPress, atau mesin kopi filter — juga nikmat sebagai kopi Turki modern bergiling halus.",
         espresso: "Bernuansa cokelat sebagai espresso murni, akhir kayu manis dengan susu.",
       },
     },
@@ -496,11 +497,11 @@ export const CATEGORIES: Record<"en" | "id", Record<string, { tagline: string; d
     blends: {
       tagline: "Ethiopia and Indonesia in the same cup.",
       description:
-        "Manis, Pagi and Tanah: our everyday blends that bring Ethiopia's fruit together with Indonesia's body. Their names come from Indonesian — sweet, morning and earth.",
+        "Pagi and Tanah: our everyday blends that bring Ethiopia's fruit together with Indonesia's body. Their names come from Indonesian — morning and earth.",
     },
     sets: {
       tagline: "For gifting, or for discovering by tasting.",
-      description: "Try the four beans of the Indonesia series, or the Manis, Pagi and Tanah blends together. Gift boxes and discovery sets — each freshly roasted every week.",
+      description: "Try the four beans of the Indonesia series, or Manis, Pagi and Tanah together. Gift boxes and discovery sets — each freshly roasted every week.",
     },
     accessories: {
       tagline: "Handmade pieces for your brew station.",
@@ -521,11 +522,11 @@ export const CATEGORIES: Record<"en" | "id", Record<string, { tagline: string; d
     blends: {
       tagline: "Etiopia dan Indonesia dalam satu cangkir.",
       description:
-        "Manis, Pagi, dan Tanah: blend harian kami yang memadukan rasa buah Etiopia dengan body Indonesia. Namanya diambil dari bahasa Indonesia — manis, pagi, dan tanah.",
+        "Pagi dan Tanah: blend harian kami yang memadukan rasa buah Etiopia dengan body Indonesia. Namanya diambil dari bahasa Indonesia — pagi dan tanah.",
     },
     sets: {
       tagline: "Untuk hadiah, atau untuk mengenal lewat rasa.",
-      description: "Coba empat biji seri Indonesia, atau blend Manis, Pagi, dan Tanah sekaligus. Kotak hadiah dan set penjelajah — semua disangrai segar setiap minggu.",
+      description: "Coba empat biji seri Indonesia, atau Manis, Pagi, dan Tanah sekaligus. Kotak hadiah dan set penjelajah — semua disangrai segar setiap minggu.",
     },
     accessories: {
       tagline: "Aksesori buatan tangan untuk meja seduh Anda.",

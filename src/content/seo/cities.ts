@@ -20,7 +20,7 @@ export interface CityPage {
 const common = (dative: string, locative: string) => [
   {
     q: `${dative} hangi kahveleri gönderiyorsunuz?`,
-    a: `Endonezya (Java — Garut, Papandayan, Frinsa Estate), Etiyopya, Kolombiya, El Salvador ve Meksika tek köken specialty kahvelerimizin yanı sıra Manis, Pagi ve Tanah harmanlarımızın tamamını ${dative} gönderiyoruz. Hepsi siparişinize göre haftalık kavrum partisinden paketlenir.`,
+    a: `Endonezya (Java — Garut, Papandayan, Frinsa Estate), Etiyopya (Manis · Sidamo), Kolombiya, El Salvador ve Meksika tek köken specialty kahvelerimizin yanı sıra Pagi ve Tanah harmanlarımızın tamamını ${dative} gönderiyoruz. Hepsi siparişinize göre haftalık kavrum partisinden paketlenir.`,
   },
   {
     q: `${locative} V60, filtre kahve makinesi veya espresso için öğütülmüş kahve alabilir miyim?`,

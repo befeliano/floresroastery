@@ -4,18 +4,26 @@ import { DailyBlends } from "@/components/home/daily-blends";
 import { FeaturedCoffees } from "@/components/home/featured-coffees";
 import { Hero } from "@/components/home/hero";
 import { HomeFaq } from "@/components/home/home-faq";
+import { InstagramBand } from "@/components/home/instagram-band";
 import { Manifesto } from "@/components/home/manifesto";
 import { Pillars } from "@/components/home/pillars";
 import { RusoExotics } from "@/components/home/ruso-exotics";
 import { VisitUs } from "@/components/home/visit-us";
 import { JsonLd } from "@/components/json-ld";
 import { catalogL } from "@/i18n/catalog";
-import { getCollection, getFeaturedProducts, getProductsByCategory } from "@/lib/commerce";
+import { getCollection, getFeaturedProducts, getProduct, getProductsByCategory } from "@/lib/commerce";
 import { storeSchema } from "@/lib/seo";
 
 export default async function Home() {
   const L = await catalogL();
-  const [featured, ruso, blends] = await Promise.all([getFeaturedProducts(), getCollection("ruso-exotics"), getProductsByCategory("blends")]);
+  const [featured, ruso, blends, manis] = await Promise.all([
+    getFeaturedProducts(),
+    getCollection("ruso-exotics"),
+    getProductsByCategory("blends"),
+    getProduct("manis-blend-espresso-filtre"),
+  ]);
+  // Endonezce isimli üçlü: Manis (tek köken Etiyopya Sidamo) + Pagi ve Tanah harmanları
+  const daily = [...(manis ? [manis] : []), ...blends.filter((p) => p.slug !== manis?.slug)];
 
   return (
     <>
@@ -26,9 +34,10 @@ export default async function Home() {
       <RusoExotics products={ruso.map(L.card)} />
       <Manifesto />
       <Pillars />
-      <DailyBlends products={blends.map(L.card)} />
+      <DailyBlends products={daily.map(L.card)} />
       <BrewTeaser />
       <VisitUs />
+      <InstagramBand />
       <HomeFaq />
     </>
   );

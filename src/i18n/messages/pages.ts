@@ -6,9 +6,9 @@ export const pages = {
   meta: {
     title: { tr: "Specialty Kahve & Taze Kavrulmuş Çekirdek Kahve · Eskişehir", en: "Specialty Coffee Roasters", id: "Specialty Coffee Roasters" },
     description: {
-      tr: "Flores Roastery — Eskişehir'de kalpten kavrulan specialty kahve. Endonezya'dan doğrudan ticaret Ruso Exotics serisi, tek kökenli kahveler ve Manis, Pagi, Tanah harmanları; her kahve için künye ve saniye saniye demleme rehberi.",
-      en: "Flores Roastery — specialty coffee roasted from the heart in Eskişehir, Türkiye. The direct-trade Ruso Exotics series from Indonesia, single origins and the Manis, Pagi and Tanah blends; a full spec sheet and a second-by-second brew guide for every coffee.",
-      id: "Flores Roastery — kopi spesialti yang disangrai sepenuh hati di Eskişehir, Turki. Seri direct trade Ruso Exotics dari Indonesia, kopi single origin, serta blend Manis, Pagi, dan Tanah; lengkap dengan spesifikasi dan panduan seduh detik demi detik untuk setiap kopi.",
+      tr: "Flores Roastery — Eskişehir'de kalpten kavrulan specialty kahve. Endonezya'dan doğrudan ticaret Ruso Exotics serisi, Etiyopya Sidamo Manis dahil tek kökenli kahveler ve Pagi, Tanah harmanları; her kahve için künye ve saniye saniye demleme rehberi.",
+      en: "Flores Roastery — specialty coffee roasted from the heart in Eskişehir, Türkiye. The direct-trade Ruso Exotics series from Indonesia, single origins including Manis from Ethiopia's Sidamo, and the Pagi and Tanah blends; a full spec sheet and a second-by-second brew guide for every coffee.",
+      id: "Flores Roastery — kopi spesialti yang disangrai sepenuh hati di Eskişehir, Turki. Seri direct trade Ruso Exotics dari Indonesia, kopi single origin termasuk Manis dari Sidamo, Etiopia, serta blend Pagi dan Tanah; lengkap dengan spesifikasi dan panduan seduh detik demi detik untuk setiap kopi.",
     },
     keywords: {
       tr: "specialty kahve, 3. nesil kahve, çekirdek kahve, taze kavrulmuş kahve, filtre kahve, V60, espresso, single origin, Endonezya kahvesi, Etiyopya kahvesi, Kolombiya kahvesi, kahve kavurma, Eskişehir kahve, İstanbul specialty kahve, Ankara çekirdek kahve, Bursa kahve, Flores Roastery",
@@ -172,12 +172,12 @@ export const pages = {
       },
     ],
 
-    blendsEyebrow: { tr: "Günlük harmanlar", en: "Everyday blends", id: "Blend harian" },
+    blendsEyebrow: { tr: "Günlük kahveler", en: "Everyday coffees", id: "Kopi harian" },
     blendsTitle: { a: { tr: "Tatlı, sabah ve ", en: "Sweet, morning and ", id: "Manis, pagi, dan " }, em: { tr: "toprak.", en: "earth.", id: "tanah." } },
     blendsText: {
-      tr: "Etiyopya'nın meyvesi ile Endonezya'nın gövdesini buluşturan, adlarını Endonezce'den alan üç harman. Her gün, her demleme yönteminde.",
-      en: "Three blends that bring Ethiopia's fruit together with Indonesia's body, named in Indonesian. For every day and every brew method.",
-      id: "Tiga blend yang memadukan rasa buah Etiopia dengan body Indonesia, dinamai dalam bahasa Indonesia. Untuk setiap hari dan setiap metode seduh.",
+      tr: "Adlarını Endonezce'den alan üç günlük kahve: Etiyopya Sidamo tek kökenli Manis ile Etiyopya'nın meyvesini Endonezya'nın gövdesiyle buluşturan Pagi ve Tanah harmanları. Her gün, her demleme yönteminde.",
+      en: "Three everyday coffees named in Indonesian: Manis, a single origin from Ethiopia's Sidamo, and the Pagi and Tanah blends that bring Ethiopia's fruit together with Indonesia's body. For every day and every brew method.",
+      id: "Tiga kopi harian yang dinamai dalam bahasa Indonesia: Manis, single origin dari Sidamo, Etiopia, serta blend Pagi dan Tanah yang memadukan rasa buah Etiopia dengan body Indonesia. Untuk setiap hari dan setiap metode seduh.",
     },
     blendMeaning: { tr: "Endonezce “{meaning}”", en: "Indonesian for “{meaning}”", id: "Artinya “{meaning}”" },
     blendWords: {
@@ -201,6 +201,13 @@ export const pages = {
       { tr: "Süzülme biter", en: "Drawdown ends", id: "Tetesan selesai" },
     ],
 
+    instaEyebrow: { tr: "Instagram'da biz", en: "Find us on Instagram", id: "Kami di Instagram" },
+    instaText: {
+      tr: "Kavrum günleri, yeni gelen çekirdekler, Coffee Bar tadımları ve kampanyalar — hepsini ilk Instagram'da paylaşıyoruz.",
+      en: "Roast days, new arrivals, Coffee Bar tastings and offers — we share them all on Instagram first.",
+      id: "Hari sangrai, biji baru, sesi cupping di Coffee Bar, dan promo — semuanya kami bagikan lebih dulu di Instagram.",
+    },
+    instaFollow: { tr: "Takip et", en: "Follow", id: "Ikuti" },
     visitEyebrow: { tr: "Eskişehir'de", en: "In Eskişehir", id: "Di Eskişehir" },
     visitTitle: { tr: "Coffee Bar'da bir fincan", en: "A cup at the Coffee Bar", id: "Secangkir di Coffee Bar" },
     visitText: {
@@ -222,9 +229,9 @@ export const pages = {
   catalog: {
     title: { tr: "Çekirdek Kahve — Specialty & 3. Nesil Kahve Çeşitleri", en: "All Coffees — Specialty Whole Bean Coffee", id: "Semua Kopi — Biji Kopi Spesialti" },
     description: {
-      tr: "Flores Roastery çekirdek kahveleri: Endonezya Ruso Exotics serisi, El Salvador, Kolombiya ve Meksika tek kökenliler; Manis, Pagi ve Tanah harmanları. Haftalık taze kavrum.",
-      en: "Flores Roastery whole-bean coffees: the Indonesian Ruso Exotics series, single origins from El Salvador, Colombia and Mexico, and the Manis, Pagi and Tanah blends. Roasted fresh every week.",
-      id: "Biji kopi Flores Roastery: seri Ruso Exotics dari Indonesia, single origin dari El Salvador, Kolombia, dan Meksiko, serta blend Manis, Pagi, dan Tanah. Disangrai segar setiap minggu.",
+      tr: "Flores Roastery çekirdek kahveleri: Endonezya Ruso Exotics serisi, El Salvador, Kolombiya, Meksika ve Etiyopya Sidamo (Manis) tek kökenliler; Pagi ve Tanah harmanları. Haftalık taze kavrum.",
+      en: "Flores Roastery whole-bean coffees: the Indonesian Ruso Exotics series, single origins from El Salvador, Colombia, Mexico and Ethiopia's Sidamo (Manis), and the Pagi and Tanah blends. Roasted fresh every week.",
+      id: "Biji kopi Flores Roastery: seri Ruso Exotics dari Indonesia, single origin dari El Salvador, Kolombia, Meksiko, dan Sidamo Etiopia (Manis), serta blend Pagi dan Tanah. Disangrai segar setiap minggu.",
     },
     eyebrow: { tr: "Kahveler", en: "Coffees", id: "Kopi" },
     heading: { a: { tr: "Her çekirdeğin ", en: "Where every bean has ", id: "Setiap biji punya " }, em: { tr: "bir hikâyesi", en: "a story", id: "cerita" }, b: { tr: " var.", en: ".", id: "." } },

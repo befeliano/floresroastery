@@ -5,7 +5,7 @@ export const site = {
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
   locale: "tr_TR",
   description:
-    "Flores Roastery — Eskişehir'de kalpten kavrulan specialty kahve. Endonezya'dan doğrudan ticaret Ruso Exotics serisi, tek kökenli kahveler ve Manis, Pagi, Tanah harmanları; her kahve için künye ve saniye saniye demleme rehberi.",
+    "Flores Roastery — Eskişehir'de kalpten kavrulan specialty kahve. Endonezya'dan doğrudan ticaret Ruso Exotics serisi, Etiyopya Sidamo Manis dahil tek kökenli kahveler ve Pagi, Tanah harmanları; her kahve için künye ve saniye saniye demleme rehberi.",
   about:
     "Flores Roastery, basit bir inançla doğdu: Harika kahve sadece tadılmamalı, hissedilmelidir. Kalpten kavuruyoruz; kahvenin kaynağından fincana uzanan yolculuğuna saygı duyuyoruz.",
   company: {

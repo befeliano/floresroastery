@@ -3,6 +3,8 @@
  * "3. nesil kahve nedir", "V60 nasıl demlenir", "Etiyopya kahvesi", "Endonezya kahvesi"...
  * Bloklar: h2 (ara başlık), p (paragraf), ul (liste), link (iç bağlantı satırı).
  */
+import { MORE_GUIDES } from "./guides-more";
+
 export type GuideBlock = { h2: string } | { p: string } | { ul: string[] } | { links: { href: string; label: string }[] };
 
 export interface Guide {
@@ -15,7 +17,7 @@ export interface Guide {
   blocks: GuideBlock[];
 }
 
-export const GUIDES: Guide[] = [
+const BASE_GUIDES: Guide[] = [
   {
     slug: "3-nesil-kahve-nedir",
     title: "3. Nesil (Specialty) Kahve Nedir?",
@@ -80,12 +82,12 @@ export const GUIDES: Guide[] = [
       { h2: "Fincan ekşi ya da acıysa" },
       { p: "Ekşi, sulu ve kısa biten bir fincan genellikle az demlenmeyi (under-extraction) gösterir: Öğütmeyi biraz inceltin ya da suyu birkaç derece ısıtın. Acı, kuru ve buruk bir fincan aşırı demlenmeyi (over-extraction) gösterir: Öğütmeyi kalınlaştırın veya süreyi kısaltın. Bir seferde yalnızca bir değişkeni değiştirin." },
       { h2: "V60 için hangi kahve?" },
-      { p: "Açık kavrulmuş, meyvemsi ve çiçeksi kahveler V60'ta parlar: Endonezya Guntur Honey (çiçeksi, şeftali, sarı elma), Frinsa #3 Extended Natural (kan portakalı, kırmızı meyve) ve Frinsa Honey (yaban mersini, böğürtlen) ilk önerilerimiz. Daha yuvarlak ve tatlı bir günlük fincan için Manis harmanını deneyin." },
+      { p: "Açık kavrulmuş, meyvemsi ve çiçeksi kahveler V60'ta parlar: Endonezya Guntur Honey (çiçeksi, şeftali, sarı elma), Frinsa #3 Extended Natural (kan portakalı, kırmızı meyve) ve Frinsa Honey (yaban mersini, böğürtlen) ilk önerilerimiz. Daha yuvarlak ve tatlı bir günlük fincan için Etiyopya Sidamo tek kökenli Manis'i deneyin: çikolata, orman meyveleri ve tarçın." },
       {
         links: [
           { href: "/kahveler/guntur-endonezya", label: "Guntur Endonezya Honey" },
           { href: "/kahveler/frinsa3", label: "Frinsa #3 Extended Natural" },
-          { href: "/kahveler/manis-blend-espresso-filtre", label: "Manis Blend" },
+          { href: "/kahveler/manis-blend-espresso-filtre", label: "Manis Etiyopya Sidamo" },
           { href: "/demleme-rehberi", label: "Zamanlayıcılı demleme rehberi" },
         ],
       },
@@ -123,7 +125,7 @@ export const GUIDES: Guide[] = [
     slug: "etiyopya-kahvesi",
     title: "Etiyopya Kahvesi: Kahvenin Anavatanından Çiçeksi Fincanlar",
     description:
-      "Etiyopya kahvesinin özellikleri: heirloom çeşitler, Sidama ve Yirgacheffe bölgeleri, natural ve washed işleme; bergamot, yasemin ve meyve notaları. Filtre ve harmanlarda Etiyopya.",
+      "Etiyopya kahvesinin özellikleri: heirloom çeşitler, Sidama ve Yirgacheffe bölgeleri, natural ve washed işleme; bergamot, yasemin ve meyve notaları. Sidamo'dan Manis, Sidama'dan Shantawene.",
     image: "/photos/cupping-pour.webp",
     date: "2026-10-09",
     readMin: 4,
@@ -133,10 +135,13 @@ export const GUIDES: Guide[] = [
       { p: "Sidama ve onun alt bölgesi Yirgacheffe, 1.800–2.200 metreye varan rakımlarıyla çiçeksi ve narenciye notalı kahveleriyle tanınır. Shantawene, Sidama'nın yüksek köylerinden gelen bir natural lot: bergamot, portakal kabuğu ve kakao nibs." },
       { h2: "Natural mı, washed mı?" },
       { p: "Washed (yıkanmış) Etiyopya kahveleri yasemin, bergamot ve limon gibi berrak, çay gibi notalar verir. Natural (kirazıyla kurutulmuş) olanlar ise yaban mersini, çilek ve olgun meyve gibi daha yoğun, şurupsu bir karakter taşır." },
+      { h2: "Manis: Sidamo'dan tatlı bir mola" },
+      { p: "Manis, Sidamo bölgesinden gelen, orta kavrulmuş tek köken bir Etiyopya kahvesi. Adı Endonezce'de \"tatlı\" demek ve fincanda bunu hak ediyor: çikolata, orman meyveleri ve tarçın; yumuşak gövde, nazik asidite, belirgin doğal tatlılık. V60, filtre kahve makinesi ve AeroPress'te; ince öğütülerek modern bir Türk kahvesi olarak da çok keyifli." },
       { h2: "Harmanlarda Etiyopya" },
-      { p: "Manis, Pagi ve Tanah harmanlarımızda Etiyopya'nın parlak meyvesini Endonezya'nın gövdesiyle buluşturuyoruz. Manis'te çikolata ve orman meyveleri, Pagi'de karamel ve badem, Tanah'ta bitter çikolata ve baharat öne çıkar." },
+      { p: "Pagi ve Tanah harmanlarımızda Etiyopya'nın parlak meyvesini Endonezya'nın gövdesiyle buluşturuyoruz: Pagi'de karamel ve badem, Tanah'ta bitter çikolata ve baharat öne çıkar." },
       {
         links: [
+          { href: "/kahveler/manis-blend-espresso-filtre", label: "Manis Etiyopya Sidamo" },
           { href: "/kategori/blends", label: "Günlük harmanlarımız" },
           { href: "/kahveler/ethiopia-shantawene", label: "Shantawene Etiyopya Natural" },
           { href: "/rehber/v60-ile-filtre-kahve-nasil-demlenir", label: "Etiyopya kahvesini V60'ta demlemek" },
@@ -213,5 +218,7 @@ export const GUIDES: Guide[] = [
     ],
   },
 ];
+
+export const GUIDES: Guide[] = [...BASE_GUIDES, ...MORE_GUIDES];
 
 export const getGuide = (slug: string) => GUIDES.find((g) => g.slug === slug);
