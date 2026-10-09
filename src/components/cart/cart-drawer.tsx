@@ -10,9 +10,20 @@ import { lineKey, MAX_QTY, useCart, useCartSubtotal } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/format";
 import { site } from "@/lib/site";
 
+export type CartSuggestion = {
+  slug: string;
+  name: string;
+  subtitle: string;
+  image: string;
+  variantId: string;
+  variantLabel: string;
+  price: number;
+  grind: string;
+};
+
 /** Sağdan kayan sepet çekmecesi */
-export function CartDrawer() {
-  const { items, isOpen, close, setQuantity, remove } = useCart();
+export function CartDrawer({ suggestions = [] }: { suggestions?: CartSuggestion[] }) {
+  const { items, isOpen, close, setQuantity, remove, add } = useCart();
   const subtotal = useCartSubtotal();
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -44,6 +55,12 @@ export function CartDrawer() {
   const threshold = site.shipping.freeThreshold;
   const remaining = threshold == null ? 0 : Math.max(0, threshold - subtotal);
   const progress = threshold == null ? 0 : Math.min(100, (subtotal / threshold) * 100);
+
+  // öneri: ücretsiz kargoya az kaldıysa açığı kapatan en ucuz paket, yoksa sepette olmayan ilk kahve
+  const inCart = new Set(items.map((i) => i.slug));
+  const pool = suggestions.filter((s) => !inCart.has(s.slug));
+  const filler = remaining > 0 ? pool.filter((s) => s.price >= remaining && s.price <= remaining + 400).sort((a, b) => a.price - b.price)[0] : undefined;
+  const suggestion = items.length > 0 && !items.some((i) => i.slug === "toptan-siparis") ? (filler ?? pool[0]) : undefined;
 
   return (
     <div className={`fixed inset-0 z-[60] ${isOpen ? "visible" : "invisible"}`} aria-hidden={!isOpen}>
@@ -149,6 +166,42 @@ export function CartDrawer() {
               );
             })}
           </ul>
+        )}
+
+        {suggestion && (
+          <div className="border-t border-ink-700 px-6 py-4">
+            <p className="eyebrow text-[0.6rem] text-flores-300">{filler ? t.cart.suggestFill : t.cart.suggestTry}</p>
+            <div className="mt-3 flex items-center gap-3">
+              <Link href={`/kahveler/${suggestion.slug}`} onClick={close} className="relative size-14 shrink-0 overflow-hidden rounded-sm bg-ink-800">
+                <Image src={suggestion.image} alt={fmt(t.common.coffeePackageAlt, { name: suggestion.name })} fill sizes="56px" className="object-cover" />
+              </Link>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-serif text-base leading-tight">{suggestion.name}</p>
+                <p className="truncate text-xs text-cream-400">
+                  {suggestion.variantLabel} · {formatPrice(suggestion.price)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  add({
+                    slug: suggestion.slug,
+                    variantId: suggestion.variantId,
+                    grind: suggestion.grind,
+                    quantity: 1,
+                    name: suggestion.name,
+                    subtitle: suggestion.subtitle,
+                    variantLabel: suggestion.variantLabel,
+                    unitPrice: suggestion.price,
+                    image: suggestion.image,
+                  })
+                }
+                className="btn btn-ghost shrink-0 px-4 py-2 text-[0.65rem]"
+              >
+                + {t.cart.suggestAdd}
+              </button>
+            </div>
+          </div>
         )}
 
         {items.length > 0 && (

@@ -94,6 +94,13 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
   }
 
   const discount = variant.compareAtPrice ? Math.round((1 - variant.price / variant.compareAtPrice) * 100) : 0;
+  // gram başı fiyat: en küçük pakete göre büyük paketteki avantaj (yalnızca gramajı bilinen paketler)
+  const perGram = (v: { price: number; weight: number }) => (v.weight > 0 ? v.price / v.weight : 0);
+  const weighed = product.variants.filter((v) => v.weight > 0);
+  const base = weighed.length > 1 ? weighed.reduce((a, b) => (b.weight < a.weight ? b : a)) : null;
+  const saving = (v: { price: number; weight: number }) =>
+    base && v.weight > base.weight ? Math.round((1 - perGram(v) / perGram(base)) * 100) : 0;
+  const best = weighed.length > 1 ? weighed.filter((v) => v.inStock).reduce<(typeof weighed)[number] | null>((a, b) => (!a || perGram(b) < perGram(a) ? b : a), null) : null;
 
   return (
     <>
@@ -108,6 +115,9 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
           )}
           <p className="ml-auto text-xs text-cream-500">{t.common.vatIncluded}</p>
         </div>
+        {variant.weight > 0 && (
+          <p className="mt-2 font-mono text-xs text-cream-400">{fmt(t.product.perKg, { price: formatPrice(Math.round(perGram(variant) * 1000)) })}</p>
+        )}
 
         <fieldset className="mt-8">
           <legend className="eyebrow text-[0.65rem] text-cream-400">{t.product.package}</legend>
@@ -130,9 +140,19 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
                 />
                 <span className="text-sm font-medium">{v.label}</span>
                 <span className="mt-0.5 font-mono text-xs text-cream-400">{v.inStock ? formatPrice(v.price) : t.common.soldOut}</span>
+                {v.inStock && saving(v) >= 5 && (
+                  <span className="absolute -top-2 right-2 rounded-full bg-flores-500 px-2 py-0.5 text-[0.6rem] font-semibold text-ink-950">
+                    {fmt(t.product.bulkSave, { n: saving(v) })}
+                  </span>
+                )}
               </label>
             ))}
           </div>
+          {best && saving(best) >= 5 && best.id !== variant.id && (
+            <p className="mt-3 text-xs text-cream-400">
+              {fmt(t.product.bulkHint, { label: best.label, price: formatPrice(Math.round(perGram(best) * 100)) })}
+            </p>
+          )}
         </fieldset>
 
         {product.grindOptions.length > 0 && (

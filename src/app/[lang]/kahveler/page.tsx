@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmTitle } from "@/components/em-title";
 import { PageHeader } from "@/components/page-header";
 import { CoffeeCatalog, CoffeeCatalogStatic } from "@/components/product/coffee-catalog";
+import { RecentlyViewed } from "@/components/product/recently-viewed";
 import { catalogL } from "@/i18n/catalog";
 import { pages } from "@/i18n/messages/pages";
 import { alternates, t } from "@/i18n/server";
@@ -35,6 +36,7 @@ export default async function CoffeesPage() {
         <Suspense fallback={<CoffeeCatalogStatic products={products} />}>
           <CoffeeCatalog products={products} />
         </Suspense>
+        <RecentlyViewed className="mt-24" />
       </div>
     </>
   );

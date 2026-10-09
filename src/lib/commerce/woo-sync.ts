@@ -2,7 +2,7 @@ import "server-only";
 import { photos } from "@/lib/photos";
 import { GRIND_OPTIONS } from "./grind";
 import type { CategorySlug, Product, ProductVariant } from "./types";
-import { getJson, wooBase } from "./woocommerce";
+import { canCreateWooOrders, getJson, wooBase, wooFetch } from "./woocommerce";
 
 /**
  * WordPress (WooCommerce) → site senkronizasyonu — Store API (herkese açık, anahtar gerekmez)
@@ -155,6 +155,23 @@ async function allVariations(root: string, fresh: string): Promise<Map<number, S
     if (rows.length < 100) break;
   }
   return out;
+}
+
+/**
+ * Ürün başına toplam satış adedi (WooCommerce REST, anahtar gerekir) — "Çok satan" rozeti ve sıralama.
+ * Tek istek; anahtar yoksa ya da hata olursa boş döner, katalog etkilenmez.
+ */
+export async function liveSales(): Promise<Map<string, number>> {
+  if (!canCreateWooOrders()) return new Map();
+  try {
+    const res = await wooFetch(`wc/v3/products?per_page=100&status=publish&_fields=id,total_sales&_fresh=${Date.now().toString(36)}`, {}, 8_000);
+    if (!res.ok) return new Map();
+    const rows = (await res.json()) as { id: number; total_sales: number | string }[];
+    return new Map(rows.map((r) => [String(r.id), Number(r.total_sales) || 0]));
+  } catch (e) {
+    console.error("[woo-sync] satış adetleri okunamadı:", e);
+    return new Map();
+  }
 }
 
 /** Katalog + WordPress'teki canlı veri → sitenin ürün listesi */

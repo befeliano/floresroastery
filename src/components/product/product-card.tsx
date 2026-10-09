@@ -31,6 +31,8 @@ export function ProductCard({ product, className = "", priority = false }: { pro
           </span>
           {soldOut ? (
             <span className="eyebrow rounded-full bg-ink-950/85 px-2.5 py-1 text-[0.55rem] text-cream-100">{t.common.outOfStock}</span>
+          ) : product.bestseller ? (
+            <span className="eyebrow rounded-full bg-flores-500 px-2.5 py-1 text-[0.55rem] text-ink-950">{t.product.bestseller}</span>
           ) : product.collection === "ruso-exotics" ? (
             <span lang="en" className="eyebrow rounded-full bg-ink-950/70 px-2.5 py-1 text-[0.55rem] text-flores-200 backdrop-blur-sm">
               Ruso Exotics

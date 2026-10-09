@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter, Playfair_Display } from "next/font/google";
-import { CartDrawer } from "@/components/cart/cart-drawer";
+import { CartDrawer, type CartSuggestion } from "@/components/cart/cart-drawer";
 import { JsonLd } from "@/components/json-ld";
 import type { MenuData } from "@/components/layout/menu-types";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -87,9 +87,23 @@ async function getMenu(): Promise<MenuData> {
   };
 }
 
+/** Sepette önerilecek kahveler: stokta olan çekirdekler, en küçük paketleriyle (çok satan/öne çıkan önce) */
+async function getSuggestions(): Promise<CartSuggestion[]> {
+  const locale = await getLocale();
+  const beans = new Set(["single-origin", "blends", "espresso"]);
+  return (await getProducts())
+    .filter((p) => !p.auto && p.categories.some((c) => beans.has(c)) && !isSoldOut(p))
+    .sort((a, b) => Number(!!b.bestseller) - Number(!!a.bestseller) || Number(!!b.featured) - Number(!!a.featured))
+    .map((p) => {
+      const v = p.variants.filter((x) => x.inStock).reduce((a, b) => (b.price < a.price ? b : a));
+      const card = localizeCard(toCard(p), locale);
+      return { slug: p.slug, name: card.name, subtitle: card.subtitle, image: p.image.card, variantId: v.id, variantLabel: v.label, price: v.price, grind: p.grindOptions[0] ?? "" };
+    });
+}
+
 export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
   const locale = await getLocale();
-  const menu = await getMenu();
+  const [menu, suggestions] = await Promise.all([getMenu(), getSuggestions()]);
 
   return (
     <html lang={locale} className={`${playfair.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}>
@@ -101,7 +115,7 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
             {children}
           </main>
           <SiteFooter />
-          <CartDrawer />
+          <CartDrawer suggestions={suggestions} />
         </I18nProvider>
       </body>
     </html>

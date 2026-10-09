@@ -2,7 +2,7 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { categories, products as catalog } from "./catalog";
 import { isSoldOut, type CategorySlug, type Product } from "./types";
-import { syncWithWoo } from "./woo-sync";
+import { liveSales, syncWithWoo } from "./woo-sync";
 import { isWooConfigured } from "./woocommerce";
 
 export type * from "./types";
@@ -21,12 +21,26 @@ export async function getProducts(): Promise<Product[]> {
 
   if (isWooConfigured()) {
     try {
-      return await syncWithWoo(catalog);
+      const [products, sales] = await Promise.all([syncWithWoo(catalog), liveSales()]);
+      return markBestsellers(products, sales);
     } catch (err) {
       console.error("[commerce] WooCommerce okunamadı, yerel kataloğa düşülüyor:", err);
     }
   }
   return catalog;
+}
+
+const BEAN_CATEGORIES = new Set<CategorySlug>(["single-origin", "blends", "espresso"]);
+
+/** Satış adedini işler; stokta olan kahvelerden en çok satan 3'üne rozet */
+function markBestsellers(products: Product[], sales: Map<string, number>): Product[] {
+  if (!sales.size) return products;
+  const top = products
+    .filter((p) => p.categories.some((c) => BEAN_CATEGORIES.has(c)) && !isSoldOut(p) && (sales.get(p.id) ?? 0) > 0)
+    .sort((a, b) => (sales.get(b.id) ?? 0) - (sales.get(a.id) ?? 0))
+    .slice(0, 3)
+    .map((p) => p.id);
+  return products.map((p) => ({ ...p, sales: sales.get(p.id) ?? 0, bestseller: top.includes(p.id) }));
 }
 
 /** Stokta olanlar önce, tükenenler sona */

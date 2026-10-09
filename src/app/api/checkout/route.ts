@@ -63,7 +63,10 @@ export async function POST(req: NextRequest) {
   if (quote.couponError) return jsonError(quote.couponError, 409);
   const shippingMethod = quote.shippingMethod!;
 
-  const note = cleanText(b.note, 500) || undefined;
+  // hediye: not siparişin müşteri notuna eklenir (panelde ve e-postalarda en görünür yer)
+  const gift = b.gift === true ? { note: cleanText(b.giftNote, 200).replace(/\s+/g, " ") } : undefined;
+  const giftLine = gift ? `[HEDİYE] Paketi hediye olarak hazırlayın.${gift.note ? ` Kart notu: "${gift.note}"` : ""}` : "";
+  const note = [cleanText(b.note, 500), giftLine].filter(Boolean).join("\n\n") || undefined;
   const fullCustomer = { ...customer, email: customer.email!, phone: customer.phone! };
   let number = newOrderNumber();
   let wooId: number | undefined;
@@ -95,6 +98,7 @@ export async function POST(req: NextRequest) {
         // sözleşme onayı kaydı (Mesafeli Sözleşmeler Yönetmeliği — ispat yükü satıcıda)
         consents: consentRecord,
         customerId: session?.sub,
+        gift,
       });
       wooId = woo.id;
       number = String(woo.number);

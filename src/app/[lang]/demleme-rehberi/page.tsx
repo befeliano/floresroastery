@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { BrewLog } from "@/components/brew/brew-log";
+import { GrinderGuide } from "@/components/brew/grinder-guide";
+import { PwaInstall } from "@/components/brew/pwa-install";
 import { RatioCalculator } from "@/components/brew/ratio-calculator";
+import { localeMeta } from "@/i18n/config";
+import { tools } from "@/i18n/messages/tools";
+import { getToolCoffees } from "@/lib/commerce/tools";
 import { EmTitle } from "@/components/em-title";
 import { HeroVideo } from "@/components/home/hero-video";
 import { JsonLd } from "@/components/json-ld";
@@ -32,7 +38,9 @@ const GRIND_META = [
 export default async function BrewGuidePage() {
   const locale = await getLocale();
   const b = await t(pages.brewPage);
+  const tl = await t(tools);
   const photos = await localPhotos();
+  const coffeeNames = (await getToolCoffees(locale)).map((c) => c.name);
   const L = (g: ReturnType<typeof v60>) => localizeBrew(g, locale)!;
   const tabs = [
     { key: "v60", label: "V60", guide: L(v60()) },
@@ -115,8 +123,14 @@ export default async function BrewGuidePage() {
             <Image src={photos.brewKit.src} alt={photos.brewKit.alt} fill quality={90} sizes="26rem" className="object-cover" />
           </div>
           <RatioCalculator />
+          <PwaInstall text={tl.pwa} />
         </div>
       </section>
+
+      <div className="mx-auto w-full max-w-[1440px] space-y-28 px-5 pb-28 md:px-10">
+        <GrinderGuide text={tl.grinders} />
+        <BrewLog coffees={coffeeNames} text={tl.log} locale={localeMeta[locale].intl} />
+      </div>
     </>
   );
 }

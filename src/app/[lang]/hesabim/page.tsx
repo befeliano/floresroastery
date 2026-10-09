@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LogoutButton } from "@/components/account/logout-button";
+import { ReorderButton } from "@/components/account/reorder-button";
+import { localizeCard } from "@/i18n/content";
+import { getProducts, toCard, type Product } from "@/lib/commerce";
+import type { CartItem } from "@/lib/cart/store";
 import { localeMeta } from "@/i18n/config";
 import Link from "@/i18n/link";
 import { pages } from "@/i18n/messages/pages";
@@ -9,7 +13,40 @@ import { ui } from "@/i18n/messages/ui";
 import { getLocale, href, t } from "@/i18n/server";
 import { getSession } from "@/lib/auth/session";
 import { getCustomer, getCustomerOrders, toProfile, type WooCustomer } from "@/lib/commerce/customers";
-import { orderPayUrl, type WooOrder } from "@/lib/commerce/woocommerce";
+import { GRIND_TO_WOO, orderPayUrl, type WooOrder } from "@/lib/commerce/woocommerce";
+import { WHOLESALE_SLUG } from "@/lib/commerce/wholesale";
+import type { Locale } from "@/i18n/config";
+
+const WOO_TO_GRIND = Object.fromEntries(Object.entries(GRIND_TO_WOO).map(([k, v]) => [v, k]));
+
+/** Siparişin hâlâ satılan kalemleri → güncel fiyatlı sepet satırları */
+function reorderItems(o: WooOrder, products: Map<string, Product>, locale: Locale) {
+  const items: CartItem[] = [];
+  let skipped = 0;
+  for (const l of o.line_items) {
+    const p = products.get(String(l.product_id));
+    const v = p?.variants.find((x) => x.id === String(l.variation_id)) ?? (p?.variants.length === 1 ? p.variants[0] : undefined);
+    if (!p || !v || !v.inStock || p.slug === WHOLESALE_SLUG) {
+      skipped++;
+      continue;
+    }
+    const raw = String(l.meta_data.find((m) => m.key === "grind-size")?.value ?? "");
+    const grind = WOO_TO_GRIND[raw] ?? (p.grindOptions.includes(raw) ? raw : (p.grindOptions[0] ?? ""));
+    const card = localizeCard(toCard(p), locale);
+    items.push({
+      slug: p.slug,
+      variantId: v.id,
+      grind: p.grindOptions.includes(grind) ? grind : (p.grindOptions[0] ?? ""),
+      quantity: Math.min(l.quantity, 20),
+      name: card.name,
+      subtitle: card.subtitle,
+      variantLabel: v.label,
+      unitPrice: v.price,
+      image: p.image.card,
+    });
+  }
+  return { items, skipped };
+}
 import { formatPrice } from "@/lib/format";
 import { wooStatus } from "@/lib/orders/woo-status";
 
@@ -53,6 +90,7 @@ async function Account() {
     failed = true;
   }
   const profile = customer ? toProfile(customer) : null;
+  const productsById = new Map((await getProducts()).map((p) => [p.id, p]));
   const date = new Intl.DateTimeFormat(localeMeta[locale].intl, { dateStyle: "long" });
   const statusLabel = (s: WooOrder["status"]) =>
     s === "completed" ? u.status.completed : s === "refunded" ? u.status.cancelled : u.status[wooStatus(s)];
@@ -91,6 +129,7 @@ async function Account() {
               {orders.map((o) => {
                 const status = wooStatus(o.status);
                 const payUrl = o.status === "pending" ? orderPayUrl(o, locale) : undefined;
+                const again = payUrl ? { items: [], skipped: 0 } : reorderItems(o, productsById, locale);
                 return (
                   <li key={o.id} className="rounded-sm border border-ink-700 bg-ink-900 p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -119,6 +158,11 @@ async function Account() {
                           {u.common.completePayment} →
                         </a>
                       )}
+                      <ReorderButton
+                        items={again.items}
+                        label={a.reorder}
+                        partial={again.skipped ? a.reorderPartial.replace("{n}", String(again.skipped)) : undefined}
+                      />
                     </div>
                   </li>
                 );

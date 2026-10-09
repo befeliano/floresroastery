@@ -39,6 +39,8 @@ export async function getJson<T>(url: string, init?: RequestInit, timeoutMs = TI
 }
 
 export interface WooOrderInput {
+  /** hediye siparişi (kart notu müşteri notuna da yazılır) */
+  gift?: { note: string };
   customer: { firstName: string; lastName: string; email: string; phone: string; address: string; city: string; district: string; postcode?: string };
   paymentMethod: "iyzico" | "bacs";
   note?: string;
@@ -53,7 +55,7 @@ export interface WooOrderInput {
 }
 
 /** Sitedeki öğütme seçenekleri → WooCommerce "Grind Size" öznitelik terimleri */
-const GRIND_TO_WOO: Record<string, string> = {
+export const GRIND_TO_WOO: Record<string, string> = {
   "Çekirdek (öğütülmemiş)": "Çekirdek Kahve (Öğütülmemiş)",
   "Türk Kahvesi": "Turkish Coffee",
   Espresso: "Espresso",
@@ -99,6 +101,7 @@ export interface WooOrder {
   line_items: {
     id: number;
     product_id: number;
+    variation_id?: number;
     name: string;
     quantity: number;
     total: string;
@@ -156,6 +159,7 @@ export async function createWooOrder(input: WooOrderInput): Promise<WooOrder> {
       meta_data: [
         { key: "_flores_headless", value: "1" },
         ...(input.consents ? [{ key: "_flores_consents", value: JSON.stringify(input.consents) }] : []),
+        ...(input.gift ? [{ key: "Hediye", value: input.gift.note ? `Evet — kart notu: ${input.gift.note}` : "Evet" }] : []),
         // kart: sipariş hesaba ödeme alınınca bağlanır (snippet) — müşteri kimliği olan siparişin
         // ödeme sayfası WordPress'te giriş ister, müşteri ise yalnızca yeni sitede oturum açmıştır
         ...(input.customerId && input.paymentMethod === "iyzico" ? [{ key: "_flores_customer_id", value: String(input.customerId) }] : []),

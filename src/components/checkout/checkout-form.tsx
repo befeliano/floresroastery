@@ -60,6 +60,8 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
   const [payment, setPayment] = useState<"bacs" | "iyzico">("bacs");
   const [shippingMethod, setShippingMethod] = useState<ShippingOption["id"] | "">("");
   const [couponInput, setCouponInput] = useState("");
+  const [gift, setGift] = useState(false);
+  const [giftNote, setGiftNote] = useState("");
   const [coupon, setCoupon] = useState("");
   const [consents, setConsents] = useState({ preInfo: false, distanceSales: false, marketing: false });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -168,6 +170,8 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
         body: JSON.stringify({
           customer: values,
           note: values.note,
+          gift,
+          giftNote: gift ? giftNote : "",
           paymentMethod: payment,
           shippingMethod: activeShipping,
           couponCode: coupon,
@@ -315,6 +319,31 @@ export function CheckoutForm({ iyzicoEnabled }: { iyzicoEnabled: boolean }) {
                 {c.note}
               </label>
               <textarea id="f-note" value={values.note} onChange={set("note")} rows={2} maxLength={500} className="field resize-none" />
+            </div>
+            <div className="mt-5 rounded-sm border border-ink-700 p-4">
+              <label className="flex cursor-pointer items-start gap-3 text-sm text-cream-200">
+                <input type="checkbox" checked={gift} onChange={(e) => setGift(e.target.checked)} className="mt-0.5 size-4 accent-[#5fa4d6]" />
+                <span>
+                  {c.gift}
+                  <span className="mt-1 block text-xs text-cream-500">{c.giftHint}</span>
+                </span>
+              </label>
+              {gift && (
+                <div className="mt-4">
+                  <label htmlFor="f-gift" className="mb-2 block text-sm text-cream-300">
+                    {c.giftNote}
+                  </label>
+                  <textarea
+                    id="f-gift"
+                    value={giftNote}
+                    onChange={(e) => setGiftNote(e.target.value.slice(0, 200))}
+                    rows={2}
+                    maxLength={200}
+                    placeholder={c.giftNotePlaceholder}
+                    className="field resize-none"
+                  />
+                </div>
+              )}
             </div>
           </fieldset>
 

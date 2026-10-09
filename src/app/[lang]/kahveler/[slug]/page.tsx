@@ -6,11 +6,13 @@ import { BrewGuide } from "@/components/product/brew-guide";
 import { ProductCard } from "@/components/product/product-card";
 import { productSpecs, ProductSpecs } from "@/components/product/product-specs";
 import { PurchasePanel } from "@/components/product/purchase-panel";
+import { RecentlyViewed, TrackView } from "@/components/product/recently-viewed";
+import Link from "@/i18n/link";
 import { CupCost } from "@/components/product/cup-cost";
 import { catalogL } from "@/i18n/catalog";
 import { pages } from "@/i18n/messages/pages";
 import { alternates, href, ogLocale, t } from "@/i18n/server";
-import { getProducts, getRelatedProducts, primaryCategory } from "@/lib/commerce";
+import { fromPrice, getProducts, getRelatedProducts, primaryCategory } from "@/lib/commerce";
 import { getShopSettings } from "@/lib/commerce/settings";
 import { productSchema } from "@/lib/seo";
 
@@ -115,6 +117,11 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/kahvele
               image: product.image.card,
             }}
           />
+          {!product.auto && (
+            <Link href={`/karsilastir?k=${product.slug}`} className="mt-4 inline-block text-sm text-flores-300 underline-offset-4 hover:underline">
+              ⇄ {p.compare}
+            </Link>
+          )}
         </div>
 
         <div className="lg:col-start-1">
@@ -152,6 +159,11 @@ export default async function ProductPage({ params }: PageProps<"/[lang]/kahvele
           <CupCost variants={product.variants.map(({ id, label, weight, price, inStock }) => ({ id, label, weight, price, inStock }))} settings={settings} />
         </div>
       )}
+
+      <TrackView
+        item={{ slug: product.slug, name: product.name, subtitle: product.subtitle, image: product.image.card, bg: product.image.bg, price: fromPrice(product) }}
+      />
+      <RecentlyViewed exclude={product.slug} className="mx-auto mt-28 w-full max-w-[1440px] px-5 md:mt-40 md:px-10" />
 
       {related.length > 0 && (
         <section aria-labelledby="related-title" className="mx-auto mt-28 w-full max-w-[1440px] px-5 pb-28 md:mt-40 md:px-10">

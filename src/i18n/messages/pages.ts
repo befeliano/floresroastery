@@ -268,6 +268,7 @@ export const pages = {
   },
 
   product: {
+    compare: { tr: "Diğer kahvelerle karşılaştır", en: "Compare with other coffees", id: "Bandingkan dengan kopi lain" },
     notFound: { tr: "Kahve bulunamadı", en: "Coffee not found", id: "Kopi tidak ditemukan" },
     metaTitle: { tr: "{name} Çekirdek Kahve — Fiyat ve Tadım Notaları", en: "{name} — Whole Bean Coffee", id: "{name} — Biji Kopi" },
     metaNotes: { tr: "Tadım notaları: {notes}.", en: "Tasting notes: {notes}.", id: "Catatan rasa: {notes}." },
@@ -487,6 +488,12 @@ export const pages = {
   account: {
     title: { tr: "Hesabım", en: "My account", id: "Akun saya" },
     hello: { tr: "Merhaba, {name}", en: "Hello, {name}", id: "Halo, {name}" },
+    reorder: { tr: "Tekrar sipariş et", en: "Order again", id: "Pesan lagi" },
+    reorderPartial: {
+      tr: "{n} ürün şu an satışta değil, sepete eklenmez.",
+      en: "{n} item(s) are not available right now and won't be added.",
+      id: "{n} produk sedang tidak tersedia dan tidak ditambahkan.",
+    },
     loadError: {
       tr: "Hesap bilgileriniz şu an yüklenemedi. Lütfen biraz sonra sayfayı yenileyin.",
       en: "We couldn't load your account details right now. Please refresh the page in a moment.",

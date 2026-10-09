@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
+import Link from "@/i18n/link";
 import { ProductCard } from "@/components/product/product-card";
 import { useI18n } from "@/i18n/client";
 import { isSoldOut, type CardProduct as Product } from "@/lib/commerce/types";
@@ -18,6 +19,7 @@ const FILTERS = [
 
 const SORTS = [
   { key: "featured", label: "featured" },
+  { key: "bestselling", label: "bestselling" },
   { key: "price-asc", label: "priceAsc" },
   { key: "price-desc", label: "priceDesc" },
 ] as const;
@@ -37,6 +39,7 @@ function apply(products: Product[], filter: FilterKey, inStock: boolean, sort: S
     if (so !== 0) return so;
     if (sort === "price-asc") return minPrice(a) - minPrice(b);
     if (sort === "price-desc") return minPrice(b) - minPrice(a);
+    if (sort === "bestselling") return (b.sales ?? 0) - (a.sales ?? 0) || Number(!!b.featured) - Number(!!a.featured);
     return Number(!!b.featured) - Number(!!a.featured);
   });
   return list;
@@ -129,9 +132,19 @@ function CatalogView({
         </div>
       </div>
 
-      <p className="mt-6 text-sm text-cream-500" aria-live="polite">
-        {fmt(t.catalog.count, { n: products.length })}
-      </p>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm">
+        <p className="text-cream-500" aria-live="polite">
+          {fmt(t.catalog.count, { n: products.length })}
+        </p>
+        <span className="flex flex-wrap gap-x-5 gap-y-1">
+          <Link href="/kahve-bulucu" className="text-flores-300 underline-offset-4 hover:underline">
+            {t.catalog.finderLink} →
+          </Link>
+          <Link href="/karsilastir" className="text-flores-300 underline-offset-4 hover:underline">
+            {t.catalog.compareLink} →
+          </Link>
+        </span>
+      </div>
       <ul className="mt-6 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {products.map((p, i) => (
           <li key={p.slug}>

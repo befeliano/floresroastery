@@ -5,6 +5,7 @@ import { NewsletterForm } from "@/components/forms/newsletter-form";
 import { InstagramIcon } from "@/components/home/instagram-band";
 import { legalLinks } from "@/content/legal";
 import { pages } from "@/i18n/messages/pages";
+import { tools } from "@/i18n/messages/tools";
 import { CITIES } from "@/content/seo/cities";
 import { getLocale, t } from "@/i18n/server";
 import { site } from "@/lib/site";
@@ -13,6 +14,7 @@ type FooterLink = { href: string; label: string; en?: boolean; external?: boolea
 
 async function columns(): Promise<{ title: string; links: FooterLink[] }[]> {
   const f = await t(pages.footer);
+  const tl = await t(tools.links);
   const tr = (await getLocale()) === "tr";
   return [
   {
@@ -23,6 +25,10 @@ async function columns(): Promise<{ title: string; links: FooterLink[] }[]> {
       { href: "/kategori/blends", label: "Blends", en: true },
       { href: "/kategori/espresso", label: "Espresso", en: true },
       { href: "/kahveler?koleksiyon=ruso-exotics", label: "Ruso Exotics", en: true },
+      { href: "/kahve-bulucu", label: tl.finder },
+      { href: "/karsilastir", label: tl.compare },
+      { href: "/tat-carki", label: tl.wheel },
+      { href: "/koken-haritasi", label: tl.map },
     ],
   },
   {

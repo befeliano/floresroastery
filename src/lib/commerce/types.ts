@@ -121,6 +121,10 @@ export interface Product {
   /** ek görseller (otomatik ürünler) */
   gallery?: Photo[];
   rating?: { value: number; count: number };
+  /** WooCommerce toplam satış adedi (yalnızca anahtar tanımlıysa) */
+  sales?: number;
+  /** satışa göre ilk 3 kahve */
+  bestseller?: boolean;
 }
 
 export interface CartLine {
@@ -138,10 +142,10 @@ export const primaryCategory = (p: Pick<Product, "categories">) => p.categories[
 /** Kart ve listelerde kullanılan hafif ürün özeti (istemciye kavurma eğrisi vb. gönderilmez) */
 export type CardProduct = Pick<
   Product,
-  "slug" | "name" | "fullName" | "subtitle" | "categories" | "collection" | "image" | "variants" | "tastingNotes" | "featured"
+  "slug" | "name" | "fullName" | "subtitle" | "categories" | "collection" | "image" | "variants" | "tastingNotes" | "featured" | "sales" | "bestseller"
 >;
 
-export const toCard = ({ slug, name, fullName, subtitle, categories, collection, image, variants, tastingNotes, featured }: Product): CardProduct => ({
+export const toCard = ({ slug, name, fullName, subtitle, categories, collection, image, variants, tastingNotes, featured, sales, bestseller }: Product): CardProduct => ({
   slug,
   name,
   fullName,
@@ -152,4 +156,6 @@ export const toCard = ({ slug, name, fullName, subtitle, categories, collection,
   variants,
   tastingNotes,
   featured,
+  sales,
+  bestseller,
 });
