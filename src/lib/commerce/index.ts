@@ -17,7 +17,8 @@ export { isSoldOut, primaryCategory, toCard } from "./types";
 export async function getProducts(): Promise<Product[]> {
   "use cache";
   cacheTag("products");
-  cacheLife("hours");
+  // snippet'in anlık yenileme ping'i gelmese bile WordPress değişiklikleri en geç ~10 dk'da görünür
+  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
 
   if (isWooConfigured()) {
     try {
