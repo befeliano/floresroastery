@@ -34,7 +34,7 @@ type StoreProduct = {
   attributes: StoreAttribute[];
   variations: { id: number; attributes: { name: string; value: string }[] }[];
 };
-type StoreVariation = { id: number; sku: string; is_in_stock: boolean; prices: StorePrices };
+type StoreVariation = { id: number; parent: number; sku: string; is_in_stock: boolean; prices: StorePrices };
 
 /** Vitrine hiç çıkmayacak ürünler (B2B özel satış ürünü sipariş oluşturucuda kullanılır) */
 const HIDDEN_IDS = new Set(["1735"]);
@@ -75,7 +75,7 @@ function variantLabel(raw: (string | null | undefined)[]): { label: string; weig
   return { label: parts.join(" · "), weight };
 }
 
-async function liveVariants(root: string, lp: StoreProduct): Promise<ProductVariant[]> {
+function liveVariants(lp: StoreProduct, details: Map<number, StoreVariation>): ProductVariant[] {
   if (!lp.variations.length) {
     const price = money(lp.prices, "price");
     const regular = money(lp.prices, "regular_price");
@@ -84,10 +84,9 @@ async function liveVariants(root: string, lp: StoreProduct): Promise<ProductVari
     const { label, weight } = variantLabel(pkg ? [pkg] : []);
     return [{ id: String(lp.id), sku: lp.sku, weight, label: label || "Standart", price, compareAtPrice: regular > price ? regular : undefined, inStock: lp.is_in_stock }];
   }
-  const details = await Promise.all(lp.variations.map((v) => getJson<StoreVariation>(`${root}/products/${v.id}`).catch(() => null)));
   return lp.variations
-    .map((v, i) => {
-      const d = details[i];
+    .map((v) => {
+      const d = details.get(v.id);
       if (!d) return null;
       const price = money(d.prices, "price");
       const regular = money(d.prices, "regular_price");
@@ -144,10 +143,31 @@ function autoProduct(lp: StoreProduct, variants: ProductVariant[]): Product {
   };
 }
 
+/**
+ * Tüm varyasyonlar (paket boyları) TEK istekte — eskiden her varyasyon için ayrı istek
+ * atılıyordu (~56 istek). Sayfa başına 100; daha fazlası olursa sonraki sayfalar okunur.
+ */
+async function allVariations(root: string, fresh: string): Promise<Map<number, StoreVariation>> {
+  const out = new Map<number, StoreVariation>();
+  for (let page = 1; page <= 5; page++) {
+    const rows = await getJson<StoreVariation[]>(`${root}/products?type=variation&per_page=100&page=${page}&${fresh}`);
+    for (const r of rows) out.set(r.id, r);
+    if (rows.length < 100) break;
+  }
+  return out;
+}
+
 /** Katalog + WordPress'teki canlı veri → sitenin ürün listesi */
 export async function syncWithWoo(catalog: Product[]): Promise<Product[]> {
   const root = `${wooBase()}/wp-json/wc/store/v1`;
-  const live = await getJson<StoreProduct[]>(`${root}/products?per_page=100`);
+  // WordPress sunucusundaki LiteSpeed önbelleği Store API cevaplarını saklıyor ve
+  // kaydedilen fiyatı geç gösteriyor; farklı bir sorgu parametresi her zaman güncel veriyi getirir.
+  // Senkron başına yalnızca 2 istek olduğu için WordPress'e yük bindirmez.
+  const fresh = `_fresh=${Date.now().toString(36)}`;
+  const [live, details] = await Promise.all([
+    getJson<StoreProduct[]>(`${root}/products?per_page=100&${fresh}`),
+    allVariations(root, fresh),
+  ]);
   const byId = new Map(live.map((p) => [String(p.id), p]));
   const known = new Set(catalog.map((p) => p.id));
 
@@ -156,10 +176,12 @@ export async function syncWithWoo(catalog: Product[]): Promise<Product[]> {
       const lp = byId.get(product.id);
       if (!lp) return product;
       // tek ürünün verisindeki sorun bütün kataloğu düşürmesin
-      const variants = await liveVariants(root, lp).catch((e) => {
+      let variants: ProductVariant[] = [];
+      try {
+        variants = liveVariants(lp, details);
+      } catch (e) {
         console.error(`[woo-sync] ${product.slug} varyasyonları okunamadı:`, e);
-        return [] as ProductVariant[];
-      });
+      }
       return {
         ...product,
         // Türkçe tam ad WordPress'ten (Bağır adı değiştirirse sitede de değişir)
@@ -175,7 +197,7 @@ export async function syncWithWoo(catalog: Product[]): Promise<Product[]> {
       .filter((lp) => !known.has(String(lp.id)) && !HIDDEN_IDS.has(String(lp.id)))
       .map(async (lp) => {
         try {
-          const variants = await liveVariants(root, lp);
+          const variants = liveVariants(lp, details);
           return variants.length ? autoProduct(lp, variants) : null;
         } catch (e) {
           console.error(`[woo-sync] ${lp.slug} eklenemedi:`, e);
