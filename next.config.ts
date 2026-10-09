@@ -93,6 +93,13 @@ const nextConfig: NextConfig = {
       { source: "/cart", destination: "/odeme", permanent: false },
       { source: "/checkout", destination: "/odeme", permanent: false },
       { source: "/my-account", destination: "/giris", permanent: false },
+      // WordPress panel.floresroastery.com'a taşındı: eski görsel/dosya linkleri (iyzico logosu,
+      // eski e-postalar, Google Görseller) oraya gitsin. Kalıcı değil: panel adresi değişirse izlenebilsin.
+      ...(process.env.WOOCOMMERCE_URL &&
+      // aynı adres olursa sonsuz döngü olur
+      new URL(process.env.WOOCOMMERCE_URL).host !== new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost").host
+        ? [{ source: "/wp-content/:path*", destination: `${process.env.WOOCOMMERCE_URL.replace(/\/$/, "")}/wp-content/:path*`, permanent: false }]
+        : []),
     ];
   },
 };
