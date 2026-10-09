@@ -28,11 +28,10 @@ export const DEFAULT_SETTINGS: ShopSettings = {
 export async function getShopSettings(): Promise<ShopSettings> {
   "use cache";
   cacheTag("settings");
-  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+  cacheLife("hours");
   if (!isWooConfigured()) return DEFAULT_SETTINGS;
   try {
-    // LiteSpeed Cache eski cevabı vermesin diye her okumada farklı sorgu parametresi
-    const res = await wooFetch(`wc-flores/v1/settings?_fresh=${Date.now().toString(36)}`, {}, 8_000);
+    const res = await wooFetch("wc-flores/v1/settings", {}, 8_000);
     if (!res.ok) return DEFAULT_SETTINGS;
     const data = (await res.json()) as Partial<Record<keyof ShopSettings, unknown>>;
     const out = { ...DEFAULT_SETTINGS };

@@ -75,7 +75,7 @@ function variantLabel(raw: (string | null | undefined)[]): { label: string; weig
   return { label: parts.join(" · "), weight };
 }
 
-async function liveVariants(root: string, lp: StoreProduct, fresh: string): Promise<ProductVariant[]> {
+async function liveVariants(root: string, lp: StoreProduct): Promise<ProductVariant[]> {
   if (!lp.variations.length) {
     const price = money(lp.prices, "price");
     const regular = money(lp.prices, "regular_price");
@@ -84,7 +84,7 @@ async function liveVariants(root: string, lp: StoreProduct, fresh: string): Prom
     const { label, weight } = variantLabel(pkg ? [pkg] : []);
     return [{ id: String(lp.id), sku: lp.sku, weight, label: label || "Standart", price, compareAtPrice: regular > price ? regular : undefined, inStock: lp.is_in_stock }];
   }
-  const details = await Promise.all(lp.variations.map((v) => getJson<StoreVariation>(`${root}/products/${v.id}?${fresh}`).catch(() => null)));
+  const details = await Promise.all(lp.variations.map((v) => getJson<StoreVariation>(`${root}/products/${v.id}`).catch(() => null)));
   return lp.variations
     .map((v, i) => {
       const d = details[i];
@@ -147,10 +147,7 @@ function autoProduct(lp: StoreProduct, variants: ProductVariant[]): Product {
 /** Katalog + WordPress'teki canlı veri → sitenin ürün listesi */
 export async function syncWithWoo(catalog: Product[]): Promise<Product[]> {
   const root = `${wooBase()}/wp-json/wc/store/v1`;
-  // WordPress'teki LiteSpeed Cache Store API cevaplarını önbelleğe alıyor (başlıkla atlanamıyor);
-  // her senkronda farklı bir sorgu parametresi, kaydedilen fiyatın hemen okunmasını sağlar
-  const fresh = `_fresh=${Date.now().toString(36)}`;
-  const live = await getJson<StoreProduct[]>(`${root}/products?per_page=100&${fresh}`);
+  const live = await getJson<StoreProduct[]>(`${root}/products?per_page=100`);
   const byId = new Map(live.map((p) => [String(p.id), p]));
   const known = new Set(catalog.map((p) => p.id));
 
@@ -159,7 +156,7 @@ export async function syncWithWoo(catalog: Product[]): Promise<Product[]> {
       const lp = byId.get(product.id);
       if (!lp) return product;
       // tek ürünün verisindeki sorun bütün kataloğu düşürmesin
-      const variants = await liveVariants(root, lp, fresh).catch((e) => {
+      const variants = await liveVariants(root, lp).catch((e) => {
         console.error(`[woo-sync] ${product.slug} varyasyonları okunamadı:`, e);
         return [] as ProductVariant[];
       });
@@ -178,7 +175,7 @@ export async function syncWithWoo(catalog: Product[]): Promise<Product[]> {
       .filter((lp) => !known.has(String(lp.id)) && !HIDDEN_IDS.has(String(lp.id)))
       .map(async (lp) => {
         try {
-          const variants = await liveVariants(root, lp, fresh);
+          const variants = await liveVariants(root, lp);
           return variants.length ? autoProduct(lp, variants) : null;
         } catch (e) {
           console.error(`[woo-sync] ${lp.slug} eklenemedi:`, e);
