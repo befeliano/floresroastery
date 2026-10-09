@@ -30,7 +30,8 @@ const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const band = (p: number, a: number, b: number, edge = 0.07) =>
   clamp(Math.min((p - a) / edge + (a <= 0 ? 1 : 0), (b - p) / edge + (b >= 1 ? 1 : 0)));
 
-export function BoxScroll({ text }: { text: BoxScrollText }) {
+/** heading: sayfanın en üstündeyse marka adı h1 olur (SEO için tek h1) */
+export function BoxScroll({ text, heading = false }: { text: BoxScrollText; heading?: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const images = useRef<(HTMLImageElement | null)[]>([]);
@@ -73,11 +74,12 @@ export function BoxScroll({ text }: { text: BoxScrollText }) {
       if (!img) return;
       // kutu kaynakta ~430×400 px: bilgisayarda ekran genişliğinin ~%30'u (yazılara yer kalsın),
       // telefonda ~%75'i; yükseklikte ekranın yarısını geçmesin
-      const scale = Math.min((w < 768 ? w * 0.75 : w * 0.3) / BOX_W, (h * 0.55) / BOX_H) * dpr;
+      const scale = Math.min((w < 768 ? w * 0.7 : w * 0.3) / BOX_W, (h * 0.55) / BOX_H) * dpr;
       const dw = SRC_W * scale;
       const dh = SRC_H * scale;
       const x = (canvas.width - dw) / 2;
-      const y = (canvas.height - dh) / 2;
+      // telefonda kutu biraz yukarıda: alttaki yazılar kutunun üstüne binmesin
+      const y = (canvas.height - dh) / 2 - (w < 768 ? h * 0.04 * dpr : 0);
       ctx.drawImage(img, x, y, dw, dh);
       // karenin kenarlarını zemine erit (dikiş görünmesin)
       const f = Math.min(dw, dh) * 0.28;
@@ -161,19 +163,26 @@ export function BoxScroll({ text }: { text: BoxScrollText }) {
 
         <div className="relative mx-auto grid h-full max-w-[1440px] grid-cols-1 px-5 md:grid-cols-[1fr_minmax(0,34%)_1fr] md:px-10">
           {/* 1 — sol: marka; sağ: kısa giriş */}
-          <div className="pointer-events-none absolute inset-x-5 top-28 md:static md:flex md:flex-col md:justify-center" style={lift(a)}>
+          <div className="pointer-events-none absolute inset-x-5 top-28 text-center md:static md:flex md:flex-col md:justify-center md:text-left" style={lift(a)}>
             <p className="eyebrow text-flores-300">{text.eyebrow}</p>
-            <p className="mt-3 font-serif text-[clamp(3.5rem,9vw,9rem)] leading-none text-cream-50">{text.brand}</p>
+            {heading ? (
+              <h1 className="mt-3 font-serif text-[clamp(3.5rem,9vw,9rem)] font-normal leading-none text-cream-50">
+                {text.brand}
+                <span className="sr-only"> Roastery — {text.eyebrow}</span>
+              </h1>
+            ) : (
+              <p className="mt-3 font-serif text-[clamp(3.5rem,9vw,9rem)] leading-none text-cream-50">{text.brand}</p>
+            )}
           </div>
           <div className="hidden md:block" />
-          <div className="pointer-events-none absolute inset-x-5 bottom-16 md:static md:flex md:flex-col md:justify-center md:pl-8" style={lift(a)}>
-            <p className="max-w-xs text-lg text-cream-200">{text.intro}</p>
+          <div className="pointer-events-none absolute inset-x-5 bottom-16 text-center md:static md:flex md:flex-col md:justify-center md:pl-8 md:text-left" style={lift(a)}>
+            <p className="mx-auto max-w-xs text-lg text-cream-200 md:mx-0">{text.intro}</p>
           </div>
         </div>
 
         {/* 2 — sağ: kavurma */}
-        <div className="pointer-events-none absolute inset-0 mx-auto flex max-w-[1440px] items-end px-5 pb-16 md:items-center md:justify-end md:px-10 md:pb-0" style={lift(b)}>
-          <div className="max-w-sm rounded-sm bg-ink-950/60 p-5 backdrop-blur-sm md:w-[28%] md:bg-transparent md:p-0 md:backdrop-blur-none">
+        <div className="pointer-events-none absolute inset-0 mx-auto flex max-w-[1440px] items-end justify-center px-5 pb-8 md:items-center md:justify-end md:px-10 md:pb-0" style={lift(b)}>
+          <div className="max-w-sm text-center [text-shadow:0_2px_18px_rgba(0,0,0,0.85)] md:w-[28%] md:text-left">
             <p className="eyebrow text-flores-300">{text.roastEyebrow}</p>
             <p className="mt-3 font-serif text-4xl leading-tight text-cream-50 md:text-5xl">{text.roastTitle}</p>
             <p className="mt-4 text-cream-300">{text.roastText}</p>

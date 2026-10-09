@@ -4,12 +4,14 @@ import { pages } from "@/i18n/messages/pages";
 import { t } from "@/i18n/server";
 import { HeroVideo } from "./hero-video";
 
-export async function Hero() {
+/** first=false: sayfanın ilk bölümü değilse başlık h2 olur ve poster öncelikli yüklenmez */
+export async function Hero({ first = true }: { first?: boolean }) {
+  const Heading = first ? "h1" : "h2";
   const h = await t(pages.home);
   return (
     <section className="grain relative isolate flex min-h-svh items-end overflow-hidden">
       {/* LCP: poster hemen yüklensin */}
-      <link rel="preload" as="image" href="/video/roastery-poster.jpg" fetchPriority="high" />
+      {first && <link rel="preload" as="image" href="/video/roastery-poster.jpg" fetchPriority="high" />}
       <HeroVideo className="absolute inset-0 -z-20 size-full animate-slow-zoom object-cover" />
       {/* okunabilirlik için katmanlı karartma */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/70 via-black/35 to-ink-950" />
@@ -19,9 +21,9 @@ export async function Hero() {
         <p className="eyebrow animate-fade-up text-flores-300 [animation-delay:150ms]">
           {h.eyebrow} · <span lang="en">Specialty Coffee Roasters</span>
         </p>
-        <h1 className="mt-6 max-w-5xl animate-fade-up font-serif text-[clamp(3rem,9vw,8.5rem)] leading-[0.95] [animation-delay:300ms]">
+        <Heading className="mt-6 max-w-5xl animate-fade-up font-serif text-[clamp(3rem,9vw,8.5rem)] leading-[0.95] [animation-delay:300ms]">
           <EmTitle parts={h.title} />
-        </h1>
+        </Heading>
         <p className="mt-8 max-w-xl animate-fade-up text-lg text-cream-200 [animation-delay:500ms] md:text-xl">
           {h.intro}
         </p>

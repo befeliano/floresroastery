@@ -32,8 +32,9 @@ export default async function Home() {
   return (
     <>
       <JsonLd data={storeSchema()} />
-      <Hero />
-      <BoxScroll text={h.boxScroll} />
+      {/* kaydırmalı kutu sahnesi en üstte; kavurucu videosu hemen altında */}
+      <BoxScroll text={h.boxScroll} heading />
+      <Hero first={false} />
       <CategoryArches categories={L.categories().filter((c) => ["single-origin", "blends", "espresso"].includes(c.slug))} />
       <FeaturedCoffees products={featured.map(L.card)} />
       <RusoExotics products={ruso.map(L.card)} />
