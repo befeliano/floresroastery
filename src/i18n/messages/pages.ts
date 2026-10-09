@@ -201,6 +201,24 @@ export const pages = {
       { tr: "Süzülme biter", en: "Drawdown ends", id: "Tetesan selesai" },
     ],
 
+    boxScroll: {
+      eyebrow: { tr: "Eskişehir · Haftalık taze kavrum", en: "Eskişehir · Roasted fresh weekly", id: "Eskişehir · Disangrai segar setiap minggu" },
+      brand: { tr: "Flores", en: "Flores", id: "Flores" },
+      intro: {
+        tr: "Her kutuda tek bir kökenin hikâyesi var. Kaydırın, birlikte açalım.",
+        en: "Every box holds the story of a single origin. Scroll — let's open it together.",
+        id: "Setiap kotak menyimpan kisah satu asal. Gulir — mari kita buka bersama.",
+      },
+      roastEyebrow: { tr: "Kalpten kavrulur", en: "Roasted from the heart", id: "Disangrai sepenuh hati" },
+      roastTitle: { tr: "Küçük partiler, büyük özen.", en: "Small batches, great care.", id: "Batch kecil, perhatian besar." },
+      roastText: {
+        tr: "Tepebaşı'ndaki atölyemizde, Kuban kavurucumuzda her hafta kavrulur; aynı hafta yola çıkar.",
+        en: "Roasted every week on our Kuban roaster at our Tepebaşı workshop, and on its way the same week.",
+        id: "Disangrai setiap minggu dengan mesin Kuban di workshop kami di Tepebaşı, dan dikirim di minggu yang sama.",
+      },
+      finalTitle: { tr: "Kutuyu aç, hikâyeyi demle.", en: "Open the box. Brew the story.", id: "Buka kotaknya. Seduh ceritanya." },
+      cta: { tr: "Kahveleri keşfet", en: "Explore coffees", id: "Jelajahi kopi" },
+    },
     instaEyebrow: { tr: "Instagram'da biz", en: "Find us on Instagram", id: "Kami di Instagram" },
     instaText: {
       tr: "Kavrum günleri, yeni gelen çekirdekler, Coffee Bar tadımları ve kampanyalar — hepsini ilk Instagram'da paylaşıyoruz.",

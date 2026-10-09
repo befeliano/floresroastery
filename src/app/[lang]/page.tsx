@@ -1,3 +1,4 @@
+import { BoxScroll } from "@/components/home/box-scroll";
 import { BrewTeaser } from "@/components/home/brew-teaser";
 import { CategoryArches } from "@/components/home/category-arches";
 import { DailyBlends } from "@/components/home/daily-blends";
@@ -12,10 +13,13 @@ import { VisitUs } from "@/components/home/visit-us";
 import { JsonLd } from "@/components/json-ld";
 import { catalogL } from "@/i18n/catalog";
 import { getCollection, getFeaturedProducts, getProduct, getProductsByCategory } from "@/lib/commerce";
+import { pages } from "@/i18n/messages/pages";
+import { t } from "@/i18n/server";
 import { storeSchema } from "@/lib/seo";
 
 export default async function Home() {
   const L = await catalogL();
+  const h = await t(pages.home);
   const [featured, ruso, blends, manis] = await Promise.all([
     getFeaturedProducts(),
     getCollection("ruso-exotics"),
@@ -29,6 +33,7 @@ export default async function Home() {
     <>
       <JsonLd data={storeSchema()} />
       <Hero />
+      <BoxScroll text={h.boxScroll} />
       <CategoryArches categories={L.categories().filter((c) => ["single-origin", "blends", "espresso"].includes(c.slug))} />
       <FeaturedCoffees products={featured.map(L.card)} />
       <RusoExotics products={ruso.map(L.card)} />
