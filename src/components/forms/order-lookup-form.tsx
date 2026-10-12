@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useI18n } from "@/i18n/client";
 import { formatPrice } from "@/lib/format";
 import { useApiForm } from "./use-api-form";
@@ -21,6 +22,12 @@ const STEPS = ["awaiting-payment", "processing", "shipped", "delivered"];
 
 export function OrderLookupForm() {
   const { state, submit } = useApiForm<Result>("/api/orders/lookup");
+  const numberRef = useRef<HTMLInputElement>(null);
+  // "Kargoya verildi" e-postasındaki link sipariş numarasını getirir (?no=…)
+  useEffect(() => {
+    const no = new URLSearchParams(window.location.search).get("no");
+    if (no && numberRef.current && !numberRef.current.value) numberRef.current.value = no.slice(0, 30);
+  }, []);
   const { t, intl, tApi, grind } = useI18n();
   const STEP_LABEL = [t.lookup.steps.received, t.lookup.steps.roasting, t.lookup.steps.shipped, t.lookup.steps.delivered];
   const statusLabel = (r: Result) => (r.statusLabel === "Tamamlandı" ? t.status.completed : (t.status[r.status as keyof typeof t.status] ?? r.statusLabel));
@@ -39,7 +46,7 @@ export function OrderLookupForm() {
           <label htmlFor="ol-no" className="mb-2 block text-sm text-cream-300">
             {t.lookup.number}
           </label>
-          <input id="ol-no" name="orderNumber" required maxLength={30} placeholder="FR-261008-1234" className="field font-mono uppercase" />
+          <input ref={numberRef} id="ol-no" name="orderNumber" required maxLength={30} placeholder="FR-261008-1234" className="field font-mono uppercase" />
         </div>
         <div>
           <label htmlFor="ol-mail" className="mb-2 block text-sm text-cream-300">

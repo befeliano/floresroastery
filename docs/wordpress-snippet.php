@@ -193,3 +193,49 @@ add_action( 'rest_api_init', function () {
 		},
 	) );
 } );
+
+/**
+ * 8) "Kargolandı" e-postası — sipariş kargo durumuna alınınca müşteriye "Siparişiniz kargoya verildi"
+ *    e-postası gider (WooCommerce'in kendi tasarımıyla) ve içinde sitedeki sipariş takip linki olur.
+ *    Durumun kısa adı eklentiye göre değişir (kargolandi, shipped, hezarfen-shipped…): adında "kargo"
+ *    ya da "ship" geçen her durum sayılır. Her siparişe yalnızca BİR kez gönderilir.
+ *    Kargo eklentiniz zaten böyle bir e-posta gönderiyorsa aşağıyı false yapın (iki e-posta gitmesin).
+ */
+const FLORES_SHIPPED_EMAIL = true;
+
+add_action( 'woocommerce_order_status_changed', function ( $order_id, $from, $to, $order ) {
+	if ( ! FLORES_SHIPPED_EMAIL || ! preg_match( '/kargo|ship/i', $to ) || ! $order instanceof WC_Order || $order->get_meta( '_flores_shipped_mail' ) ) {
+		return;
+	}
+	$email = $order->get_billing_email();
+	if ( ! $email ) {
+		return;
+	}
+	$no    = $order->get_order_number();
+	$track = add_query_arg( array( 'no' => $no ), FLORES_STOREFRONT . '/siparis-takip' );
+
+	// kargo takip numarası: kargo eklentilerinin sipariş alanlarında "tracking" / "takip" geçen ilk değer
+	$tracking = '';
+	foreach ( $order->get_meta_data() as $meta ) {
+		$data = $meta->get_data();
+		if ( preg_match( '/track|takip/i', $data['key'] ) && is_scalar( $data['value'] ) && '' !== trim( (string) $data['value'] ) ) {
+			$tracking = trim( (string) $data['value'] );
+			break;
+		}
+	}
+
+	$body  = '<p>Merhaba ' . esc_html( $order->get_billing_first_name() ) . ',</p>';
+	$body .= '<p>#' . esc_html( $no ) . ' numaralı siparişiniz taze kavrulup paketlendi ve <strong>kargoya verildi</strong>.</p>';
+	if ( $tracking ) {
+		$body .= '<p>Kargo takip numaranız: <strong>' . esc_html( $tracking ) . '</strong></p>';
+	}
+	$body .= '<p><a href="' . esc_url( $track ) . '">Siparişinizi sitemizden takip edin →</a></p>';
+	$body .= '<p>Afiyetle için,<br>Flores Roastery</p>';
+
+	$mailer = WC()->mailer();
+	$mailer->send( $email, 'Siparişiniz kargoya verildi — #' . $no, $mailer->wrap_message( 'Siparişiniz kargoya verildi', $body ) );
+
+	$order->update_meta_data( '_flores_shipped_mail', current_time( 'mysql' ) );
+	$order->save_meta_data();
+	$order->add_order_note( 'Müşteriye "Siparişiniz kargoya verildi" e-postası gönderildi (Flores snippet).' );
+}, 10, 4 );

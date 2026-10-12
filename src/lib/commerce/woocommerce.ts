@@ -87,7 +87,8 @@ export function wooFetch(path: string, init: RequestInit = {}, timeoutMs = TIMEO
 export interface WooOrder {
   id: number;
   number: string;
-  status: "pending" | "processing" | "on-hold" | "completed" | "cancelled" | "refunded" | "failed" | "checkout-draft";
+  /** eklentilerin eklediği özel durumlar da gelebilir (ör. "kargolandi") */
+  status: "pending" | "processing" | "on-hold" | "completed" | "cancelled" | "refunded" | "failed" | "checkout-draft" | (string & {});
   order_key: string;
   payment_url: string;
   date_created: string;
