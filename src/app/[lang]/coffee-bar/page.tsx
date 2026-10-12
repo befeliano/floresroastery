@@ -85,7 +85,7 @@ export default async function CoffeeBarPage() {
           {/* randevu formu — randevu.floresroastery.com (kendi veritabanı, e-posta onayı ve iptal bağlantısıyla) */}
           <div id="randevu" className="scroll-mt-28">
             {c.formTr && <p className="mb-3 rounded-sm border border-ink-600 bg-ink-900/80 p-3 text-xs text-cream-300">{c.formTr}</p>}
-            <div className="overflow-hidden rounded-sm border border-ink-600 bg-[#f4f8fb] shadow-2xl shadow-black/40">
+            <div className="overflow-hidden rounded-sm border border-ink-600 bg-ink-900 shadow-2xl shadow-black/40">
               <iframe src={site.links.booking} title={c.iframeTitle} className="block h-[1120px] w-full" referrerPolicy="strict-origin-when-cross-origin" />
             </div>
             <p className="mt-3 text-center text-xs text-cream-500">

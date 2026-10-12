@@ -57,3 +57,4 @@ next-env.d.ts
 # Kurulum dosyaları
 *.msi
 *.exe
+/randevu_public_html/
