@@ -108,18 +108,23 @@ export default async function CoffeeBarPage() {
       </section>
 
       {/* Tadım nasıl işler: ücretsiz çekirdek tadımı / ücretli brew bar */}
-      <section aria-labelledby="pricing-title" className="mx-auto w-full max-w-[1440px] px-5 pb-20 md:px-10">
+      {/* arka planda tadım atölyesi videosu (yarı saydam, üst/alt kenarları sayfaya eriyor) */}
+      <section aria-labelledby="pricing-title" className="relative isolate mb-20 overflow-hidden py-28 md:py-40">
+        <HeroVideo base="/video/tasting" className="absolute inset-0 -z-20 size-full object-cover opacity-60" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-ink-950 via-ink-950/30 to-ink-950" />
+        <div className="mx-auto w-full max-w-[1440px] px-5 md:px-10">
         <h2 id="pricing-title" className="font-serif text-4xl md:text-5xl">
           {pricing.title}
         </h2>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {[pricing.free, pricing.paid].map((p, i) => (
-            <div key={p.title} className={`rounded-sm border p-6 md:p-8 ${i === 0 ? "border-flores-500/50 bg-flores-500/5" : "border-ink-700 bg-ink-900"}`}>
+            <div key={p.title} className={`rounded-sm border p-6 md:p-8 ${i === 0 ? "border-flores-500/50 bg-ink-950/75" : "border-ink-700 bg-ink-950/80"}`}>
               <p className={`eyebrow text-[0.65rem] ${i === 0 ? "text-flores-300" : "text-cream-400"}`}>{p.label}</p>
               <p className="mt-2 font-serif text-3xl">{p.title}</p>
-              <p className="mt-3 text-cream-300">{p.text}</p>
+              <p className="mt-3 text-cream-200">{p.text}</p>
             </div>
           ))}
+        </div>
         </div>
       </section>
 

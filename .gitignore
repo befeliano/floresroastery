@@ -58,3 +58,5 @@ next-env.d.ts
 *.msi
 *.exe
 /randevu_public_html/
+/*.MP4
+/*.mp4
