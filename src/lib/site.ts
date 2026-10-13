@@ -41,7 +41,7 @@ export const site = {
     closed: "Pazartesi ve Salı kapalı",
     capacity: 4,
     /** Kampanya metni — süre bitince null yapın */
-    promo: "Ekim boyunca ücretsiz" as string | null,
+    promo: "Çekirdek almadan önce tadım ücretsiz" as string | null,
   },
   /** Kargo kuralları — floresroastery.com WooCommerce gönderim ayarlarıyla aynı */
   shipping: {

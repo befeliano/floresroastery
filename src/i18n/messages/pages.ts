@@ -25,7 +25,7 @@ export const pages = {
     },
     days: { tr: "Çarşamba – Pazar", en: "Wednesday – Sunday", id: "Rabu – Minggu" },
     closed: { tr: "Pazartesi ve Salı", en: "Monday and Tuesday", id: "Senin dan Selasa" },
-    promo: { tr: "Ekim boyunca ücretsiz", en: "Free throughout October", id: "Gratis sepanjang Oktober" },
+    promo: { tr: "Çekirdek almadan önce tadım ücretsiz", en: "Free tasting before you buy beans", id: "Cicip gratis sebelum membeli biji kopi" },
     directions: { tr: "Yol tarifi", en: "Directions", id: "Petunjuk arah" },
     writeWhatsapp: { tr: "WhatsApp'tan yaz", en: "Message us on WhatsApp", id: "Chat via WhatsApp" },
   },

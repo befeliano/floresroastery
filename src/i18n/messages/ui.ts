@@ -52,7 +52,7 @@ export const ui = {
     wholesale: { tr: "Toptan Satış", en: "Wholesale", id: "Grosir" },
     story: { tr: "Hikayemiz", en: "Our Story", id: "Kisah Kami" },
     contact: { tr: "İletişim", en: "Contact", id: "Kontak" },
-    freeBadge: { tr: "Ücretsiz", en: "Free", id: "Gratis" },
+    freeBadge: { tr: "Tadım", en: "Tasting", id: "Cicip" },
     login: { tr: "Giriş", en: "Sign in", id: "Masuk" },
     loginLong: { tr: "Giriş yap", en: "Sign in", id: "Masuk" },
     account: { tr: "Hesabım", en: "My account", id: "Akun saya" },
@@ -75,7 +75,7 @@ export const ui = {
     more: { tr: "+{n} kahve daha", en: "+{n} more coffees", id: "+{n} kopi lainnya" },
     shelf: { tr: "Kahve rafı", en: "Coffee shelf", id: "Rak kopi" },
     allCount: { tr: "Tümü ({n}) →", en: "All ({n}) →", id: "Semua ({n}) →" },
-    promo: { tr: "Ekim boyunca ücretsiz", en: "Free throughout October", id: "Gratis sepanjang Oktober" },
+    promo: { tr: "Çekirdek tadımı ücretsiz", en: "Free bean tasting", id: "Cicip biji gratis" },
   },
 
   cart: {

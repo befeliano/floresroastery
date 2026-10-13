@@ -3,6 +3,9 @@ import Image from "next/image";
 import { EmTitle } from "@/components/em-title";
 import { HeroVideo } from "@/components/home/hero-video";
 import { JsonLd } from "@/components/json-ld";
+import { BREW_BAR_RULES, COFFEE_BAR_MENU, COFFEE_BAR_TEXT, MENU_PDF, TASTING_PRICING } from "@/content/coffee-bar";
+import { getProducts, isSoldOut } from "@/lib/commerce";
+import { formatPrice } from "@/lib/format";
 import Link from "@/i18n/link";
 import { pages } from "@/i18n/messages/pages";
 import { alternates, localPhotos, t } from "@/i18n/server";
@@ -25,6 +28,12 @@ export default async function CoffeeBarPage() {
   const photos = await localPhotos();
   const cb = site.coffeeBar;
   const [sideA, sideB] = c.sideText.split("{wholesale}");
+  const menu = await t(COFFEE_BAR_MENU);
+  const pricing = await t(TASTING_PRICING);
+  const rules = await t(BREW_BAR_RULES);
+  const mt = await t(COFFEE_BAR_TEXT);
+  // menüde satıştaki bir kahve varsa ürün sayfasına link (tükenmişse link yok)
+  const inStock = new Set((await getProducts()).filter((p) => !isSoldOut(p)).map((p) => p.slug));
   return (
     <>
       <JsonLd data={storeSchema()} />
@@ -96,6 +105,80 @@ export default async function CoffeeBarPage() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* Tadım nasıl işler: ücretsiz çekirdek tadımı / ücretli brew bar */}
+      <section aria-labelledby="pricing-title" className="mx-auto w-full max-w-[1440px] px-5 pb-20 md:px-10">
+        <h2 id="pricing-title" className="font-serif text-4xl md:text-5xl">
+          {pricing.title}
+        </h2>
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {[pricing.free, pricing.paid].map((p, i) => (
+            <div key={p.title} className={`rounded-sm border p-6 md:p-8 ${i === 0 ? "border-flores-500/50 bg-flores-500/5" : "border-ink-700 bg-ink-900"}`}>
+              <p className={`eyebrow text-[0.65rem] ${i === 0 ? "text-flores-300" : "text-cream-400"}`}>{p.label}</p>
+              <p className="mt-2 font-serif text-3xl">{p.title}</p>
+              <p className="mt-3 text-cream-300">{p.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Menü */}
+      <section id="menu" aria-labelledby="menu-title" className="mx-auto w-full max-w-[1440px] scroll-mt-28 px-5 pb-20 md:px-10">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 id="menu-title" className="font-serif text-4xl md:text-5xl">
+              {mt.menuTitle}
+            </h2>
+            <p className="mt-3 max-w-2xl text-cream-300">{mt.menuIntro}</p>
+          </div>
+          <a href={MENU_PDF} target="_blank" rel="noopener" className="btn btn-ghost">
+            {mt.pdf} ↗
+          </a>
+        </div>
+        <div className="mt-10 grid gap-10 lg:grid-cols-2">
+          {menu.map((sec) => (
+            <div key={sec.key}>
+              <p className="eyebrow text-flores-400">
+                <span lang="en">{sec.title}</span>
+                {sec.subtitle && <span lang="en" className="text-cream-500"> · {sec.subtitle}</span>}
+              </p>
+              <ul className="mt-4 divide-y divide-ink-700 border-y border-ink-700">
+                {sec.items.map((item) => (
+                  <li key={item.name} className="flex items-start justify-between gap-6 py-4">
+                    <div className="min-w-0">
+                      <p className="font-serif text-xl leading-snug">{item.name}</p>
+                      <p className="mt-1 text-sm text-cream-400">{item.desc}</p>
+                      {item.slug && inStock.has(item.slug) && (
+                        <Link href={`/kahveler/${item.slug}`} className="mt-1 inline-block text-xs text-flores-300 hover:underline">
+                          {mt.inShop}
+                        </Link>
+                      )}
+                    </div>
+                    <p className="shrink-0 font-mono text-lg text-cream-50">{formatPrice(item.price)}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Brew Bar kuralları */}
+      <section aria-labelledby="rules-title" className="mx-auto w-full max-w-[1440px] px-5 pb-28 md:px-10">
+        <h2 id="rules-title" className="font-serif text-4xl md:text-5xl">
+          {mt.rulesTitle}
+        </h2>
+        <ol className="mt-8 grid gap-x-12 gap-y-4 md:grid-cols-2">
+          {rules.map((r, i) => (
+            <li key={i} className="flex gap-4 text-cream-200">
+              <span aria-hidden className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border border-flores-500/50 font-mono text-xs text-flores-300">
+                {i + 1}
+              </span>
+              <span>{r}</span>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="mx-auto grid w-full max-w-[1440px] items-center gap-12 px-5 pb-28 md:px-10 lg:grid-cols-2">
