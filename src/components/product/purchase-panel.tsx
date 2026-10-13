@@ -4,7 +4,9 @@ import Image from "next/image";
 import Link from "@/i18n/link";
 import { useEffect, useRef, useState } from "react";
 import { StockAlertForm } from "@/components/forms/stock-alert-form";
+import { DeliveryEstimate } from "@/components/product/delivery-estimate";
 import { useI18n } from "@/i18n/client";
+import { flyToCart } from "@/lib/cart/fly";
 import { MAX_QTY, useCart } from "@/lib/cart/store";
 import type { Product } from "@/lib/commerce/types";
 import { formatPrice } from "@/lib/format";
@@ -58,8 +60,15 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
     return () => clearTimeout(t);
   }, [added]);
 
-  function addToCart() {
+  /** Görsel sepete uçar, varınca ürün eklenir ve sepet açılır */
+  async function addToCart(e: React.MouseEvent<HTMLButtonElement>) {
     if (!variant?.inStock) return;
+    const button = e.currentTarget;
+    setAdded(true);
+    const hero = document.querySelector("[data-fly-source]");
+    const r = hero?.getBoundingClientRect();
+    const heroVisible = r && r.bottom > 80 && r.top < window.innerHeight - 80;
+    await flyToCart(heroVisible ? hero : button, product.image);
     add({
       slug: product.slug,
       variantId: variant.id,
@@ -71,7 +80,6 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
       unitPrice: variant.price,
       image: product.image,
     });
-    setAdded(true);
   }
 
   if (soldOut || !variant) {
@@ -194,6 +202,8 @@ export function PurchasePanel({ product }: { product: BuyProduct }) {
             {added ? t.product.added : t.product.addToCart}
           </button>
         </div>
+
+        <DeliveryEstimate />
 
         <ul className="mt-8 space-y-2 border-t border-ink-700 pt-6 text-sm text-cream-300">
           <li className="flex gap-3">

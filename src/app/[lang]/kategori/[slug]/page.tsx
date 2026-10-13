@@ -74,7 +74,7 @@ export default async function CategoryPage({ params }: PageProps<"/[lang]/katego
         <ul className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((pr, i) => (
             <li key={pr.slug}>
-              <ProductCard product={pr} priority={i < 4} />
+              <ProductCard product={pr} priority={i < 4} morph />
             </li>
           ))}
         </ul>

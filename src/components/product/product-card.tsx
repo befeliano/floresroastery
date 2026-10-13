@@ -1,20 +1,38 @@
 "use client";
 
 import Image from "next/image";
+import { ViewTransition } from "react";
 import { useI18n } from "@/i18n/client";
 import Link from "@/i18n/link";
 import { isSoldOut, primaryCategory, type CardProduct } from "@/lib/commerce/types";
 import { formatPrice } from "@/lib/format";
+import { cardMorph } from "@/lib/view-transition";
 
 const CATEGORY_LABEL = { "single-origin": "Single Origin", blends: "Blend", espresso: "Espresso", sets: "Set", accessories: "Accessory" } as const;
 
-export function ProductCard({ product, className = "", priority = false }: { product: CardProduct; className?: string; priority?: boolean }) {
+/**
+ * morph: görsel, ürün sayfasındaki kutuya/fotoğrafa dönüşerek geçer. Aynı ürün bir sayfada
+ * yalnızca bir kartta morph alabilir (geçiş adları tekil olmalı). Ürün sayfasındaki "benzer kahveler"de
+ * kapalı: açık olsaydı katalogdan gelirken o kartlar da eşleşip sayfada uçardı.
+ */
+export function ProductCard({
+  product,
+  className = "",
+  priority = false,
+  morph = false,
+}: {
+  product: CardProduct;
+  className?: string;
+  priority?: boolean;
+  morph?: boolean;
+}) {
   const { t, fmt } = useI18n();
   const soldOut = isSoldOut(product);
   const cheapest = product.variants.length ? product.variants.reduce((a, b) => (b.price < a.price ? b : a)) : null;
 
   return (
     <Link href={`/kahveler/${product.slug}`} className={`group block ${className}`}>
+      <ViewTransition name={morph ? cardMorph(product.slug) : undefined} share={morph ? "morph" : "none"} default="none">
       <div className="relative isolate aspect-square overflow-hidden rounded-sm" style={{ backgroundColor: product.image.bg }}>
         <Image
           src={product.image.card}
@@ -40,6 +58,7 @@ export function ProductCard({ product, className = "", priority = false }: { pro
           ) : null}
         </div>
       </div>
+      </ViewTransition>
       <div className="mt-5 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h3 className="font-serif text-2xl leading-tight transition-colors group-hover:text-flores-300">{product.name}</h3>

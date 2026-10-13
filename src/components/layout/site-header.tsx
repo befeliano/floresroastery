@@ -9,10 +9,12 @@ import { splitLocale } from "@/i18n/config";
 import { useLoggedIn } from "@/lib/auth/client";
 import { site } from "@/lib/site";
 import { useCart, useCartCount } from "@/lib/cart/store";
+import { CartBadge } from "./cart-badge";
 import { LanguageSwitcher } from "./language-switcher";
 import { MegaMenu } from "./mega-menu";
 import { mainLinks, type MenuData } from "./menu-types";
 import { MobileMenu } from "./mobile-menu";
+import { openSearch } from "./search-dialog";
 
 export function SiteHeader({ menu }: { menu: MenuData }) {
   const pathname = usePathname();
@@ -84,6 +86,7 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
     <>
       <header
         onMouseLeave={scheduleClose}
+        style={{ viewTransitionName: "site-header" }}
         className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500 ${
           overHero
             ? "border-b border-transparent bg-transparent"
@@ -141,6 +144,19 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
             </Link>
             <button
               type="button"
+              onClick={openSearch}
+              aria-label={t.search.open}
+              title={`${t.search.open} (Ctrl K)`}
+              className="hidden size-11 items-center justify-center text-cream-100 transition-colors hover:text-flores-300 md:flex"
+            >
+              <svg viewBox="0 0 24 24" className="size-[21px]" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
+                <circle cx="11" cy="11" r="6.5" />
+                <path d="m16 16 4 4" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              data-cart-target
               onClick={openCart}
               aria-label={fmt(t.nav.openCart, { n: count })}
               className="relative flex size-11 items-center justify-center text-cream-100 transition-colors hover:text-flores-300"
@@ -149,11 +165,7 @@ export function SiteHeader({ menu }: { menu: MenuData }) {
                 <path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 8Z" />
                 <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
               </svg>
-              {count > 0 && (
-                <span className="absolute right-0.5 top-0.5 flex min-w-[18px] items-center justify-center rounded-full bg-flores-500 px-1 text-[10px] font-bold leading-[18px] text-ink-950">
-                  {count}
-                </span>
-              )}
+              <CartBadge className="right-0.5 top-0.5" />
             </button>
             <button
               type="button"

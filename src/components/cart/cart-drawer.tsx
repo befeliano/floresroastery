@@ -8,6 +8,7 @@ import { useI18n } from "@/i18n/client";
 import { captureAttribution } from "@/lib/attribution";
 import { lineKey, MAX_QTY, useCart, useCartSubtotal } from "@/lib/cart/store";
 import { formatPrice } from "@/lib/format";
+import { DeliveryEstimate } from "@/components/product/delivery-estimate";
 import { site } from "@/lib/site";
 
 export type CartSuggestion = {
@@ -211,6 +212,9 @@ export function CartDrawer({ suggestions = [] }: { suggestions?: CartSuggestion[
               <span className="font-mono text-xl">{formatPrice(subtotal)}</span>
             </div>
             <p className="mt-2 text-xs text-cream-500">{t.cart.note}</p>
+            <div className="mt-4">
+              <DeliveryEstimate compact />
+            </div>
             <Link href="/odeme" onClick={close} className="btn btn-primary mt-5 w-full">
               {t.cart.checkout}
             </Link>

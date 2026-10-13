@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, ViewTransition } from "react";
 import { useI18n } from "@/i18n/client";
 import type { Product } from "@/lib/commerce/types";
 import { upperTR } from "@/lib/format";
@@ -37,7 +37,8 @@ const REST_RX = -10;
  * Sürükleyerek / ok tuşlarıyla çevrilir, boştayken yavaşça döner.
  * Yan yüz, gerçek kutudaki gibi kahvenin künye etiketini taşır.
  */
-export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; className?: string }) {
+/** morph: katalog kartındaki görsel bu kutuya dönüşerek gelir (view transition adı) */
+export function CoffeeBox3D({ product, className = "", morph }: { product: BoxProduct; className?: string; morph?: string }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const { t, fmt, locale } = useI18n();
   const upper = (v: string) => (locale === "tr" ? upperTR(v) : v.toUpperCase());
@@ -177,8 +178,10 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
 
   return (
     <div className={`flex w-full min-w-0 flex-col items-center ${className}`}>
+      <ViewTransition name={morph} share={morph ? "morph" : "none"} default="none">
       <div
         ref={stageRef}
+        data-fly-source
         role="img"
         tabIndex={0}
         aria-label={fmt(t.box.aria, { name: product.fullName })}
@@ -315,6 +318,7 @@ export function CoffeeBox3D({ product, className = "" }: { product: BoxProduct; 
           <Face w="var(--w)" h="var(--d)" t="rotateX(-90deg) translateZ(calc(var(--h) / 2))" style={{ background: pouch ? "#cfcfcc" : "#21456e" }} />
         </div>
       </div>
+      </ViewTransition>
 
       <div className="mt-2 flex flex-col items-center gap-3">
         <div className="flex gap-1.5" role="group" aria-label={t.box.faces}>

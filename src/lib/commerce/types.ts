@@ -1,3 +1,4 @@
+import { flavorGroups, methodFit, processKinds, type FlavorGroup, type MethodFit, type ProcessKind } from "./flavor";
 export type CategorySlug = "single-origin" | "blends" | "espresso" | "sets" | "accessories";
 
 export interface Photo {
@@ -142,10 +143,18 @@ export const primaryCategory = (p: Pick<Product, "categories">) => p.categories[
 /** Kart ve listelerde kullanılan hafif ürün özeti (istemciye kavurma eğrisi vb. gönderilmez) */
 export type CardProduct = Pick<
   Product,
-  "slug" | "name" | "fullName" | "subtitle" | "categories" | "collection" | "image" | "variants" | "tastingNotes" | "featured" | "sales" | "bestseller"
->;
+  "slug" | "name" | "fullName" | "subtitle" | "categories" | "collection" | "image" | "variants" | "tastingNotes" | "featured" | "sales" | "bestseller" | "roastLevel"
+> & {
+  /** katalog filtreleri için (flavor.ts) */
+  flavorGroups: FlavorGroup[];
+  processKinds: ProcessKind[];
+  fit: MethodFit;
+  auto?: boolean;
+};
 
-export const toCard = ({ slug, name, fullName, subtitle, categories, collection, image, variants, tastingNotes, featured, sales, bestseller }: Product): CardProduct => ({
+export const toCard = (p: Product): CardProduct => {
+  const { slug, name, fullName, subtitle, categories, collection, image, variants, tastingNotes, featured, sales, bestseller, roastLevel, auto } = p;
+  return {
   slug,
   name,
   fullName,
@@ -158,4 +167,10 @@ export const toCard = ({ slug, name, fullName, subtitle, categories, collection,
   featured,
   sales,
   bestseller,
-});
+  roastLevel,
+  auto,
+  flavorGroups: flavorGroups(p),
+  processKinds: processKinds(p.process),
+  fit: methodFit(p),
+  };
+};

@@ -304,6 +304,8 @@ export const pages = {
       id: "Kisah Flores Roastery: sangrai mingguan dengan mesin Kuban di Eskişehir, seri direct trade Ruso Exotics dari Indonesia, dan rantai pasok yang transparan.",
     },
     heading: { a: { tr: "Harika kahve sadece tadılmamalı, ", en: "Great coffee shouldn't only be tasted, ", id: "Kopi yang hebat tak hanya dicicipi, " }, em: { tr: "hissedilmelidir.", en: "it should be felt.", id: "tetapi dirasakan." } },
+    timelineEyebrow: { tr: "Yolculuğumuz", en: "Our journey", id: "Perjalanan kami" },
+    timelineTitle: { tr: "Bir atölyeden fincanınıza", en: "From a workshop to your cup", id: "Dari workshop ke cangkir Anda" },
     workshopEyebrow: { tr: "Eskişehir · Kavurma atölyesi", en: "Eskişehir · Roasting workshop", id: "Eskişehir · Workshop sangrai" },
     workshopTitle: { tr: "Kalpten kavuruyoruz", en: "We roast from the heart", id: "Kami menyangrai sepenuh hati" },
     workshop: [

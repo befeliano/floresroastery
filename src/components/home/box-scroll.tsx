@@ -9,6 +9,9 @@ import Link from "@/i18n/link";
  * Kareler public/video/box-scroll/{lg|sm}-NNN.webp; hareket azaltma tercihinde son kare sabit gösterilir.
  */
 const FRAMES = 185;
+/** 1×1 AVIF — tarayıcı AVIF açabiliyor mu? */
+const AVIF_PROBE =
+  "data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=";
 const SRC_W = 1280;
 const SRC_H = 720;
 const BOX_W = 430;
@@ -44,7 +47,9 @@ export function BoxScroll({ text, heading = false }: { text: BoxScrollText; head
     const ctx = canvas.getContext("2d")!;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const set = window.innerWidth < 768 ? "sm" : "lg";
-    const url = (i: number) => `/video/box-scroll/${set}-${String(i + 1).padStart(3, "0")}.webp`;
+    // AVIF: aynı boyutta daha net kareler (ölçüm: WebP 39,7 dB → AVIF 41+ dB); desteklemeyen tarayıcıda WebP
+    let ext = "webp";
+    const url = (i: number) => `/video/box-scroll/${set}-${String(i + 1).padStart(3, "0")}.${ext}`;
     let progress = reduce ? 1 : 0;
     let raf = 0;
     let disposed = false;
@@ -113,7 +118,31 @@ export function BoxScroll({ text, heading = false }: { text: BoxScrollText; head
         img.src = url(i);
       });
 
+    const avifOk = () =>
+      new Promise<boolean>((resolve) => {
+        const t = new Image();
+        t.onload = () => resolve(t.width > 0);
+        t.onerror = () => resolve(false);
+        t.src = AVIF_PROBE;
+      });
+    // kareler yalnızca bölüm ekrana yaklaşınca iner (ana sayfanın ilk açılışı hafif kalsın)
+    const near = () =>
+      new Promise<void>((resolve) => {
+        const io = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((e) => e.isIntersecting)) {
+              io.disconnect();
+              resolve();
+            }
+          },
+          { rootMargin: "150% 0px" },
+        );
+        io.observe(section);
+      });
+
     (async () => {
+      if (await avifOk()) ext = "avif";
+      if (disposed) return;
       if (reduce) {
         setStill(true);
         setP(1);
@@ -121,6 +150,8 @@ export function BoxScroll({ text, heading = false }: { text: BoxScrollText; head
         return;
       }
       await load(0);
+      await near();
+      if (disposed) return;
       // önce seyrek kareler (hızlı kaba önizleme), sonra aradakiler
       for (const step of [8, 4, 2, 1]) {
         const batch: Promise<void>[] = [];

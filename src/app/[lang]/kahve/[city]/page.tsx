@@ -79,7 +79,7 @@ export default async function CityPage({ params }: PageProps<"/[lang]/kahve/[cit
         <ul className="mt-10 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
           {coffees.map((p) => (
             <li key={p.slug}>
-              <ProductCard product={p} />
+              <ProductCard product={p} morph />
             </li>
           ))}
         </ul>

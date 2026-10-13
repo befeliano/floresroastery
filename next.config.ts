@@ -78,7 +78,17 @@ const nextConfig: NextConfig = {
     remotePatterns: wpHosts.map((hostname) => ({ protocol: "https" as const, hostname, pathname: "/wp-content/uploads/**" })),
   },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    // public/ altındaki medya: tarayıcı önbelleği (dosya içeriği değişirse adını değiştiriyoruz — ör. kutu ön yüzleri)
+    const media = (maxAge: number) => [{ key: "Cache-Control", value: `public, max-age=${maxAge}, stale-while-revalidate=86400` }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      // aynı başlık için sonraki kural öncekini ezer: özel yol genelden sonra
+      { source: "/video/:path*", headers: media(60 * 60 * 24 * 7) },
+      { source: "/video/box-scroll/:path*", headers: media(60 * 60 * 24 * 30) },
+      { source: "/coffees/:path*", headers: media(60 * 60 * 24 * 7) },
+      { source: "/photos/:path*", headers: media(60 * 60 * 24 * 7) },
+      { source: "/icons/:path*", headers: media(60 * 60 * 24 * 30) },
+    ];
   },
   /** Mevcut WordPress/WooCommerce sitesindeki URL'ler → yeni yapı (301, SEO değeri korunur) */
   async redirects() {

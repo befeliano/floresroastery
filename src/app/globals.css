@@ -268,3 +268,75 @@
     transform: translateX(-50%);
   }
 }
+
+/* ── Sayfa geçişleri (React <ViewTransition>) ──
+   Kart görseli ürün sayfasındaki kutuya/fotoğrafa dönüşür; sayfanın geri kalanı kısa bir çapraz geçişle değişir.
+   Header sabit kalır (yerinden oynamaz). */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 50;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+::view-transition-group(.morph) {
+  animation-duration: 480ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 40;
+}
+::view-transition-image-pair(.morph) {
+  animation-name: vt-soften;
+}
+::view-transition-old(.morph),
+::view-transition-new(.morph) {
+  /* farklı en-boy oranlarında esneme yerine kırp */
+  height: 100%;
+  object-fit: cover;
+  animation-duration: 480ms;
+}
+@keyframes vt-soften {
+  35% {
+    filter: blur(2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Hikayemiz zaman çizelgesi: çizgi ekranın ortasına kadar dolar */
+.story-timeline-fill {
+  transform-origin: top;
+}
+@supports (animation-timeline: view()) {
+  .story-timeline {
+    view-timeline-name: --story;
+  }
+  .story-timeline-fill {
+    animation: timeline-grow linear both;
+    animation-timeline: --story;
+    animation-range: cover 50vh cover calc(100% - 50vh);
+  }
+}
+@keyframes timeline-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}

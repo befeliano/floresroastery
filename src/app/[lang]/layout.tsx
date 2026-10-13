@@ -4,7 +4,9 @@ import { CartDrawer, type CartSuggestion } from "@/components/cart/cart-drawer";
 import { JsonLd } from "@/components/json-ld";
 import type { MenuData } from "@/components/layout/menu-types";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { SearchDialog } from "@/components/layout/search-dialog";
 import { SiteHeader } from "@/components/layout/site-header";
+import { TabBar } from "@/components/layout/tab-bar";
 import { I18nProvider } from "@/i18n/client";
 import { locales } from "@/i18n/config";
 import { localizeCard, localizeCategory } from "@/i18n/content";
@@ -115,7 +117,9 @@ export default async function RootLayout({ children }: LayoutProps<"/[lang]">) {
             {children}
           </main>
           <SiteFooter />
+          <TabBar />
           <CartDrawer suggestions={suggestions} />
+          <SearchDialog />
         </I18nProvider>
       </body>
     </html>

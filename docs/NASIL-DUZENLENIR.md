@@ -39,6 +39,11 @@ Bu rehber, kod bilgisi az olan biri için: hangi bilgi hangi dosyada, nasıl de�
 | Fotoğraflar | `public/photos/` (aynı adla değiştir) — açıklamaları `src/lib/photos.ts` |
 | Kutu ön yüzü (3D kutu) | `public/coffees/<kahve>-face.webp` |
 | Videolar | `public/video/` (`-1080.mp4`, `-720.mp4`, `-poster.jpg` üçlüsü) |
+| Hikayemiz zaman çizelgesi (yıllar, bölümler) | `src/content/story-timeline.ts` — yıl bilinen bölüme `year: "2025"` gibi ekle |
+| Tahmini teslimat (14:00 kesim, kargo 2–5 iş günü) | `src/components/product/delivery-estimate.tsx` → en üstteki `CUTOFF_HOUR`, `CARGO_MIN`, `CARGO_MAX` |
+| Arama sonuçlarındaki sabit sayfalar ve anahtar kelimeler | `src/app/api/search/route.ts` → `PAGES` |
+| Telefon alt menüsü (Kahveler · Bulucu · Ara · Sepet · Hesap) | `src/components/layout/tab-bar.tsx` |
+| Ana sayfadaki kutu açılışı kareleri | `public/video/box-scroll/` (`lg-`/`sm-` × `.avif` + `.webp`, 185 kare) |
 
 ## 3. Yazılar üç dilde: `{ tr, en, id }`
 

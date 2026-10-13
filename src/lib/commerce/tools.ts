@@ -2,6 +2,7 @@ import "server-only";
 import { localizeProduct, roastLabel } from "@/i18n/content";
 import type { Locale } from "@/i18n/config";
 import { fromPrice, getProducts, isSoldOut } from "./index";
+import { groupOf, isExperimental, methodFit, type FlavorGroup } from "./flavor";
 import type { Product, RoastLevel } from "./types";
 
 /**
@@ -9,54 +10,7 @@ import type { Product, RoastLevel } from "./types";
  * Tat grupları ve köken anahtarları Türkçe ham veriden hesaplanır, metinler seçili dile çevrilir.
  */
 
-export const FLAVOR_GROUPS = ["fruity", "citrus", "floral", "chocolate", "caramel", "nutty"] as const;
-export type FlavorGroup = (typeof FLAVOR_GROUPS)[number];
-
-const NOTE_GROUP: Record<string, FlavorGroup> = {
-  "Kırmızı Meyveler": "fruity",
-  "Yaban Mersini": "fruity",
-  Böğürtlen: "fruity",
-  Erik: "fruity",
-  Şeftali: "fruity",
-  "Sarı Elma": "fruity",
-  Karpuz: "fruity",
-  "Bal Kavunu": "fruity",
-  "Orman Meyveleri": "fruity",
-  Ahududu: "fruity",
-  "Beyaz Üzüm": "fruity",
-  "Altın Kuru Üzüm": "fruity",
-  "Misket Limonu": "citrus",
-  "Kan Portakalı": "citrus",
-  Bergamot: "citrus",
-  "Portakal Kabuğu": "citrus",
-  Çiçeksi: "floral",
-  Nane: "floral",
-  Kakao: "chocolate",
-  Çikolata: "chocolate",
-  "Sütlü Çikolata": "chocolate",
-  "Bitter Çikolata": "chocolate",
-  "Kakao Nibs": "chocolate",
-  Karamel: "caramel",
-  "Esmer Şeker": "caramel",
-  Fındık: "nutty",
-  Badem: "nutty",
-  "Kavrulmuş Kuruyemiş": "nutty",
-  Baharat: "nutty",
-  Tarçın: "nutty",
-};
-
-/** WordPress'ten gelen bilinmeyen notalar için anahtar kelime yedeği */
-function groupOf(label: string): FlavorGroup | undefined {
-  if (NOTE_GROUP[label]) return NOTE_GROUP[label];
-  const s = label.toLocaleLowerCase("tr-TR");
-  if (/limon|portakal|greyfurt|mandalina|bergamot|narenciye/.test(s)) return "citrus";
-  if (/çiçek|yasemin|gül|nane|lavanta/.test(s)) return "floral";
-  if (/çikolata|kakao/.test(s)) return "chocolate";
-  if (/karamel|şeker|bal\b|melas|şurup/.test(s)) return "caramel";
-  if (/fındık|badem|ceviz|kuruyemiş|baharat|tarçın|karanfil/.test(s)) return "nutty";
-  if (/meyve|üzüm|elma|şeftali|erik|kiraz|çilek|ahududu|mersin|karpuz|kavun|vişne/.test(s)) return "fruity";
-  return undefined;
-}
+export { FLAVOR_GROUPS, type FlavorGroup } from "./flavor";
 
 /** Köken ülkeleri (Türkçe anahtar) → harita koordinatı */
 export const ORIGINS: Record<string, { lat: number; lon: number }> = {
@@ -124,13 +78,8 @@ export async function getToolCoffees(locale: Locale): Promise<ToolCoffee[]> {
         bg: raw.image.bg,
         inStock: !isSoldOut(raw),
         bestseller: !!raw.bestseller,
-        fit: {
-          filter: raw.categories.includes("single-origin") || /filtre|v60|chemex|aeropress/i.test(raw.recommendedFor),
-          espresso: raw.categories.includes("espresso") || /espresso/i.test(raw.recommendedFor),
-          turkish: /türk|moka/i.test(raw.recommendedFor) || raw.roastLevel === "Orta-Koyu",
-          immersion: /french|cold/i.test(raw.recommendedFor) || ((raw.roastLevel === "Orta" || raw.roastLevel === "Orta-Koyu") && (raw.sensory?.body ?? 0) >= 4),
-        },
-        experimental: /anaerob|fermant|saccharomyces|lactobacillus|watermelon|extended/i.test(raw.process),
+        fit: methodFit(raw),
+        experimental: isExperimental(raw.process),
       };
     })
     .sort((a, b) => Number(b.inStock) - Number(a.inStock));

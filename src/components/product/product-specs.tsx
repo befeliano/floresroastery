@@ -1,10 +1,12 @@
 import Image from "next/image";
+import { ViewTransition } from "react";
 import { CoffeeBox3D } from "@/components/product/coffee-box-3d";
 import { roastLabel } from "@/i18n/content";
 import { pages } from "@/i18n/messages/pages";
 import { getLocale, href, t } from "@/i18n/server";
 import { isSoldOut, type Product } from "@/lib/commerce/types";
 import { qrDataUri } from "@/lib/qr";
+import { cardMorph } from "@/lib/view-transition";
 import { absoluteUrl } from "@/lib/site";
 
 export interface Spec {
@@ -59,13 +61,14 @@ export async function ProductSpecs({ product }: { product: Product }) {
       />
 
       {product.image.packaging === "photo" ? (
-        <ProductGallery images={product.gallery?.length ? product.gallery : [{ src: product.image.card, alt: product.fullName }]} />
+        <ProductGallery morph={cardMorph(product.slug)} images={product.gallery?.length ? product.gallery : [{ src: product.image.card, alt: product.fullName }]} />
       ) : (
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-0">
         <SpecColumn specs={left} side="left" className="order-2 lg:order-1" />
 
         <CoffeeBox3D
           className="order-1 lg:order-2"
+          morph={cardMorph(product.slug)}
           product={{
             name: product.name,
             fullName: product.fullName,
@@ -92,13 +95,15 @@ export async function ProductSpecs({ product }: { product: Product }) {
 }
 
 /** WordPress'ten otomatik gelen ürünler: fotoğraf galerisi */
-function ProductGallery({ images }: { images: { src: string; alt: string }[] }) {
+function ProductGallery({ images, morph }: { images: { src: string; alt: string }[]; morph: string }) {
   const [first, ...rest] = images;
   return (
     <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-[2fr_1fr]">
-      <div className="relative aspect-square overflow-hidden rounded-sm bg-ink-900">
+      <ViewTransition name={morph} share="morph" default="none">
+      <div data-fly-source className="relative aspect-square overflow-hidden rounded-sm bg-ink-900">
         <Image src={first.src} alt={first.alt} fill preload quality={90} sizes="(min-width: 1024px) 40rem, 100vw" className="object-cover" />
       </div>
+      </ViewTransition>
       {rest.length > 0 && (
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-1">
           {rest.slice(0, 3).map((img) => (

@@ -27,7 +27,8 @@ interface CartState {
   isOpen: boolean;
   open: () => void;
   close: () => void;
-  add: (item: CartItem) => void;
+  /** open: false → çekmece açılmaz (ör. uçma animasyonundan sonra ayrı açılır) */
+  add: (item: CartItem, opts?: { open?: boolean }) => void;
   setQuantity: (key: string, quantity: number) => void;
   remove: (key: string) => void;
   clear: () => void;
@@ -40,7 +41,7 @@ export const useCart = create<CartState>()(
       isOpen: false,
       open: () => set({ isOpen: true }),
       close: () => set({ isOpen: false }),
-      add: (item) =>
+      add: (item, opts) =>
         set((state) => {
           const key = lineKey(item);
           const existing = state.items.find((i) => lineKey(i) === key);
@@ -49,7 +50,7 @@ export const useCart = create<CartState>()(
                 lineKey(i) === key ? { ...i, quantity: Math.min(MAX_QTY, i.quantity + item.quantity) } : i,
               )
             : [...state.items, { ...item, quantity: Math.min(MAX_QTY, item.quantity) }];
-          return { items, isOpen: true };
+          return { items, isOpen: opts?.open === false ? state.isOpen : true };
         }),
       setQuantity: (key, quantity) =>
         set((state) => ({

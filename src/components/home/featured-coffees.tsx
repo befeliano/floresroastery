@@ -24,7 +24,7 @@ export async function FeaturedCoffees({ products }: { products: CardProduct[] })
       <ul className="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-px-5 px-5 pb-4 md:scroll-px-10 md:px-10 xl:mx-auto xl:max-w-[1440px]">
         {products.map((p) => (
           <li key={p.slug} className="w-[78vw] shrink-0 snap-start sm:w-[45vw] lg:w-[calc((100%-4.5rem)/4)]">
-            <ProductCard product={p} />
+            <ProductCard product={p} morph />
           </li>
         ))}
       </ul>
