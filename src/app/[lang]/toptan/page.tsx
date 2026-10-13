@@ -7,6 +7,7 @@ import { WholesaleBuilder } from "@/components/wholesale/wholesale-builder";
 import Link from "@/i18n/link";
 import { wholesale } from "@/i18n/messages/wholesale";
 import { alternates, getLocale, localPhotos, t } from "@/i18n/server";
+import { getProducts } from "@/lib/commerce";
 import { WHOLESALE_BEANS } from "@/lib/commerce/wholesale";
 import { formatPrice } from "@/lib/format";
 import { faqSchema } from "@/lib/seo";
@@ -20,6 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function WholesalePage() {
   const w = await t(wholesale);
   const locale = await getLocale();
+  // çekirdeğin perakende sayfası sitede varsa adı ona link olur (yeni sekmede — oluşturucudaki seçimler kaybolmasın)
+  const slugs = new Set((await getProducts()).map((p) => p.slug));
+  const beans = WHOLESALE_BEANS.map((b) => ({ ...b, name: b.names[locale], href: b.slug && slugs.has(b.slug) ? `/kahveler/${b.slug}` : undefined }));
   const photos = await localPhotos();
   const wa = `${site.whatsapp}?text=${encodeURIComponent(w.waText)}`;
 
@@ -69,7 +73,7 @@ export default async function WholesalePage() {
           <h2 className="mt-4 max-w-3xl font-serif text-4xl leading-tight md:text-5xl">{w.onlineTitle}</h2>
           <p className="mt-5 max-w-2xl text-lg text-cream-300">{w.onlineText}</p>
           <div className="mt-12">
-            <WholesaleBuilder beans={WHOLESALE_BEANS.map((b) => ({ ...b, name: b.names[locale] }))} />
+            <WholesaleBuilder beans={beans} />
           </div>
 
           <div className="mt-20 grid grid-cols-1 gap-14 lg:grid-cols-[1.1fr_1fr]">
@@ -85,10 +89,16 @@ export default async function WholesalePage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-ink-700">
-                    {WHOLESALE_BEANS.map((b) => (
+                    {beans.map((b) => (
                       <tr key={b.key}>
                         <td className="px-4 py-3">
-                          <span className="text-cream-100">{b.names[locale]}</span>
+                          {b.href ? (
+                            <Link href={b.href} target="_blank" className="text-cream-100 underline decoration-ink-500 underline-offset-4 hover:text-flores-300 hover:decoration-flores-400">
+                              {b.name} <span aria-hidden className="text-xs">↗</span>
+                            </Link>
+                          ) : (
+                            <span className="text-cream-100">{b.name}</span>
+                          )}
                           {b.process && <span className="block text-xs text-cream-500">{b.process}</span>}
                         </td>
                         <td className="px-4 py-3">

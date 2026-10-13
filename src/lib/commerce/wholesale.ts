@@ -20,17 +20,21 @@ export interface WholesaleBean {
   names: { tr: string; en: string; id: string };
   /** işleme yöntemi — boş bırakılırsa gösterilmez */
   process: string;
+  /** perakende ürün sayfası (/kahveler/<slug>) — adına tıklanınca açılır; yoksa link verilmez */
+  slug?: string;
+  /** sayfada hesaplanır: ürün sitede varsa link adresi */
+  href?: string;
   tiers: [minKg: number, pricePerKg: number][];
 }
 
 export const WHOLESALE_BEANS: WholesaleBean[] = [
   { key: "mogiana", name: "Brezilya Mogiana", names: { tr: "Brezilya Mogiana", en: "Brazil Mogiana", id: "Brasil Mogiana" }, process: "Natural", tiers: [[1, 1350], [5, 1250], [10, 1200]] },
-  { key: "sidamo", name: "Ethiopia Sidamo", names: { tr: "Etiyopya Sidamo", en: "Ethiopia Sidamo", id: "Etiopia Sidamo" }, process: "", tiers: [[1, 1100], [5, 1050], [10, 1000]] },
-  { key: "arjuna", name: "Endonezya Arjuna", names: { tr: "Endonezya Arjuna", en: "Indonesia Arjuna", id: "Indonesia Arjuna" }, process: "Wet Hulled", tiers: [[1, 1350], [5, 1250], [10, 1200]] },
-  { key: "guntur", name: "Endonezya Guntur", names: { tr: "Endonezya Guntur", en: "Indonesia Guntur", id: "Indonesia Guntur" }, process: "Honey", tiers: [[1, 1500], [5, 1400]] },
-  { key: "decaf", name: "Meksika Decaf", names: { tr: "Meksika Decaf", en: "Mexico Decaf", id: "Meksiko Dekaf" }, process: "Swiss Water", tiers: [[1, 1500], [5, 1400]] },
-  { key: "ochuspe", name: "El Salvador Ochuspe", names: { tr: "El Salvador Ochuspe", en: "El Salvador Ochuspe", id: "El Salvador Ochuspe" }, process: "Anaerobic Natural", tiers: [[1, 1450], [5, 1350]] },
-  { key: "turk", name: "Türk Kahvesi", names: { tr: "Türk Kahvesi", en: "Turkish coffee", id: "Kopi Turki" }, process: "Natural", tiers: [[1, 850], [5, 800]] },
+  { key: "sidamo", name: "Ethiopia Sidamo", names: { tr: "Etiyopya Sidamo", en: "Ethiopia Sidamo", id: "Etiopia Sidamo" }, process: "", slug: "manis-blend-espresso-filtre", tiers: [[1, 1100], [5, 1050], [10, 1000]] },
+  { key: "arjuna", name: "Endonezya Arjuna", names: { tr: "Endonezya Arjuna", en: "Indonesia Arjuna", id: "Indonesia Arjuna" }, process: "Wet Hulled", slug: "arjuna-endonezya", tiers: [[1, 1350], [5, 1250], [10, 1200]] },
+  { key: "guntur", name: "Endonezya Guntur", names: { tr: "Endonezya Guntur", en: "Indonesia Guntur", id: "Indonesia Guntur" }, process: "Honey", slug: "guntur-endonezya", tiers: [[1, 1500], [5, 1400]] },
+  { key: "decaf", name: "Meksika Decaf", names: { tr: "Meksika Decaf", en: "Mexico Decaf", id: "Meksiko Dekaf" }, process: "Swiss Water", slug: "kafeinsizmeksika", tiers: [[1, 1500], [5, 1400]] },
+  { key: "ochuspe", name: "El Salvador Ochuspe", names: { tr: "El Salvador Ochuspe", en: "El Salvador Ochuspe", id: "El Salvador Ochuspe" }, process: "Anaerobic Natural", slug: "el-savador-ochuspe", tiers: [[1, 1450], [5, 1350]] },
+  { key: "turk", name: "Türk Kahvesi", names: { tr: "Türk Kahvesi", en: "Turkish coffee", id: "Kopi Turki" }, process: "Natural", slug: "turk-kahvesi-by-flores-roastery", tiers: [[1, 850], [5, 800]] },
 ];
 
 export const WHOLESALE_ROASTS = ["Filtre", "Espresso", "Omni (filtre + espresso)"] as const;

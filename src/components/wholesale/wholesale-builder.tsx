@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useI18n } from "@/i18n/client";
+import Link from "@/i18n/link";
 import { useCart } from "@/lib/cart/store";
 import { GRIND_OPTIONS } from "@/lib/commerce/grind";
 import {
@@ -65,7 +66,13 @@ export function WholesaleBuilder({ beans }: { beans: WholesaleBean[] }) {
             return (
               <li key={b.key} className="flex flex-wrap items-center justify-between gap-4 px-4 py-3">
                 <div className="min-w-0">
-                  <p className="text-cream-100">{b.name}</p>
+                  {b.href ? (
+                    <Link href={b.href} target="_blank" className="text-cream-100 underline decoration-ink-500 underline-offset-4 hover:text-flores-300 hover:decoration-flores-400">
+                      {b.name} <span aria-hidden className="text-xs">↗</span>
+                    </Link>
+                  ) : (
+                    <p className="text-cream-100">{b.name}</p>
+                  )}
                   <p className="text-xs text-cream-500">
                     {b.process ? `${b.process} · ` : ""}{b.tiers.map(([min, price]) => `${min}+ kg ${formatPrice(price)}`).join(" · ")}
                   </p>
