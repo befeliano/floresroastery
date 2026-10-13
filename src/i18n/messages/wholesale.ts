@@ -57,18 +57,6 @@ export const wholesale = {
   },
   bean: { tr: "Çekirdek", en: "Bean", id: "Biji" },
   tier: { tr: "Kademe (kg fiyatı)", en: "Tier (price per kg)", id: "Tingkat (harga per kg)" },
-  tiers: [
-    { name: { tr: "Endonezya Arjuna", en: "Indonesia Arjuna", id: "Indonesia Arjuna" }, process: "Wet Hulled", tiers: [[1, 1100], [20, 1075], [30, 1050]] },
-    { name: { tr: "Brezilya Mogiana", en: "Brazil Mogiana", id: "Brasil Mogiana" }, process: "Natural", tiers: [[1, 1100], [5, 1000], [10, 950]] },
-    { name: { tr: "El Salvador Ochuspe", en: "El Salvador Ochuspe", id: "El Salvador Ochuspe" }, process: "Anaerobic Natural", tiers: [[1, 1350], [10, 1250]] },
-    { name: { tr: "Meksika Decaf", en: "Mexico Decaf", id: "Meksiko Dekaf" }, process: "Swiss Water", tiers: [[1, 1350], [3, 1285]] },
-    { name: { tr: "Endonezya Guntur", en: "Indonesia Guntur", id: "Indonesia Guntur" }, process: "Honey", tiers: [[1, 1450], [3, 1350]] },
-    { name: { tr: "Endonezya Frinsa", en: "Indonesia Frinsa", id: "Indonesia Frinsa" }, process: "Honey Saccharomyces", tiers: [[1, 1950], [3, 1800]] },
-    { name: { tr: "Ethiopia Bombe", en: "Ethiopia Bombe", id: "Etiopia Bombe" }, process: "Honey", tiers: [[1, 1950]] },
-    { name: { tr: "Endonezya Papandayan", en: "Indonesia Papandayan", id: "Indonesia Papandayan" }, process: "Natural", tiers: [[1, 2250], [3, 2050]] },
-    { name: { tr: "Watermelon (Kolombiya)", en: "Watermelon (Colombia)", id: "Watermelon (Kolombia)" }, process: "Washed", tiers: [[1, 3250]] },
-    { name: { tr: "Türk Kahvesi", en: "Turkish coffee", id: "Kopi Turki" }, process: "Natural", tiers: [[1, 750], [3, 700]] },
-  ] as { name: { tr: string; en: string; id: string }; process: string; tiers: [minKg: number, price: number][] }[],
   packagingTitle: { tr: "Paket & ambalaj", en: "Bags & packaging", id: "Kemasan" },
   packaging: [
     { size: "1000 gr", text: { tr: "Toptan alımlar için", en: "For wholesale orders", id: "Untuk pembelian grosir" }, bags: { tr: "Siyah / beyaz doypack, kraft, renkli, krem, siyah transparan", en: "Black / white doypack, kraft, coloured, cream, black transparent", id: "Doypack hitam / putih, kraft, berwarna, krem, hitam transparan" } },

@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { WholesaleBuilder } from "@/components/wholesale/wholesale-builder";
 import Link from "@/i18n/link";
 import { wholesale } from "@/i18n/messages/wholesale";
-import { alternates, localPhotos, t } from "@/i18n/server";
+import { alternates, getLocale, localPhotos, t } from "@/i18n/server";
 import { WHOLESALE_BEANS } from "@/lib/commerce/wholesale";
 import { formatPrice } from "@/lib/format";
 import { faqSchema } from "@/lib/seo";
@@ -19,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function WholesalePage() {
   const w = await t(wholesale);
+  const locale = await getLocale();
   const photos = await localPhotos();
   const wa = `${site.whatsapp}?text=${encodeURIComponent(w.waText)}`;
 
@@ -68,7 +69,7 @@ export default async function WholesalePage() {
           <h2 className="mt-4 max-w-3xl font-serif text-4xl leading-tight md:text-5xl">{w.onlineTitle}</h2>
           <p className="mt-5 max-w-2xl text-lg text-cream-300">{w.onlineText}</p>
           <div className="mt-12">
-            <WholesaleBuilder beans={WHOLESALE_BEANS.map((b, i) => ({ ...b, name: w.tiers[i]?.name ?? b.name }))} />
+            <WholesaleBuilder beans={WHOLESALE_BEANS.map((b) => ({ ...b, name: b.names[locale] }))} />
           </div>
 
           <div className="mt-20 grid grid-cols-1 gap-14 lg:grid-cols-[1.1fr_1fr]">
@@ -84,11 +85,11 @@ export default async function WholesalePage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-ink-700">
-                    {w.tiers.map((b) => (
-                      <tr key={b.name}>
+                    {WHOLESALE_BEANS.map((b) => (
+                      <tr key={b.key}>
                         <td className="px-4 py-3">
-                          <span className="text-cream-100">{b.name}</span>
-                          <span className="block text-xs text-cream-500">{b.process}</span>
+                          <span className="text-cream-100">{b.names[locale]}</span>
+                          {b.process && <span className="block text-xs text-cream-500">{b.process}</span>}
                         </td>
                         <td className="px-4 py-3">
                           <span className="flex flex-wrap gap-2 font-mono text-xs">

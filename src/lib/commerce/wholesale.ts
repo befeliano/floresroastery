@@ -2,7 +2,11 @@
  * Toptan sipariş oluşturucu — WordPress'teki gizli B2B ürünü (ID 1735) ile.
  * Fiyat HER ZAMAN sunucuda bu tablodan yeniden hesaplanır (priceCart); tarayıcıdaki
  * tutar yalnızca önizlemedir. Kademe: o çekirdekten alınan kg'nin düştüğü aralığın kg fiyatı.
- * Fiyatlar KDV dahil; WordPress'teki /olustur konfigüratörü ile aynı tutulmalıdır.
+ * Fiyatlar KDV dahil.
+ *
+ * TOPTAN FİYAT DEĞİŞİNCE YALNIZCA AŞAĞIDAKİ WHOLESALE_BEANS LİSTESİNİ DÜZENLEYİN:
+ *  tiers: [[1, 1350], [5, 1250]] → "1 kg ve üzeri 1.350 ₺, 5 kg ve üzeri 1.250 ₺" (o çekirdekten alınan kg'ye göre)
+ *  Sayfadaki fiyat tablosu ve sipariş oluşturucu buradan okur.
  */
 export const WHOLESALE_PRODUCT_ID = "1735";
 export const WHOLESALE_SLUG = "toptan-siparis";
@@ -12,21 +16,21 @@ export const WHOLESALE_MAX_KG = 500;
 export interface WholesaleBean {
   key: string;
   name: string;
+  /** sayfada gösterilen ad (üç dil) */
+  names: { tr: string; en: string; id: string };
+  /** işleme yöntemi — boş bırakılırsa gösterilmez */
   process: string;
   tiers: [minKg: number, pricePerKg: number][];
 }
 
 export const WHOLESALE_BEANS: WholesaleBean[] = [
-  { key: "arjuna", name: "Endonezya Arjuna", process: "Wet Hulled", tiers: [[1, 1100], [20, 1075], [30, 1050]] },
-  { key: "mogiana", name: "Brezilya Mogiana", process: "Natural", tiers: [[1, 1100], [5, 1000], [10, 950]] },
-  { key: "ochuspe", name: "El Salvador Ochuspe", process: "Anaerobic Natural", tiers: [[1, 1350], [10, 1250]] },
-  { key: "decaf", name: "Meksika Decaf", process: "Swiss Water", tiers: [[1, 1350], [3, 1285]] },
-  { key: "guntur", name: "Endonezya Guntur", process: "Honey", tiers: [[1, 1450], [3, 1350]] },
-  { key: "frinsa", name: "Endonezya Frinsa", process: "Honey Saccharomyces", tiers: [[1, 1950], [3, 1800]] },
-  { key: "bombe", name: "Ethiopia Bombe", process: "Honey", tiers: [[1, 1950]] },
-  { key: "papandayan", name: "Endonezya Papandayan", process: "Natural", tiers: [[1, 2250], [3, 2050]] },
-  { key: "watermelon", name: "Watermelon (Kolombiya)", process: "Washed", tiers: [[1, 3250]] },
-  { key: "turk", name: "Türk Kahvesi", process: "Natural", tiers: [[1, 750], [3, 700]] },
+  { key: "mogiana", name: "Brezilya Mogiana", names: { tr: "Brezilya Mogiana", en: "Brazil Mogiana", id: "Brasil Mogiana" }, process: "Natural", tiers: [[1, 1350], [5, 1250], [10, 1200]] },
+  { key: "sidamo", name: "Ethiopia Sidamo", names: { tr: "Etiyopya Sidamo", en: "Ethiopia Sidamo", id: "Etiopia Sidamo" }, process: "", tiers: [[1, 1100], [5, 1050], [10, 1000]] },
+  { key: "arjuna", name: "Endonezya Arjuna", names: { tr: "Endonezya Arjuna", en: "Indonesia Arjuna", id: "Indonesia Arjuna" }, process: "Wet Hulled", tiers: [[1, 1350], [5, 1250], [10, 1200]] },
+  { key: "guntur", name: "Endonezya Guntur", names: { tr: "Endonezya Guntur", en: "Indonesia Guntur", id: "Indonesia Guntur" }, process: "Honey", tiers: [[1, 1500], [5, 1400]] },
+  { key: "decaf", name: "Meksika Decaf", names: { tr: "Meksika Decaf", en: "Mexico Decaf", id: "Meksiko Dekaf" }, process: "Swiss Water", tiers: [[1, 1500], [5, 1400]] },
+  { key: "ochuspe", name: "El Salvador Ochuspe", names: { tr: "El Salvador Ochuspe", en: "El Salvador Ochuspe", id: "El Salvador Ochuspe" }, process: "Anaerobic Natural", tiers: [[1, 1450], [5, 1350]] },
+  { key: "turk", name: "Türk Kahvesi", names: { tr: "Türk Kahvesi", en: "Turkish coffee", id: "Kopi Turki" }, process: "Natural", tiers: [[1, 850], [5, 800]] },
 ];
 
 export const WHOLESALE_ROASTS = ["Filtre", "Espresso", "Omni (filtre + espresso)"] as const;

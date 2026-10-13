@@ -67,7 +67,7 @@ export function WholesaleBuilder({ beans }: { beans: WholesaleBean[] }) {
                 <div className="min-w-0">
                   <p className="text-cream-100">{b.name}</p>
                   <p className="text-xs text-cream-500">
-                    {b.process} · {b.tiers.map(([min, price]) => `${min}+ kg ${formatPrice(price)}`).join(" · ")}
+                    {b.process ? `${b.process} · ` : ""}{b.tiers.map(([min, price]) => `${min}+ kg ${formatPrice(price)}`).join(" · ")}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

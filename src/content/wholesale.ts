@@ -50,20 +50,6 @@ export const wholesalePlans = [
   },
 ];
 
-/** Kademeli kg fiyatı: o çekirdekten alınan toplam miktarın düştüğü aralığın fiyatı uygulanır */
-export const wholesaleTiers: { name: string; process: string; tiers: [minKg: number, price: number][] }[] = [
-  { name: "Endonezya Arjuna", process: "Wet Hulled", tiers: [[1, 1100], [20, 1075], [30, 1050]] },
-  { name: "Brezilya Mogiana", process: "Natural", tiers: [[1, 1100], [5, 1000], [10, 950]] },
-  { name: "El Salvador Ochuspe", process: "Anaerobik Natural", tiers: [[1, 1350], [10, 1250]] },
-  { name: "Meksika Decaf", process: "Swiss Water", tiers: [[1, 1350], [3, 1285]] },
-  { name: "Endonezya Guntur", process: "Honey", tiers: [[1, 1450], [3, 1350]] },
-  { name: "Endonezya Frinsa", process: "Honey Saccharomyces", tiers: [[1, 1950], [3, 1800]] },
-  { name: "Ethiopia Bombe", process: "Honey", tiers: [[1, 1950]] },
-  { name: "Endonezya Papandayan", process: "Natural", tiers: [[1, 2250], [3, 2050]] },
-  { name: "Watermelon (Kolombiya)", process: "Washed", tiers: [[1, 3250]] },
-  { name: "Türk Kahvesi", process: "Natural", tiers: [[1, 750], [3, 700]] },
-];
-
 export const packaging = [
   { size: "1000 gr", text: "Toptan alımlar için", bags: "Siyah / beyaz doypack, kraft, renkli, krem, siyah transparan" },
   { size: "500 gr", text: "Kafe ve küçük işletmeler", bags: "Siyah / beyaz doypack, kraft, renkli" },
